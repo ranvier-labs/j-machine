@@ -1,0 +1,14 @@
+name = "j-machine-c"
+version = "0.1.0"
+defaultTargets = ["jmc", "jmc-tests"]
+
+[[lean_lib]]
+name = "JMachineC"
+
+[[lean_exe]]
+name = "jmc"
+root = "Main"
+
+[[lean_exe]]
+name = "jmc-tests"
+root = "Test"

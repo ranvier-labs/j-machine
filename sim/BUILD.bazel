@@ -1,0 +1,150 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_test")
+load("@rules_verilator//verilator:defs.bzl", "verilator_cc_library")
+load("@rules_verilog//verilog:defs.bzl", "verilog_library")
+
+package(default_visibility = ["//visibility:public"])
+
+verilog_library(
+    name = "j_machine_verilator_rtl",
+    srcs = [
+        "mdp_memory_sim.sv",
+        "j_machine_verilator_top.sv",
+    ],
+    deps = ["//rtl:j_machine_rtl"],
+    top_module = "j_machine_verilator_top",
+)
+
+verilator_cc_library(
+    name = "j_machine_verilated",
+    module = ":j_machine_verilator_rtl",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-MODDUP",
+        "-Wno-fatal",
+    ],
+)
+
+cc_binary(
+    name = "image_runner",
+    srcs = [
+        "image_runner.cpp",
+        "verilator_time.cpp",
+    ],
+    copts = ["-std=c++20"],
+    deps = [":j_machine_verilated"],
+)
+
+verilog_library(
+    name = "j_machine_sparse_rtl",
+    srcs = [
+        "mdp_sparse_memory_dpi.sv",
+        "j_machine_verilator_sparse_top.sv",
+    ],
+    deps = ["//rtl:j_machine_rtl"],
+    top_module = "j_machine_verilator_sparse_top",
+)
+
+verilator_cc_library(
+    name = "j_machine_sparse4_verilated",
+    module = ":j_machine_sparse_rtl",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-MODDUP",
+        "-Wno-fatal",
+        "-GX_SIZE=4",
+        "-GY_SIZE=1",
+        "-GZ_SIZE=1",
+    ],
+)
+
+cc_binary(
+    name = "sparse4_image_runner",
+    srcs = [
+        "sparse_image_runner.cpp",
+        "verilator_time.cpp",
+    ],
+    copts = [
+        "-std=c++20",
+        "-DJ_MACHINE_SIM_NODES=4",
+    ],
+    deps = [":j_machine_sparse4_verilated"],
+)
+
+verilog_library(
+    name = "j_machine_sparse512_rtl",
+    srcs = [
+        "//rtl:j_machine_pkg.sv",
+        "mdp_sparse_memory_dpi.sv",
+        "j_machine_verilator_sparse512_top.sv",
+    ],
+    deps = ["//rtl:j_machine_rtl"],
+    top_module = "j_machine_verilator_sparse_top",
+)
+
+verilator_cc_library(
+    name = "j_machine_sparse512_verilated",
+    hierarchical = True,
+    module = ":j_machine_sparse512_rtl",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-DECLFILENAME",
+        "-Wno-MODDUP",
+        "-Wno-fatal",
+    ],
+)
+
+cc_binary(
+    name = "sparse512_image_runner",
+    srcs = [
+        "sparse_image_runner.cpp",
+        "verilator_time.cpp",
+    ],
+    copts = ["-std=c++20"],
+    deps = [":j_machine_sparse512_verilated"],
+)
+
+verilog_library(
+    name = "j_node_backpressure_rtl",
+    srcs = [
+        "mdp_memory_sim.sv",
+        "j_node_backpressure_top.sv",
+    ],
+    deps = ["//rtl:j_machine_rtl"],
+    top_module = "j_node_backpressure_top",
+)
+
+verilator_cc_library(
+    name = "j_node_backpressure_verilated",
+    module = ":j_node_backpressure_rtl",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-MODDUP",
+        "-Wno-fatal",
+    ],
+)
+
+cc_binary(
+    name = "send_fault_runner",
+    srcs = [
+        "send_fault_runner.cpp",
+        "verilator_time.cpp",
+    ],
+    copts = ["-std=c++20"],
+    deps = [":j_node_backpressure_verilated"],
+)
+
+cc_test(
+    name = "rtl_conformance_test",
+    srcs = ["main.cpp"],
+    copts = ["-std=c++20"],
+    size = "large",
+    timeout = "long",
+    deps = [
+        ":j_machine_verilated",
+        "//:mdp_golden",
+    ],
+)

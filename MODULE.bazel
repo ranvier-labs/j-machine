@@ -1,0 +1,22 @@
+module(name = "j_machine")
+
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_shell", version = "0.7.1")
+bazel_dep(name = "rules_verilog", version = "1.4.2")
+bazel_dep(name = "rules_verilator", version = "1.1.2")
+
+lean_toolchain = use_repo_rule("//tools:lean_toolchain_repository.bzl", "lean_toolchain_repository")
+lean_toolchain(name = "lean_toolchain")
+
+hardfloat = use_extension("//third_party:hardfloat_repository.bzl", "hardfloat_deps")
+use_repo(hardfloat, "berkeley_hardfloat")
+
+softfloat = use_extension("//third_party:softfloat_repository.bzl", "softfloat_deps")
+use_repo(softfloat, "berkeley_softfloat")
+
+aws_fpga_f2 = use_extension(
+    "//third_party:aws_fpga_f2_repository.bzl",
+    "aws_fpga_f2_deps",
+)
+use_repo(aws_fpga_f2, "aws_fpga_f2")

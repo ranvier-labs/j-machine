@@ -1,0 +1,53 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+_GOLDEN_COPTS = [
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+]
+
+cc_library(
+    name = "mdp_golden",
+    srcs = ["golden/mdp_golden.cpp"],
+    hdrs = ["golden/mdp_golden.hpp"],
+    includes = ["golden"],
+    copts = _GOLDEN_COPTS,
+)
+
+cc_binary(
+    name = "mdp-golden",
+    srcs = ["golden/mdp_golden_cli.cpp"],
+    deps = [":mdp_golden"],
+    copts = _GOLDEN_COPTS,
+)
+
+cc_test(
+    name = "golden_test",
+    srcs = ["golden/golden_test.cpp"],
+    deps = [":mdp_golden"],
+    copts = _GOLDEN_COPTS,
+)
+
+test_suite(
+    name = "tests",
+    tests = [
+        ":golden_test",
+        "//aws_f2:cl_bundle_layout_test",
+        "//aws_f2:mdp_qrb_backpressure_test",
+        "//aws_f2:pcim_memory_test",
+        "//compiler:generated_tests",
+        "//compiler:jmc_test",
+        "//rtl/fpu:j_fpu_hardfloat_test",
+        "//rtl/fpu:j_fpu_mmio_hardfloat_test",
+        "//sim:rtl_conformance_test",
+    ],
+)
+
+test_suite(
+    name = "long_tests",
+    tests = ["//compiler:long_tests"],
+)

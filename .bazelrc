@@ -1,0 +1,6 @@
+build --compilation_mode=opt
+
+build:rtl-lint --aspects=@rules_verilator//verilator:defs.bzl%verilator_lint_aspect
+build:rtl-lint --output_groups=verilator_lint_checks
+
+test --test_output=errors

@@ -1,0 +1,42 @@
+load("@rules_verilog//verilog:defs.bzl", "verilog_library")
+
+package(default_visibility = ["//visibility:public"])
+
+verilog_library(
+    name = "j_machine_pkg",
+    srcs = ["j_machine_pkg.sv"],
+)
+
+verilog_library(
+    name = "j_node_rtl",
+    srcs = [
+        # A hierarchical boundary is compiled independently, so its package
+        # must precede the modules that import it in this source list.
+        "j_machine_pkg.sv",
+        "mdp_network_input.sv",
+        "mdp_network_output.sv",
+        "mdp_message_unit.sv",
+        "j_mdp_core.sv",
+        "j_node.sv",
+    ],
+    top_module = "j_node",
+)
+
+verilog_library(
+    name = "j_mesh_router_rtl",
+    srcs = ["j_mesh_router.sv"],
+    deps = [":j_machine_pkg"],
+)
+
+verilog_library(
+    name = "j_machine_rtl",
+    srcs = [
+        "j_machine_mesh.sv",
+        "j_machine_mesh_512.sv",
+    ],
+    deps = [
+        ":j_machine_pkg",
+        ":j_mesh_router_rtl",
+        ":j_node_rtl",
+    ],
+)

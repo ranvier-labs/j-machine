@@ -1,0 +1,5 @@
+exports_files([
+    "aws_fpga_f2_repository.bzl",
+    "hardfloat_repository.bzl",
+    "softfloat_repository.bzl",
+])

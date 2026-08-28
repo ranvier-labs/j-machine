@@ -1,0 +1,10 @@
+/build/
+/compiler/.lake/
+/.slang/
+/tmp/
+/bazel-*
+/aws_f2/build/checkpoints/
+/aws_f2/build/reports/
+/aws_f2/build/src_post_encryption/
+/aws_f2/build/scripts/*.vivado.log
+/aws_f2/build/scripts/to_aws/

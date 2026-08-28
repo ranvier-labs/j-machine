@@ -1,0 +1,141 @@
+load("//aws_f2:hdk_bundle.bzl", "hdk_cl_bundle")
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+load("@rules_verilator//verilator:defs.bzl", "verilator_cc_library")
+load("@rules_verilog//verilog:defs.bzl", "verilog_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "hdk",
+    actual = "@aws_fpga_f2//:hdk",
+)
+
+alias(
+    name = "hdk_documentation",
+    actual = "@aws_fpga_f2//:documentation",
+)
+
+alias(
+    name = "hdk_shell_interfaces",
+    actual = "@aws_fpga_f2//:shell_interfaces",
+)
+
+verilog_library(
+    name = "pcim_memory_rtl",
+    srcs = ["design/j_machine_f2_pcim_memory.sv"],
+    deps = ["//rtl:j_machine_pkg"],
+)
+
+verilog_library(
+    name = "platform_rtl",
+    srcs = [
+        "design/cl_j_machine_ocl.sv",
+        "design/j_machine_f2_core.sv",
+    ],
+    deps = [
+        ":pcim_memory_rtl",
+        "//rtl:j_machine_rtl",
+    ],
+)
+
+filegroup(
+    name = "shell_sources",
+    srcs = [
+        "design/cl_id_defines.vh",
+        "design/cl_j_machine.sv",
+    ],
+)
+
+exports_files(["platform.f"])
+
+verilog_library(
+    name = "pcim_memory_test_rtl",
+    srcs = ["tests/j_machine_f2_pcim_memory_test_top.sv"],
+    deps = [":pcim_memory_rtl"],
+)
+
+verilator_cc_library(
+    name = "pcim_memory_verilated",
+    module = ":pcim_memory_test_rtl",
+    module_top = "j_machine_f2_pcim_memory_test_top",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-fatal",
+        "-Wno-PINCONNECTEMPTY",
+    ],
+)
+
+cc_test(
+    name = "pcim_memory_test",
+    srcs = ["tests/j_machine_f2_pcim_memory_test.cpp"],
+    copts = ["-std=c++20"],
+    size = "small",
+    deps = [":pcim_memory_verilated"],
+)
+
+verilog_library(
+    name = "mdp_qrb_backpressure_test_rtl",
+    srcs = ["tests/mdp_qrb_backpressure_test_top.sv"],
+    deps = ["//rtl:j_machine_rtl"],
+)
+
+verilator_cc_library(
+    name = "mdp_qrb_backpressure_verilated",
+    module = ":mdp_qrb_backpressure_test_rtl",
+    module_top = "mdp_qrb_backpressure_test_top",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-fatal",
+    ],
+)
+
+cc_test(
+    name = "mdp_qrb_backpressure_test",
+    srcs = ["tests/mdp_qrb_backpressure_test.cpp"],
+    copts = ["-std=c++20"],
+    size = "small",
+    deps = [":mdp_qrb_backpressure_verilated"],
+)
+
+hdk_cl_bundle(
+    name = "cl_bundle",
+    design_srcs = [
+        "design/cl_id_defines.vh",
+        "design/cl_j_machine.sv",
+        "design/cl_j_machine_ocl.sv",
+        "design/j_machine_f2_core.sv",
+        "design/j_machine_f2_pcim_memory.sv",
+    ],
+    rtl_srcs = [
+        "//rtl:j_machine_pkg.sv",
+        "//rtl:j_mdp_core.sv",
+        "//rtl:j_machine_mesh.sv",
+        "//rtl:j_mesh_router.sv",
+        "//rtl:j_node.sv",
+        "//rtl:mdp_message_unit.sv",
+        "//rtl:mdp_network_input.sv",
+        "//rtl:mdp_network_output.sv",
+    ],
+    build_scripts = glob(["build/scripts/*"]),
+    constraints = glob(["build/constraints/*"]),
+    docs = ["README.md"],
+)
+
+sh_test(
+    name = "cl_bundle_layout_test",
+    srcs = ["tests/cl_bundle_layout_test.sh"],
+    args = ["$(location :cl_bundle)"],
+    data = [":cl_bundle"],
+)
+
+test_suite(
+    name = "tests",
+    tests = [
+        ":cl_bundle_layout_test",
+        ":mdp_qrb_backpressure_test",
+        ":pcim_memory_test",
+    ],
+)

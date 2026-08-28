@@ -1,0 +1,36 @@
+load(":programs.bzl", "define_program_targets")
+load("//tools:j_machine_rules.bzl", "lake_executable", "lake_package")
+
+package(default_visibility = ["//visibility:public"])
+
+lake_package(
+    name = "compiler_package",
+    srcs = glob([
+        "*.lean",
+        "JMachineC/*.lean",
+    ]) + [
+        "lake-manifest.json",
+        "lakefile.toml",
+        "lean-toolchain",
+    ],
+    targets = [
+        "jmc",
+        "jmc-tests",
+    ],
+)
+
+lake_executable(
+    name = "jmc",
+    package = ":compiler_package",
+    binary = "jmc",
+    data = glob(["examples/*.c"]),
+)
+
+lake_executable(
+    name = "jmc_test",
+    package = ":compiler_package",
+    binary = "jmc-tests",
+    test = True,
+)
+
+define_program_targets()

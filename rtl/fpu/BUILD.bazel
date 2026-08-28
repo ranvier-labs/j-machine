@@ -1,0 +1,67 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_verilator//verilator:defs.bzl", "verilator_cc_library")
+load("@rules_verilog//verilog:defs.bzl", "verilog_library")
+
+package(default_visibility = ["//visibility:public"])
+
+verilog_library(
+    name = "j_fpu_hardfloat_rtl",
+    srcs = [
+        "j_fpu_pkg.sv",
+        "j_fpu_hardfloat.sv",
+    ],
+    deps = ["@berkeley_hardfloat//:hardfloat"],
+)
+
+verilog_library(
+    name = "j_fpu_mmio_hardfloat_rtl",
+    srcs = [
+        "j_fpu_mmio.sv",
+        "j_fpu_mmio_hardfloat.sv",
+    ],
+    deps = [
+        ":j_fpu_hardfloat_rtl",
+        "//rtl:j_machine_pkg",
+    ],
+)
+
+verilator_cc_library(
+    name = "j_fpu_hardfloat_verilated",
+    module = ":j_fpu_hardfloat_rtl",
+    module_top = "j_fpu_hardfloat",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-fatal",
+    ],
+)
+
+verilator_cc_library(
+    name = "j_fpu_mmio_hardfloat_verilated",
+    module = ":j_fpu_mmio_hardfloat_rtl",
+    module_top = "j_fpu_mmio_hardfloat",
+    vopts = [
+        "--assert",
+        "-Wall",
+        "-Wno-fatal",
+    ],
+)
+
+cc_test(
+    name = "j_fpu_hardfloat_test",
+    srcs = ["j_fpu_hardfloat_test.cpp"],
+    copts = ["-std=c++20"],
+    size = "small",
+    deps = [
+        ":j_fpu_hardfloat_verilated",
+        "@berkeley_softfloat//:softfloat",
+    ],
+)
+
+cc_test(
+    name = "j_fpu_mmio_hardfloat_test",
+    srcs = ["j_fpu_mmio_hardfloat_test.cpp"],
+    copts = ["-std=c++20"],
+    size = "small",
+    deps = [":j_fpu_mmio_hardfloat_verilated"],
+)

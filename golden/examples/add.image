@@ -1,0 +1,10 @@
+# NODE  ADDRESS  36-BIT-WORD
+# Clear U in the background IP, load 7 and 5, compute R2 = R1 + R0,
+# then branch on the final instruction word.
+0  1000  200000000
+0  1001  c40380000
+0  1002  100000007
+0  1003  c14000000
+0  1004  100000005
+0  1005  cb9000000
+0  1006  f8c7e0000

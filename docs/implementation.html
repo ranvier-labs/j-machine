@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A concise implementation and portability note for the clean-room J-Machine / MDP system.">
+  <title>J-Machine / MDP — implementation note</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f7f3;
+      --ink: #171816;
+      --muted: #666861;
+      --rule: #d8d9d2;
+      --soft: #ecece6;
+      --good: #245a3a;
+      --partial: #755311;
+      --open: #7a3333;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(760px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 80px 0 96px;
+    }
+
+    header { margin-bottom: 72px; }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 650px;
+      margin-bottom: 20px;
+      font-size: clamp(2.5rem, 7vw, 4.8rem);
+      font-weight: 560;
+      letter-spacing: -0.055em;
+      line-height: 0.98;
+    }
+
+    h2 {
+      margin: 72px 0 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--rule);
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      margin-bottom: 6px;
+      font-size: 1rem;
+      font-weight: 650;
+    }
+
+    p { margin-bottom: 20px; }
+
+    a { color: inherit; }
+
+    .eyebrow,
+    .meta,
+    .caption {
+      color: var(--muted);
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+    }
+
+    .eyebrow {
+      margin-bottom: 18px;
+      text-transform: uppercase;
+    }
+
+    .lede {
+      max-width: 680px;
+      margin-bottom: 24px;
+      font-size: clamp(1.22rem, 3vw, 1.52rem);
+      line-height: 1.42;
+    }
+
+    .verdict {
+      margin: 32px 0;
+      padding: 22px 24px;
+      border: 1px solid var(--ink);
+    }
+
+    .verdict strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1.05rem;
+    }
+
+    .verdict p { margin: 0; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: stretch;
+      margin: 30px 0 16px;
+    }
+
+    .flow div {
+      display: grid;
+      place-items: center;
+      min-height: 88px;
+      padding: 14px;
+      border: 1px solid var(--rule);
+      text-align: center;
+    }
+
+    .flow span {
+      align-self: center;
+      padding: 0 10px;
+      color: var(--muted);
+    }
+
+    .layers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 28px;
+    }
+
+    .layer {
+      padding: 22px 0 18px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .layer p { margin-bottom: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      padding: 14px 12px 14px 0;
+      border-bottom: 1px solid var(--rule);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    td:first-child { width: 29%; }
+    td:nth-child(2) { width: 18%; }
+
+    .status { font-weight: 650; }
+    .yes { color: var(--good); }
+    .part { color: var(--partial); }
+    .no { color: var(--open); }
+
+    code {
+      padding: 0.12em 0.3em;
+      background: var(--soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.9em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 22px 0;
+      padding: 18px 20px;
+      background: var(--ink);
+      color: var(--paper);
+      line-height: 1.55;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    li { margin-bottom: 9px; }
+
+    footer {
+      margin-top: 72px;
+      padding-top: 18px;
+      border-top: 1px solid var(--rule);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 650px) {
+      main { padding-top: 48px; }
+      header { margin-bottom: 52px; }
+      .layers { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .flow span { padding: 7px 0; transform: rotate(90deg); }
+      table, thead, tbody, tr, th, td { display: block; }
+      thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      tr { padding: 14px 0; border-bottom: 1px solid var(--rule); }
+      td { width: 100% !important; padding: 2px 0; border: 0; }
+    }
+
+    @media print {
+      body { background: white; }
+      main { width: 100%; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Implementation note · 28 August 2026</p>
+      <h1>J-Machine / MDP</h1>
+      <p class="lede">A clean-room, synthesizable SystemVerilog reconstruction of the Message-Driven Processor, its queues, and its three-dimensional network—paired with an independent oracle, a compiler, and an FPGA platform target.</p>
+      <p class="meta">Architectural contract: MDP Architecture Version 11 · 36-bit tagged words · 17-bit instructions · X–Y–Z mesh routing</p>
+    </header>
+
+    <section aria-labelledby="standalone">
+      <h2 id="standalone">How standalone is it?</h2>
+      <div class="verdict">
+        <strong>Standalone as an implementation; platform-bound as a finished machine.</strong>
+        <p>The processor, queues, network endpoint, routers, mesh, golden model, compiler, simulation adapters, tests, and AWS F2 wrapper all live in this directory. The reusable RTL does not reach into a sibling repository. A running system still needs a memory binding, a loader, and either a simulator or an FPGA shell.</p>
+      </div>
+      <p>The clean boundary is <code>j_machine_mesh</code>. It exposes one processor word port and one four-word queue-row port per node. That keeps architectural state and message semantics inside the design while memory technology stays outside it. The same mesh can therefore sit behind dense simulation arrays, sparse DPI memory, or the F2 PCIM adapter without changing the processor.</p>
+
+      <table aria-label="Standalone status by layer">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Status</th>
+            <th>Boundary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Core RTL</td>
+            <td><span class="status yes">Yes</span></td>
+            <td>Eight ordered SystemVerilog sources in <code>j_machine.f</code>, plus the concrete 512-node wrapper; no vendor primitive in the base mesh.</td>
+          </tr>
+          <tr>
+            <td>Golden model</td>
+            <td><span class="status yes">Yes</span></td>
+            <td>Standard C++14 and a text image; no third-party runtime library.</td>
+          </tr>
+          <tr>
+            <td>Local execution</td>
+            <td><span class="status yes">Yes</span></td>
+            <td>Requires Bazel and a host C++ toolchain; Bazel resolves the pinned Lean, Verilator, HardFloat, and SoftFloat inputs.</td>
+          </tr>
+          <tr>
+            <td>C compiler</td>
+            <td><span class="status yes">Yes</span></td>
+            <td>Self-contained Lean 4 package with no Lake package dependencies; requires the pinned Lean toolchain.</td>
+          </tr>
+          <tr>
+            <td>Floating point</td>
+            <td><span class="status part">Modular</span></td>
+            <td>Target-neutral adapter is present; Bazel fetches pinned HardFloat and SoftFloat archives. It is not in the base mesh or F2 memory path.</td>
+          </tr>
+          <tr>
+            <td>AWS F2 package</td>
+            <td><span class="status part">Prepared</span></td>
+            <td>The shell wrapper and bundle are present. A bitstream still needs the AWS HDK, supported x86 host, licensed Vivado, and shell artifacts.</td>
+          </tr>
+          <tr>
+            <td>Physical J-link</td>
+            <td><span class="status no">Open</span></td>
+            <td>The internal link is an 18-bit flit. The historical 9-bit serializer, clock crossing, and pad turnaround are not implemented.</td>
+          </tr>
+          <tr>
+            <td>Repository packaging</td>
+            <td><span class="status no">Not yet</span></td>
+            <td>This directory is currently an untracked subtree of the parent <code>silicon_intelligence</code> worktree, not an independently versioned checkout.</td>
+          </tr>
+          <tr>
+            <td>Distribution</td>
+            <td><span class="status no">Open</span></td>
+            <td>No repository-level license file is present, so technical portability is clearer than redistribution terms.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="architecture">
+      <h2 id="architecture">Implementation</h2>
+      <p>The implementation follows the published Version 11 encodings rather than translating them into a smaller convenience ISA. <code>j_machine_pkg.sv</code> is the contract: sixteen word tags, the published opcode and fault maps, 20-bit physical addresses, 17-bit packed instructions, and the two-priority network types.</p>
+
+      <div class="flow" role="img" aria-label="Processor to queue and network data flow inside one J-Machine node">
+        <div>Memory<br><small>36-bit words</small></div>
+        <span aria-hidden="true">↔</span>
+        <div><strong>MDP core</strong><br><small>execute · contexts · faults</small></div>
+        <span aria-hidden="true">↔</span>
+        <div>Message path<br><small>queues · send · receive</small></div>
+      </div>
+      <p class="caption">One node. A router beside each node connects the message path to six spatial neighbors and the local port.</p>
+
+      <div class="layers">
+        <div class="layer">
+          <h3>Processor</h3>
+          <p><code>j_mdp_core.sv</code> fetches two packed instructions per word and implements tagged operations, three execution contexts, priority preemption, fault vectors, base/limit addressing, translation, and message-send instructions.</p>
+        </div>
+        <div class="layer">
+          <h3>Message unit</h3>
+          <p><code>mdp_message_unit.sv</code> owns both priority queues, queue head/base/limit state, four-word receive buffering, circular allocation, queue-full signaling, dispatch, and suspend handoff.</p>
+        </div>
+        <div class="layer">
+          <h3>Network endpoint</h3>
+          <p>The input side reassembles two 18-bit flits into a tagged word. The output side assembles messages in an eight-word FIFO, emits route headers, and preserves tail and priority semantics under backpressure.</p>
+        </div>
+        <div class="layer">
+          <h3>Router and mesh</h3>
+          <p>Each seven-port router uses deterministic X–Y–Z routing, message-level locks, and two priority networks. <code>j_machine_mesh.sv</code> repeats node/router pairs over a parameterized 3-D grid.</p>
+        </div>
+        <div class="layer">
+          <h3>Software path</h3>
+          <p><code>jmc</code> parses a documented C11 subset and emits target-neutral tagged-word images. It includes the runtime conventions for remote calls, futures, suspension, code distribution, and reclamation.</p>
+        </div>
+        <div class="layer">
+          <h3>Independent check</h3>
+          <p>The C++ golden model decodes the same image format independently of the RTL. Tests compare architectural results across separate event- and cycle-based executions.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="evidence">
+      <h2 id="evidence">Evidence in this checkout</h2>
+      <p>The project’s confidence comes from several different checks, not from a single self-test:</p>
+      <ul>
+        <li>A standalone golden suite covers encodings, arithmetic, tags, comparisons, and fault selection.</li>
+        <li>The RTL regression differentially checks 6,656 opcode/tag cases plus directed memory, control, translation, interrupt, queue, DRAM-error, and message paths.</li>
+        <li>Compiler examples are rebuilt into images and executed by both the golden model and Verilated RTL.</li>
+        <li>A sparse hierarchical target runs the concrete 8 × 8 × 8, 512-node mesh without allocating dense memory for every node.</li>
+        <li>The F2 adapter has focused PCIM, queue-backpressure, and bundle-layout tests; the OCL control wrapper is packaged, but none of this is equivalent to routed-hardware signoff.</li>
+      </ul>
+      <p>The 28 August 2026 Bazel cutover audit passed all 99 compiler-generated image regressions in the golden and RTL models, including SEND backpressure recovery and the four-node historical workload. The repository-wide suite also covers the compiler, the full golden/RTL differential, floating point, and F2 adapter checks. All three explicit 512-node workloads passed. Base and concrete 512-node Verilator lint complete with known non-fatal unused-signal, unused-parameter, and constant unsigned-comparison warnings.</p>
+    </section>
+
+    <section aria-labelledby="run">
+      <h2 id="run">Build surfaces</h2>
+      <p>The build has one entry point: Bazel. The smallest runnable slice is the oracle; the ordinary suite adds the pinned Lean compiler, Verilator, floating-point dependencies, and F2 adapter checks.</p>
+      <pre><code># Independent C++ model
+bazel test //:golden_test
+
+# Compiler, generated programs, golden model, RTL, FPU, and F2 adapters
+bazel test //:tests
+bazel build --config=rtl-lint //sim:j_machine_verilator_rtl
+
+# Explicit 512-node workloads and AWS packaging
+bazel test //:long_tests
+bazel build //aws_f2:cl_bundle</code></pre>
+      <p>The source itself is compact—about 1 MB across RTL, compiler, simulators, documentation, and platform files in this audit—but generated build products can be several gigabytes. A clean checkout is therefore much more portable than the current built working directory suggests.</p>
+    </section>
+
+    <section aria-labelledby="unfinished">
+      <h2 id="unfinished">What remains outside the claim</h2>
+      <ul>
+        <li>No cycle-exact comparison against a recovered original MDP simulator has been made.</li>
+        <li>Stateful opcode/addressing/fault-precedence coverage is directed but not exhaustive.</li>
+        <li>External DRAM refresh and ECC registers beyond the visible memory/error interface are not reconstructed.</li>
+        <li>The 9-bit physical channel, board timing, F2 routed DCP, host allocator/loader, and on-hardware bring-up remain platform work.</li>
+        <li>The C front end is intentionally bounded; it is not a complete ISO C implementation.</li>
+      </ul>
+      <p>This makes the project a substantial, locally executable reconstruction with a disciplined hardware boundary—not a drop-in replica of a historical J-Machine board.</p>
+    </section>
+
+    <footer>
+      <p>Primary local references: <a href="../README.md">README</a>, <a href="CONFORMANCE.md">conformance status</a>, <a href="FLOATING_POINT.md">floating-point contract</a>, and <a href="../aws_f2/README.md">AWS F2 target</a>. This page has no external fonts, scripts, images, or runtime dependencies.</p>
+    </footer>
+  </main>
+</body>
+</html>

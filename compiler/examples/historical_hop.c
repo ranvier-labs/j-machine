@@ -1,4 +1,9 @@
-/* Maskit, Figure 3.3: traverse the allocated machine four times. */
+/*
+ * Attributed adaptation of Figure 3.3 in Daniel Maskit, "A Message-Driven
+ * Programming System for Fine-Grain Multicomputers," Caltech master's thesis,
+ * 1994, DOI 10.7907/Z9J38QKJ. See historical/PROVENANCE.md for the complete
+ * source and adaptation record.
+ */
 #define NUM_REPS 4
 
 /* Architectural observation replaces the thesis program's host printf. */

@@ -55,18 +55,18 @@ The new `compiler/examples/factorial.c` deliberately removes the remote mapping
 annotation and is labeled as a single-node adaptation. It is not claimed to be the
 historical source file.
 
-`compiler/examples/historical_factorial.c` transcribes Figure 2.1's function
-body and `factorial(n-1)@next` placement. The executable harness adds the
+`compiler/examples/historical_factorial.c` is an attributed adaptation of
+Figure 2.1's function body and `factorial(n-1)@next` placement. The executable harness adds the
 definition `next = (computer()+1)%computers()` and a `main` that evaluates
-`factorial(6)`; those additions are clean-room test scaffolding, not words
+`factorial(6)`; those additions are test scaffolding, not words
 printed in the figure. `compiler/examples/historical_hop.c` preserves Figure
 3.3's four-tour control and remote `Hop(sizeof(int),rep)@next` communication.
 Because the new bare-metal targets have no host `printf`, its printed value is
 recorded in node-local `hop_visits`/`hop_last` globals and completion in
 `hop_done`. The comments in both files state these adaptations explicitly.
 
-`compiler/examples/historical_producer_one_way.c` is an executable clean-room
-transcription of Figure 5.1's producer, eight-word bulk argument, void remote
+`compiler/examples/historical_producer_one_way.c` is an attributed executable
+adaptation of Figure 5.1's producer, eight-word bulk argument, void remote
 consumer, and receive counter. The printed benchmark sends 1,000,000 messages
 to computer 8; the bounded regression sends 40 to logical rank 1. It replaces
 `exit` with an observable completion word, adds a payload checksum so the test
@@ -84,7 +84,7 @@ return sum, 14 process-level FUT faults, and reclaimed process/bulk blocks.
 
 Figures 5.3-5.5 provide the parallel Dirichlet decomposition and message-handler
 pseudocode rather than a complete compilable source file.
-`compiler/examples/historical_dirichlet.c` is therefore labeled a clean-room
+`compiler/examples/historical_dirichlet.c` is therefore labeled an attributed
 executable realization, not a transcription. It retains distributed node
 initialization, the initial global-norm barrier, neighbor-face sends, receive
 counting, a norm barrier after every timestep, and the published

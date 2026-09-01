@@ -121,7 +121,10 @@ hdk_cl_bundle(
     ],
     build_scripts = glob(["build/scripts/*"]),
     constraints = glob(["build/constraints/*"]),
-    docs = ["README.md"],
+    docs = [
+        "README.md",
+        "//:LICENSE",
+    ],
 )
 
 sh_test(

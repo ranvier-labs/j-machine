@@ -11,6 +11,7 @@ required=(
   cl_j_machine/build/scripts/aws_build_dcp_from_cl.py
   cl_j_machine/build/scripts/synth_cl_j_machine.tcl
   cl_j_machine/build/constraints/cl_timing_user.xdc
+  cl_j_machine/LICENSE
   cl_j_machine/README.md
 )
 

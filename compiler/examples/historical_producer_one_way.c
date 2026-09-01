@@ -1,5 +1,8 @@
 /*
- * Clean-room executable transcription of Maskit thesis Figure 5.1.
+ * Attributed adaptation of Figure 5.1 in Daniel Maskit, "A Message-Driven
+ * Programming System for Fine-Grain Multicomputers," Caltech master's thesis,
+ * 1994, DOI 10.7907/Z9J38QKJ. See historical/PROVENANCE.md for the complete
+ * source and adaptation record.
  *
  * The printed program sends 1,000,000 eight-word arrays to TARGET and exits
  * when the remote counter reaches that value. This bare-metal regression uses

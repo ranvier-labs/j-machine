@@ -1,5 +1,8 @@
 /*
- * Clean-room executable transcription of Maskit thesis Figure 5.2.
+ * Attributed adaptation of Figure 5.2 in Daniel Maskit, "A Message-Driven
+ * Programming System for Fine-Grain Multicomputers," Caltech master's thesis,
+ * 1994, DOI 10.7907/Z9J38QKJ. See historical/PROVENANCE.md for the complete
+ * source and adaptation record.
  *
  * The published benchmark uses 2,500 sets of 40 messages. This bare-metal
  * regression uses two sets of eight, retains the array of deferred remote

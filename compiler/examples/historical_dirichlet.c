@@ -1,5 +1,8 @@
 /*
- * Clean-room executable realization of Maskit thesis Figures 5.3-5.5.
+ * Attributed executable realization based on Figures 5.3-5.5 in Daniel Maskit,
+ * "A Message-Driven Programming System for Fine-Grain Multicomputers," Caltech
+ * master's thesis, 1994, DOI 10.7907/Z9J38QKJ. See
+ * historical/PROVENANCE.md for the complete source and adaptation record.
  *
  * The thesis gives the parallel algorithm and handler pseudocode, not its full
  * application source. This integer four-node ring preserves the described

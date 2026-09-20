@@ -20,6 +20,7 @@ import { documentationWindow } from './windows/documentation.js';
 import { TOPICS, CONTEXT_TOPICS } from './documentation/manual.js';
 import { projectFiles, projectSelection, chooseProjectImage } from './core/project.js';
 import { commandState } from './core/command-state.js';
+import { installKeyRepair } from './shell/keys.js';
 
 const el = id => document.getElementById(id);
 // Injected by build_frontend.mjs; cache-busts engine URLs alongside the bundle.
@@ -38,6 +39,7 @@ async function fetchJson(path) {
   const response = await fetch(path); if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`); return response.json();
 }
 async function initialize() {
+  installKeyRepair(document);
   const [manifest, examples] = await Promise.all([fetchJson(versioned('./variants.json')), fetchJson(versioned('./examples/examples.json'))]);
   const variants = manifest.variants.filter(v => Number.isInteger(v.nodes) && /^[\w.-]+\.js$/.test(v.js) && /^\d+x\d+x\d+$/.test(v.mesh))
     .map(v => ({ ...v, js: versioned(v.js), wasm: v.wasm && /^[\w.-]+\.wasm$/.test(v.wasm) ? versioned(v.wasm) : v.wasm }));

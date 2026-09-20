@@ -107,3 +107,31 @@ test('a multi-node program captures packets and the geometry auto view labels no
   await expect(geometry.locator('.mesh-node')).toHaveCount(2);
   await expect(geometry.locator('.mesh-node text')).toHaveCount(2);
 });
+
+// Embedding browsers may inject trusted key events with `key` set but no key
+// code. The desktop repairs them so dialogs, forms, and Monaco still respond.
+const degraded = (page, selector, key, init = {}) => page.evaluate(([selector, key, init]) => {
+  const target = document.querySelector(selector) ?? document.activeElement;
+  for (const type of ['keydown', 'keyup']) target.dispatchEvent(new KeyboardEvent(type, { key, code: '', bubbles: true, cancelable: true, composed: true, ...init }));
+}, [selector, key, init]);
+
+test('key events without key codes still close dialogs, submit the listener, and reach Monaco', async ({ page }) => {
+  await boot(page);
+  await page.keyboard.press('Alt+x');
+  const palette = page.locator('dialog.command-palette');
+  await expect(palette).toBeVisible();
+  await degraded(page, 'dialog.command-palette input', 'Escape');
+  await expect(palette).toBeHidden();
+  await page.locator('#listener-input').fill('tile editing');
+  await degraded(page, '#listener-input', 'Enter');
+  await expect(page.locator('[data-window=debugger]')).toBeHidden();
+  await expect(page.locator('#listener-input')).toHaveValue('');
+  await page.locator('.source-editor .view-lines').click();
+  await page.waitForFunction(() => document.activeElement?.closest('.source-editor'));
+  await page.keyboard.insertText('zzz');
+  await expect(page.locator('.source-editor')).toContainText('zzz');
+  await degraded(page, '.source-editor .native-edit-context, .source-editor textarea', 'z', { metaKey: process.platform === 'darwin', ctrlKey: process.platform !== 'darwin' });
+  await expect(page.locator('.source-editor')).not.toContainText('zzz');
+  await degraded(page, '.source-editor .native-edit-context, .source-editor textarea', 'F5');
+  await expect(page.locator('#status-text')).toHaveText(/Main returned INT\(720\)/);
+});

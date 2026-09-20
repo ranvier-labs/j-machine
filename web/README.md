@@ -308,6 +308,13 @@ Playwright suite covers browser interaction and layout.
 
 ## UI modules
 
+`site/shell/keys.js` repairs keyboard events that arrive with a `key` but no
+key code, as some embedding browsers inject them (the Claude Code preview
+pane, for instance): it re-dispatches the event with `code` and `keyCode`
+filled in and performs the missing browser default, so Escape closes
+dialogs, Enter submits the listener, and Monaco's bindings such as Cmd/Ctrl+Z
+work there as well.
+
 `site/shell/layout.js` models binary splits, and `window-manager.js` owns
 window frames, docking, resizing, focus, zoom, and layout persistence. A window
 registers an `id`, `title`, DOM `element`, and optional `onFocus`, `onResize`,

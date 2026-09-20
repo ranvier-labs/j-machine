@@ -21,15 +21,9 @@
       <label>Buffer <select id="node-count" aria-label="Single buffer compile target node count" title="Node count for buffer compilation; project targets use their build graph" disabled><option>2 nodes</option></select></label>
       <button id="compile-buffer" disabled title="Compile and load the current C buffer (Cmd/Ctrl Enter)">Compile &amp; Load</button>
     </div>
-    <div class="header-group project-controls" role="group" aria-label="Project build selection" data-help="build">
-      <label>Project <select id="project-file" aria-label="Active project build graph" disabled><option>build.jm</option></select></label>
-      <label>Target <select id="project-target" aria-label="Project build target" disabled><option>Defaults</option></select></label>
-    </div>
     <div class="header-group" role="group" aria-label="Project build commands" data-help="build">
-      <button id="build-project" class="primary" disabled title="Build selected project targets (Cmd/Ctrl B)">Build</button>
-      <button id="load-project" disabled title="Load an image from the selected target">Load</button>
-      <button id="edit-project" title="Edit the active project build graph" disabled>Edit graph</button>
-      <button id="project-targets" title="Inspect project targets, dependencies, and build results">Targets…</button>
+      <button id="build-project" class="primary" disabled title="Build the selected project target (Cmd/Ctrl B)">Build</button>
+      <button id="load-project" disabled title="Load an image from the selected project target">Load</button>
     </div>
     <div class="header-group" role="group" aria-label="Machine execution" data-help="debugger"><button id="run-machine" class="run-toggle" disabled title="Run loaded image (F5)">Run</button><button id="restart-machine" disabled title="Reset and run the loaded image (Shift F5)">Restart</button></div>
     <div class="header-group" role="group" aria-label="Workspace commands">

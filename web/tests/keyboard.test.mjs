@@ -48,3 +48,15 @@ test('menu membership is explicit and independent of command name prefixes', () 
   assert.deepEqual(registry.entries(undefined,{menu:'layout'}).map(c=>c.id),['window-close','focus-left','resize-right','layout-editing']);
   assert.equal(registry.entries(undefined,{allScopes:true}).length,6);
 });
+
+test('a keymap from an earlier release loads through aliases and reports unknown commands', () => {
+  const registry = new CommandRegistry();
+  registry.register({ id: 'window-geometry', label: 'Routing geometry', run() {}, keys: [] });
+  registry.register({ id: 'save', label: 'Save', run() {}, keys: ['Mod+s'] });
+  const text = JSON.stringify({ version: 1, bindings: { 'window-machine': ['Ctrl+Alt+g'], save: ['Mod+s'], 'removed-command': ['F12'] } });
+  assert.throws(() => registry.loadKeymap(text), /Unknown keymap command: window-machine/);
+  const result = registry.loadKeymap(text, { aliases: { 'window-machine': 'window-geometry' }, tolerate: true });
+  assert.deepEqual(result.ignored, ['removed-command']);
+  assert.deepEqual(registry.keys(registry.commands.get('window-geometry')), ['Ctrl+Alt+g']);
+  assert.deepEqual(registry.keys(registry.commands.get('save')), ['Mod+s']);
+});

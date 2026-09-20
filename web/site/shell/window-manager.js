@@ -4,8 +4,8 @@ import './window-manager.css';
 // A window contributes only an element and lifecycle hooks. This module knows
 // nothing about files, editors, compilers, or machine state.
 export class WindowManager {
-  constructor(element, { storage, key = 'jmc.tiles.v2', legacyKey = 'jmc.tiles.v1', onChange = () => {}, onSplit = () => {} } = {}) {
-    this.element = element; this.storage = storage; this.key = key; this.legacyKey = legacyKey;
+  constructor(element, { storage, key = 'jmc.tiles.v2', legacyKey = 'jmc.tiles.v1', aliases = {}, onChange = () => {}, onSplit = () => {} } = {}) {
+    this.element = element; this.storage = storage; this.key = key; this.legacyKey = legacyKey; this.aliases = aliases;
     this.onChange = onChange; this.onSplit = onSplit;
     this.registry = new Map(); this.frames = new Map(); this.lastFocus = new Map(); this.layout = new TileLayout();
     this.element.addEventListener('focusin', event => {
@@ -24,9 +24,10 @@ export class WindowManager {
   restore(fallback) {
     let saved;
     try { saved = JSON.parse(this.storage?.getItem(this.key) ?? (this.legacyKey ? this.storage?.getItem(this.legacyKey) : null)); } catch { /* Use the supplied layout. */ }
-    const tree = saved?.version === 1 && saved.tree === null ? null : restoreLayout(saved?.tree, [...this.registry.keys()]) ?? fallback;
+    const tree = saved?.version === 1 && saved.tree === null ? null : restoreLayout(saved?.tree, [...this.registry.keys()], this.aliases) ?? fallback;
     this.layout = new TileLayout(tree);
-    if (leaves(this.layout.tree).includes(saved?.focused)) this.layout.focused = saved.focused;
+    const focused = this.aliases[saved?.focused] ?? saved?.focused;
+    if (leaves(this.layout.tree).includes(focused)) this.layout.focused = focused;
     this.render();
   }
   save() {

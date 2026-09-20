@@ -22,21 +22,25 @@ import { projectFiles, projectSelection, chooseProjectImage } from './core/proje
 import { commandState } from './core/command-state.js';
 
 const el = id => document.getElementById(id);
+// Injected by build_frontend.mjs; cache-busts engine URLs alongside the bundle.
+const BUILD_ID = globalThis.__JM_BUILD_ID__ ?? 'dev';
+const versioned = name => `${name}?v=${BUILD_ID}`;
 const presets = {
   documentation: () => split('x', .58, leaf('documentation'), split('y', .72, leaf('editor'), leaf('listener'))),
-  network: () => split('x', .52, split('y', .60, leaf('machine'), leaf('history')), split('y', .65, leaf('packets'), leaf('waiting'))),
-  graphics: () => split('x', .48, split('y', .65, leaf('editor'), leaf('listener')), split('y', .65, leaf('display'), leaf('machine'))),
-  development: () => split('x', .23, split('y', .52, leaf('files'), leaf('build')), split('x', .61, split('y', .72, leaf('editor'), leaf('listener')), split('y', .40, leaf('machine'), leaf('debugger')))),
+  network: () => split('x', .52, split('y', .60, leaf('geometry'), leaf('history')), split('y', .65, leaf('packets'), leaf('waiting'))),
+  graphics: () => split('x', .48, split('y', .65, leaf('editor'), leaf('listener')), split('y', .65, leaf('display'), leaf('geometry'))),
+  development: () => split('x', .23, split('y', .52, leaf('files'), leaf('build')), split('x', .61, split('y', .72, leaf('editor'), leaf('listener')), split('y', .55, leaf('debugger'), leaf('geometry')))),
   editing: () => split('x', .20, leaf('files'), split('y', .77, leaf('editor'), leaf('listener'))),
-  debugging: () => split('y', .70, split('x', .55, leaf('editor'), leaf('debugger')), split('x', .5, leaf('machine'), leaf('trace'))),
+  debugging: () => split('y', .70, split('x', .55, leaf('editor'), leaf('debugger')), split('x', .5, leaf('geometry'), leaf('trace'))),
   building: () => split('x', .18, leaf('files'), split('y', .62, leaf('editor'), split('x', .53, leaf('build'), leaf('listener')))),
 };
 async function fetchJson(path) {
   const response = await fetch(path); if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`); return response.json();
 }
 async function initialize() {
-  const [manifest, examples] = await Promise.all([fetchJson('./variants.json'), fetchJson('./examples/examples.json')]);
-  const variants = manifest.variants.filter(v => Number.isInteger(v.nodes) && /^[\w.-]+\.js$/.test(v.js) && /^\d+x\d+x\d+$/.test(v.mesh));
+  const [manifest, examples] = await Promise.all([fetchJson(versioned('./variants.json')), fetchJson(versioned('./examples/examples.json'))]);
+  const variants = manifest.variants.filter(v => Number.isInteger(v.nodes) && /^[\w.-]+\.js$/.test(v.js) && /^\d+x\d+x\d+$/.test(v.mesh))
+    .map(v => ({ ...v, js: versioned(v.js), wasm: v.wasm && /^[\w.-]+\.wasm$/.test(v.wasm) ? versioned(v.wasm) : v.wasm }));
   if (!variants.length) throw new Error('No usable simulator variants were built.');
   let storage;
   try { storage = window.localStorage; } catch { /* Explicitly report a volatile session below. */ }
@@ -55,8 +59,9 @@ async function initialize() {
     fs.setSession({ buildInitialized: true });
   }
   const ide = new IDE(fs, variants), palette = new CommandPalette();
+  const WINDOW_ALIASES = { machine: 'geometry' };
   const manager = new WindowManager(el('desktop'), {
-    storage,
+    storage, aliases: WINDOW_ALIASES,
     onChange: layout => { el('focused-window').textContent = layout.focused ? manager.registry.get(layout.focused).title : 'DESKTOP'; },
     onSplit: (id, edge) => palette.open([...manager.registry.values()].filter(tool => tool.id !== id).map(tool => ({
       label: `${tool.title}`, detail: `${edge === 'right' ? 'To the right of' : 'Below'} ${manager.registry.get(id).title}${manager.visible(tool.id) ? ' · move existing window' : ''}`,
@@ -73,7 +78,7 @@ async function initialize() {
     requestPath({ title: 'Write buffer to pathname', value: ide.uniquePath(`/home/user/${basename(ide.activePath)}`), submit: 'Write file', run: path => ide.saveAs(path) });
   });
   ide.services = {
-    openWindow: id => manager.open(id, id === 'documentation' ? { atRoot: true, edge: 'right', ratio: .45 } : id === 'build' && manager.visible('listener') ? { relativeTo: 'listener', edge: 'right' } : undefined), choose: (entries, options) => palette.open(entries, options), saveAs,
+    openWindow: id => { id = WINDOW_ALIASES[id] ?? id; return manager.open(id, id === 'documentation' ? { atRoot: true, edge: 'right', ratio: .45 } : id === 'build' && manager.visible('listener') ? { relativeTo: 'listener', edge: 'right' } : undefined); }, choose: (entries, options) => palette.open(entries, options), saveAs,
     insertListener: (value, replace) => { manager.open('listener'); listener.insert(value, replace); }, selectDirectory: files.selectDirectory,
     findFile: () => palette.open(fileEntries(), { title: 'Open file', label: 'Workspace pathname', placeholder: 'Find a file in this workspace…', verb: 'Open', help: 'files' }),
     openDocumentation: topic => { ide.services.openWindow('documentation'); documentation.open(topic); },
@@ -110,6 +115,10 @@ async function initialize() {
   register('find-file','Find file',ide.services.findFile,['Mod+o']);
   register('new-file','New file',files.createFile);
   register('new-directory','New directory',files.createDirectory);
+  register('file-rename','Rename or move selected path',files.rename,[],undefined,{help:'files'});
+  register('file-copy','Copy selected path into the workspace',files.copy,[],undefined,{help:'files'});
+  register('file-trash','Move selected path to trash',files.trash,[],undefined,{help:'files'});
+  register('file-versions','Recover a saved version of the selected file',files.versions,[],undefined,{help:'files'});
   register('save','Save buffer',()=>ide.save(),['Mod+s']);
   register('save-as','Save buffer as…',saveAs,['Mod+Shift+s']);
   register('compile','Compile & Load buffer',()=>ide.compile(),['Mod+Enter'],undefined,{help:'editor'});
@@ -141,7 +150,7 @@ async function initialize() {
     register(`focus-${direction}`,`Focus window ${direction}`,()=>manager.focusDirection(direction),[`Ctrl+Alt+${key}`],undefined,layoutAction('Focus'));
     register(`resize-${direction}`,`Resize focused window ${direction}`,()=>manager.resize(['left','right'].includes(direction)?'x':'y',['left','up'].includes(direction)?-.04:.04),[`Ctrl+Alt+Shift+${key}`],undefined,layoutAction('Resize'));
   }
-  const windowGroups = { files:'Editing and building',editor:'Editing and building',listener:'Editing and building',build:'Editing and building',problems:'Editing and building',machine:'Debugging',debugger:'Debugging',packets:'Debugging',waiting:'Debugging',history:'Debugging',trace:'Output',image:'Output',display:'Output',documentation:'Documentation' };
+  const windowGroups = { files:'Editing and building',editor:'Editing and building',listener:'Editing and building',build:'Editing and building',problems:'Editing and building',geometry:'Debugging',debugger:'Debugging',packets:'Debugging',waiting:'Debugging',history:'Debugging',trace:'Output',image:'Output',display:'Output',documentation:'Documentation' };
   for (const tool of windows) register(`window-${tool.id}`,tool.title,()=>ide.services.openWindow(tool.id),[],undefined,{menu:'windows',group:windowGroups[tool.id],help:toolHelp(tool.id),detail:()=>manager.visible(tool.id)?'Focus window':'Open window'});
   for (const name of Object.keys(presets)) register(`layout-${name}`,`Layout: ${name}`,()=>ide.services.layout(name),[],undefined,{menu:'layout',group:'Presets',help:'workspace',detail:'Arrange tools; keep buffers and machine state'});
   register('listener-help','Listener help',()=>{manager.open('listener');ide.message(LISTENER_HELP);});
@@ -167,7 +176,7 @@ async function initialize() {
   register('keymap-reload','Reload keyboard bindings',()=>ide.services.reloadKeymap());
   register('keymap-reset','Use default keyboard bindings',()=>{registry.overrides={};ide.message('Default keyboard bindings active.');});
   for (const [topic, ids] of Object.entries({
-    files:['find-file','new-file','new-directory','save','save-as','export-files'],
+    files:['find-file','new-file','new-directory','file-rename','file-copy','file-trash','file-versions','save','save-as','export-files'],
     build:['build','load-project','build-graph','use-buffer-build','load-built-image'],
     editor:['compile','breakpoint','editor-commands'],
     debugger:['continue','pause','step-instruction','step-source','step-cycle','step-100','reset','restart','jump-node'],
@@ -187,7 +196,7 @@ async function initialize() {
     }}),
     saveTrace:async()=>download(`j-machine-${ide.network?.cycle??0}.jmtrace`,await ide.traceText(),'application/json'),
     openTrace:()=>traceImporter.click(),
-    reloadKeymap:()=>{registry.loadKeymap(ide.text('/home/user/keymap.json'));ide.message('Keyboard bindings reloaded.');},
+    reloadKeymap:()=>{loadUserKeymap();ide.message('Keyboard bindings reloaded.');},
   });
   if(!fs.exists('/home/user/build-graphics.jm'))fs.create('/home/user/build-graphics.jm',`# Graphical examples; open Graphical Display after loading an image.
 build /build/mandelbrot.image: jmc /examples/distributed_mandelbrot.c
@@ -202,28 +211,18 @@ build graphics: phony /build/mandelbrot.image /build/rule110.image /build/hotspo
 default /build/mandelbrot.image
 `);
   if(!fs.exists('/home/user/keymap.json'))fs.create('/home/user/keymap.json',registry.keymap());
-  try{registry.loadKeymap(fs.read('/home/user/keymap.json'));}catch(error){ide.message(`Using default keys: ${error.message}`,'error');}
-  const toolbarActions={'new-file':'new-file','find-file':'find-file','save-buffer':'save','compile-buffer':'compile','build-project':'build','edit-project':'build-graph','load-project':'load-project','project-targets':'window-build','run-machine':'continue','restart-machine':'restart','command-menu':'commands','help-menu':'documentation'};
+  const KEYMAP_ALIASES={'window-machine':'window-geometry'};
+  const loadUserKeymap=()=>{
+    const { ignored } = registry.loadKeymap(fs.read('/home/user/keymap.json'),{aliases:KEYMAP_ALIASES,tolerate:true});
+    if(ignored.length)ide.message(`Keymap entries for unknown commands were ignored: ${ignored.join(', ')}. Edit /home/user/keymap.json to remove them.`);
+  };
+  try{loadUserKeymap();}catch(error){ide.message(`Using default keys: ${error.message}`,'error');}
+  const toolbarActions={'new-file':'new-file','find-file':'find-file','save-buffer':'save','compile-buffer':'compile','build-project':'build','load-project':'load-project','run-machine':'continue','restart-machine':'restart','command-menu':'commands','help-menu':'documentation'};
   for(const [elementId,command]of Object.entries(toolbarActions))el(elementId).onclick=()=>registry.run(command);
   el('window-menu').onclick=()=>palette.open(registry.entries(undefined,{menu:'windows'}),{title:'Windows',label:'Tool window',placeholder:'Find a tool…',verb:'Open / Focus',help:'workspace'});
   el('layout-menu').onclick=()=>palette.open(registry.entries(undefined,{menu:'layout'}).sort((a,b)=>Number(b.group==='Presets')-Number(a.group==='Presets')),{title:'Layout',label:'Layout or window action',placeholder:'Find a preset, arrangement, focus, or resize action…',verb:'Apply',help:'workspace'});
   el('node-count').replaceChildren(...variants.map(variant => new Option(`${variant.nodes} nodes`, String(variant.nodes))));
   el('node-count').onchange = act(() => ide.setNodes(Number(el('node-count').value)));
-  el('project-file').onchange = act(() => ide.selectBuildFile(el('project-file').value));
-  el('project-target').onchange = act(() => ide.selectBuildTarget(el('project-target').value));
-  const projectControls = observe(ide, ['build', 'files', 'state'], () => {
-    const disabled = !ide.builder || ide.busy || !!ide.debug?.running;
-    el('project-file').replaceChildren(...projectFiles(ide).map(path => new Option(path.replace(/^\/home\/user\//, ''), path)));
-    el('project-file').value = ide.buildFile; el('project-file').title = ide.buildFile;
-    el('project-file').disabled = !ide.builder || ide.busy;
-    el('project-target').disabled = disabled;
-    if (!ide.builder) return;
-    try {
-      const { graph, target } = projectSelection(ide);
-      el('project-target').replaceChildren(new Option(`Defaults: ${graph.defaults.map(path=>graph.targets.get(path).label).join(', ')}`, ''), ...[...graph.targets.values()].map(step => new Option(`${step.label}${step.rule==='jmc' ? ` · ${step.nodes} nodes` : step.rule==='phony' ? ' · group' : ''}`,step.target)));
-      el('project-target').value = target ?? ''; el('project-target').title = el('project-target').selectedOptions[0]?.textContent ?? '';
-    } catch (error) { el('project-target').replaceChildren(new Option('Invalid graph', '')); el('project-target').title = error.message; el('project-target').disabled = true; }
-  }); projectControls();
   const controls = observe(ide, ['state', 'buffers', 'build', 'files'], () => {
     for (const [elementId, command] of Object.entries(toolbarActions)) syncCommandButton(el(elementId),ide,command,{label:['continue','compile'].includes(command)});
     el('build-project').textContent = ide.builder?.running ? 'Building…' : 'Build';

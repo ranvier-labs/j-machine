@@ -20,13 +20,13 @@ The workbench combines a tiled desktop, a persistent filesystem, a compiler, and
 - [Graphical display](doc:display): turn program memory into pixels.
 
 ## Using this manual
-F1 opens help for the current control or window. Project controls lead to the build guide; Buffer controls lead to the editor guide. In a chooser, F1 explains the selected action. Search matches titles and page contents. Alt+Left and Alt+Right traverse reading history; each page keeps its scroll position. Cmd/Ctrl+F focuses manual search. Home returns here.
+F1 opens help for the current control or window. Build and Load lead to the build guide; Buffer controls lead to the editor guide. In a chooser, F1 explains the selected action. Search matches titles and page contents. Alt+Left and Alt+Right traverse reading history; each page keeps its scroll position. Cmd/Ctrl+F focuses manual search. Home returns here.
 
 Links to files open editor buffers. Links to tools open their windows. Listener examples offer Insert buttons that put a command at the prompt for you to review and execute. Reading a page never runs a program.
 ` },
   { id: 'quick-start', title: 'Quick start', summary: 'Build, load, and run your first project target.', body: `
 ## A project in four steps
-1. In the header's Project controls, choose /home/user/build.jm and the /build/main.image target. [Open the Build window](command:window-build) to see its inputs.
+1. [Open the Build window](command:window-build). Choose /home/user/build.jm and the /build/main.image target there; the window lists each target's inputs.
 2. Choose Build, or press Cmd/Ctrl+B. The listener reports which targets were built or already up to date.
 3. Choose Load. This installs the image into the RTL simulator.
 4. Choose Run, or press F5. The same button becomes Pause while clocks are advancing.
@@ -44,12 +44,12 @@ Open a C file, select the Buffer node count in the header, and choose the adjace
 Project targets take their node counts from the build graph. The Buffer selector only controls single-buffer compilation. [Read about project builds](doc:build).
 ` },
   { id: 'build', title: 'Project builds', summary: 'Select a graph and target, build dependencies, load an image, then run.', body: `
-The header's Project controls are always visible. They show the active build graph and target. Targets opens the [Build window](command:window-build), where every output links to its inputs, definition, build reason, and Load action.
+The [Build window](command:window-build) selects the active graph and target and shows every output with its inputs, definition, build reason, and Load action. The header's Build and Load buttons act on that selection; their tooltips name it.
 
-Opening a .jm file visits its buffer. Choose Use graph beside the editor pathname to make it the active project, or select it in Project. The graph and selected target survive reloads. Edit graph always visits the active project graph.
+Opening a .jm file visits its buffer. Choose Use graph beside the editor pathname to make it the active project, or select it in the Build window. The graph and selected target survive reloads. Edit graph always visits the active project graph.
 
 ## Build, load, run
-1. Choose a graph in Project. Edit graph visits its source.
+1. Choose a graph in the Build window. Edit graph visits its source.
 2. Choose a target, or Defaults to use the graph's default statement.
 3. Build (Cmd/Ctrl+B) produces files and reports progress in the Build window and listener.
 4. Load installs a built image. If a group contains several images, choose one from the list.
@@ -83,7 +83,7 @@ Input contents, rule options, output contents, and compiler identity determine w
 A missing input, duplicate output, cycle, or output that would overwrite a user file is an error. A failed compile retains the last successful image. If an input or the graph changes during compilation, the stale result is rejected.
 
 ## From the listener
-Insert these one at a time. Selecting a target in the header also selects what an argument-free build command builds.
+Insert these one at a time. Selecting a target in the Build window also selects what an argument-free build command builds.
 \`\`\`listener
 use-build /home/user/build.jm
 build /build/main.image
@@ -199,7 +199,7 @@ Source and instruction breakpoints use RTL fetch boundaries. Handled faults are 
 [Network breakpoints](doc:breakpoints) stop on accepted transfers, handler entry, or stalls. [Waiting](doc:waiting) explains blocked links and outstanding futures.
 ` },
   { id: 'geometry', title: 'Routing geometry', summary: 'Physical coordinates, expected routes, observed hops, and blocked links.', body: `
-[Open Routing Geometry](command:window-machine) or the [network layout](command:layout-network).
+[Open Routing Geometry](command:window-geometry) or the [network layout](command:layout-network).
 
 ## Coordinates
 Flat node IDs use x + X * (y + Y * z). In an 8×8×8 mesh, node 511 is (7,7,7). The expected route follows X, then Y, then Z.
@@ -303,7 +303,7 @@ The display reads program memory without clocking the machine. Dimensions must f
 RGB uses 0xRRGGBB. Grayscale uses the low byte of each integer. Non-integer pixels appear magenta. The optional frame counter is a program-defined progress marker; partial writes are visible while running.
 
 ## Inspect output
-Node mosaics show up to 16 nodes in increasing flat-ID order. Select a pixel to see its node, address, and value. Watch pixel adds a memory watchpoint. Save PNG downloads the displayed canvas.
+The Auto arrangement shows a mosaic when several nodes draw and a single node otherwise. Node mosaics show up to 16 nodes in increasing flat-ID order. Select a pixel to see its node, address, and value. Watch pixel adds a memory watchpoint. Save PNG downloads the displayed canvas.
 
 Arrows inspect pixels; plus and minus change zoom. The display always shows live memory, including when [History](doc:history) is inspecting an earlier event.
 
@@ -320,7 +320,7 @@ Arrows inspect pixels; plus and minus change zoom. The display always shows live
 ## Graphical programs
 Choose [build-graphics.jm](file:/home/user/build-graphics.jm) in Project, select an image target, Build, Load, and Run. Open the [graphics layout](command:layout-graphics).
 
-- [distributed_mandelbrot.c](file:/examples/distributed_mandelbrot.c): four 16×16 tiles form a 32×32 Mandelbrot picture. Target /build/mandelbrot.image uses four nodes and returns 1024. Choose the node mosaic.
+- [distributed_mandelbrot.c](file:/examples/distributed_mandelbrot.c): four 16×16 tiles form a 32×32 Mandelbrot picture. Target /build/mandelbrot.image uses four nodes and returns 1024; the display shows all four tiles.
 - [rule110.c](file:/examples/rule110.c): node 0 draws a 32×24 cellular-automaton diagram. Target /build/rule110.image uses two nodes and returns 24.
 - [message_hotspot.c](file:/examples/message_hotspot.c): four senders paint progress columns at node 5. Target /build/hotspot.image uses 16 nodes and returns 32.
 - [mesh_rainbow.c](file:/examples/mesh_rainbow.c): nodes 7, 56, 448, and 511 draw colored corner tiles. Target /build/rainbow.image uses 512 nodes and returns 256.
@@ -377,7 +377,7 @@ The [compiled image](command:window-image) contains tagged words and compiler so
 
 export const CONTEXT_TOPICS = {
   files: 'files', editor: 'editor', listener: 'listener', build: 'build',
-  debugger: 'debugger', machine: 'geometry', packets: 'packets', waiting: 'waiting',
+  debugger: 'debugger', geometry: 'geometry', packets: 'packets', waiting: 'waiting',
   history: 'history', display: 'display', trace: 'debugger', image: 'words', problems: 'editor',
   documentation: 'welcome',
 };

@@ -90,13 +90,16 @@ export function filesWindow(ide) {
     metadata.textContent = entry.kind === 'directory' ? `${ide.fs.list(entry.path).length} entries${entry.readOnly ? ' · read only' : ''}` : `${new TextEncoder().encode(ide.fs.read(entry.path)).length.toLocaleString()} bytes · v${entry.revision}${entry.readOnly ? ' · read only' : ''}`;
     rename.disabled = remove.disabled = protectedPath || !!entry.readOnly;
     copy.disabled = protectedPath; versions.disabled = entry.kind !== 'file' || !entry.history?.length;
+    for (const control of [rename, copy, remove, versions]) control.hidden = control.disabled;
     summary.textContent = `Trash (${ide.fs.data.trash.length})`;
     trashList.replaceChildren(...ide.fs.data.trash.map(item => {
       const row = element('div', 'trash-row'); row.append(element('span', '', item.path), button('Restore', `Restore ${item.path}`, () => ide.perform(() => { ide.fs.restore(item.id); ide.message(`Restored ${item.path}`); }))); return row;
     }));
     if (!trashList.children.length) trashList.append(element('p', 'empty-state', 'Trash is empty.'));
   }); render();
+  const operation = (control, name) => () => { if (control.disabled) throw new Error(`${name} does not apply to ${selected}.`); control.click(); };
   return { id: 'files', title: 'FILES', element: root, onFocus: () => (tree.querySelector('[aria-selected=true]') ?? tree.querySelector('button'))?.focus(), createFile, createDirectory,
+    rename: operation(rename, 'Rename'), copy: operation(copy, 'Copy'), trash: operation(remove, 'Trash'), versions: operation(versions, 'Versions'),
     selectDirectory: path => { selected = path; for (let current = path; current !== '/'; current = dirname(current)) expanded.add(current); render(); },
   };
 }

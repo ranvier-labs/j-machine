@@ -70,7 +70,7 @@
       "file": "distributed_mandelbrot.c",
       "title": "Distributed Mandelbrot",
       "nodes": 4,
-      "blurb": "Four nodes render a 2x2 mosaic of 16x16 RGB tiles. Open Graphical Display and select mosaic."
+      "blurb": "Four nodes render a 2x2 mosaic of 16x16 RGB tiles. Open Graphical Display to watch them."
     },
     {
       "file": "rule110.c",

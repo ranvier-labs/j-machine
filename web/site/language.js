@@ -122,6 +122,11 @@ export function indexDocument(text) {
   return { tokens, symbols: unique, tokenAt, visible, resolve };
 }
 
+// The Wasm compiler names every source "<browser>"; diagnostics use the buffer's pathname instead.
+export function documentPath(uri) {
+  try { const url = new URL(uri); return url.protocol === 'file:' ? decodeURIComponent(url.pathname) : uri; } catch { return uri; }
+}
+
 export function compilerDiagnostic(text, error) {
   const message = String(error.message ?? error);
   const match = message.match(/(?:^|\n)[^\n]*?:(\d+):(\d+):\s*(?:error:\s*)?([\s\S]*)/);
@@ -160,6 +165,7 @@ export class LanguageServer {
       this.notify('textDocument/publishDiagnostics', { uri, version: doc.version, diagnostics: [] });
       return image;
     } catch (error) {
+      if (error.name === 'JmcCompileError') error.message = error.message.replaceAll('<browser>', documentPath(uri));
       if (this.documents.get(uri) === doc) {
         this.notify('textDocument/publishDiagnostics', {
           uri, version: doc.version, diagnostics: error.name === 'JmcCompileError' ? [compilerDiagnostic(doc.text, error)] : [],

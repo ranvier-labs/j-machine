@@ -1,10 +1,11 @@
 import { element, button, observe } from './common.js';
 import { readFramebuffer } from '../graphics/framebuffer.js';
 import { describeWord } from '../runtime.js';
+import { basename } from '../core/filesystem.js';
 
 export function displayWindow(ide) {
   const root=element('div','network-window display-window'),tools=element('div','tool-strip'),view=element('select'),palette=element('select');
-  view.ariaLabel='Display arrangement';view.replaceChildren(new Option('Selected node','node'),new Option('Node mosaic (up to 16)','mosaic'));
+  view.ariaLabel='Display arrangement';view.replaceChildren(new Option('Auto arrangement','auto'),new Option('Selected node','node'),new Option('Node mosaic (up to 16)','mosaic'));
   palette.ariaLabel='Pixel format';palette.replaceChildren(new Option('RGB 0xRRGGBB','rgb'),new Option('Grayscale 0–255','gray'));
   const stage=element('div','display-stage'),canvas=element('canvas'),status=element('div','network-status'),pixel=element('output','pixel-inspection');
   canvas.tabIndex=0;canvas.ariaLabel='Program graphical output. Arrow keys inspect pixels. Plus and minus adjust zoom.';
@@ -25,13 +26,16 @@ export function displayWindow(ide) {
     if(!ide.debug){status.textContent='Compile a graphical example to draw here.';return;}
     if(root.hidden||root.closest('[hidden]'))return;
     if(ide.archiveTrace){status.textContent='The display reads the live machine. Return to Live in Causal History to inspect it.';return;}
-    const first=view.value==='mosaic'?Math.floor(ide.selectedNode/16)*16:ide.selectedNode, count=view.value==='mosaic'?Math.min(16,ide.simulator.nodes-first):1;
+    // Auto shows the mosaic when more than one node in the selected group draws.
+    const mosaic=view.value!=='node', groupStart=Math.floor(ide.selectedNode/16)*16;
+    let first=mosaic?groupStart:ide.selectedNode, count=mosaic?Math.min(16,ide.simulator.nodes-first):1;
     frames=Array.from({length:count},(_,i)=>readFramebuffer(ide.debug.info,ide.simulator,first+i,palette.value)).filter(Boolean);
+    if(view.value==='auto'&&frames.length<=1){first=ide.selectedNode;count=1;frames=frames.length&&frames[0].node===first?frames:[readFramebuffer(ide.debug.info,ide.simulator,first,palette.value)].filter(Boolean);}
     if(!frames.length){status.textContent='Waiting for display_width, display_height, and display_pixels globals (integer RGB pixels).';canvas.width=1;canvas.height=1;return;}
     const w=Math.max(...frames.map(f=>f.width)),h=Math.max(...frames.map(f=>f.height));tileColumns=Math.ceil(Math.sqrt(frames.length));
     layoutWidth=w*tileColumns;canvas.width=layoutWidth;canvas.height=h*Math.ceil(frames.length/tileColumns);
     const ctx=canvas.getContext('2d');frames.forEach((f,i)=>ctx.putImageData(new ImageData(f.pixels,f.width,f.height),(i%tileColumns)*w,Math.floor(i/tileColumns)*h));size();
-    status.textContent=`${frames.length===1?`NODE ${frames[0].node}`:`NODES ${first}–${first+count-1}, row order`} · ${w}×${h} pixels per node · frame ${frames[0].frame??'—'} · cycle ${ide.debug.snapshot.cycle}`;inspect();
+    status.textContent=`${basename(ide.compiledPath??'')} · ${frames.length===1?`NODE ${frames[0].node}`:`NODES ${first}–${first+count-1}, row order`} · ${w}×${h} pixels per node · frame ${frames[0].frame??'—'} · cycle ${ide.debug.snapshot.cycle}`;inspect();
   });
   view.onchange=render;palette.onchange=render;
   canvas.onkeydown=e=>{

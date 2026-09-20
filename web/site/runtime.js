@@ -180,6 +180,30 @@ export function parseImage(imageText, physicalNodes = 2) {
     : [word]);
 }
 
+// Downloads a simulator binary while reporting received bytes, so the desktop
+// can distinguish a slow network from a slow compile. Falls back to a plain
+// fetch when the response body cannot be streamed.
+export async function fetchWithProgress(url, onProgress = () => {}) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`failed to fetch ${url.pathname ?? url} (${response.status})`);
+  const total = Number(response.headers.get("Content-Length")) || null;
+  onProgress({ stage: "fetch", loaded: 0, total });
+  if (!response.body?.getReader) return new Uint8Array(await response.arrayBuffer());
+  const reader = response.body.getReader(), chunks = [];
+  let loaded = 0, reported = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value); loaded += value.byteLength;
+    if (loaded - reported >= 1 << 20 || loaded === total) { reported = loaded; onProgress({ stage: "fetch", loaded, total }); }
+  }
+  const bytes = new Uint8Array(loaded);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  onProgress({ stage: "fetch", loaded, total: total ?? loaded });
+  return bytes;
+}
+
 export class SimulatorWasm {
   constructor(module, nodes = 2) {
     this.module = module;
@@ -213,14 +237,21 @@ export class SimulatorWasm {
   // the variant glue (`simulator_N.js`) next to `baseUrl` and points the
   // glue's locateFile at the variant's wasm (`simulator_N.wasm`).
   static async fromVariant(variant, baseUrl, options = {}) {
+    const { onProgress = () => {}, ...moduleOptions } = options;
     const moduleUrl = new URL(variant.js, baseUrl);
-    const { default: factory } = await import(moduleUrl.href);
+    const wasmUrl = variant.wasm ? new URL(variant.wasm, baseUrl) : null;
+    const [{ default: factory }, wasmBinary] = await Promise.all([
+      import(moduleUrl.href),
+      wasmUrl ? fetchWithProgress(wasmUrl, onProgress) : undefined,
+    ]);
+    onProgress({ stage: "instantiate" });
     return SimulatorWasm.create(factory, {
       locateFile: (path) => new URL(
         path.endsWith(".wasm") && variant.wasm ? variant.wasm : path,
         baseUrl,
       ).href,
-      ...options,
+      ...(wasmBinary ? { wasmBinary } : {}),
+      ...moduleOptions,
       nodes: variant.nodes,
     });
   }

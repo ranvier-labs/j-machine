@@ -63,7 +63,9 @@ compiler, so a failed rebuild retains the previous artifact.
 ## Network debugging and graphical output
 
 The Routing Geometry, Packets, Waiting, Causal History, and Graphical Display
-windows share the debugger's live observations. Use **M-x → Layout: network**
+windows share the debugger's live observations. Routing Geometry picks the
+3D overview automatically when a narrow window cannot show every slice, and
+the display shows a node mosaic whenever several nodes draw. Use **M-x → Layout: network**
 or **Layout: graphics**. [Network debugging and graphical output](docs/network-debugging.md)
 documents packet filters, network breakpoints, trace archives, complete keyboard
 navigation, keymaps, the framebuffer convention, and four graphical examples.
@@ -72,13 +74,13 @@ project graph. Example updates preserve editable workspace copies.
 
 ## Desktop and filesystem
 
-The header is one compact toolbar with all controls visible. **Buffer →
-Compile** compiles and loads the current C file with the adjacent node count.
-**Project**, target, **Build**, **Load**, **Edit graph**, and **Targets** expose
-project builds. File actions, **Run**, Windows, Layout, Help, and M-x remain
-directly accessible. Run/Pause is one toggle in each execution toolbar.
-Controls wrap together on narrower screens. The Build and Debugger windows
-show project and machine status.
+The header is one row: file actions, **Buffer → Compile & Load** with its
+node count, **Build** and **Load** for the project target selected in the
+Build window, **Run**/**Restart**, and the Windows, Layout, Help, and M-x
+menus. Run/Pause is one toggle in each execution toolbar. The Build and
+Debugger windows show project and machine status. Feature documentation
+lives in the in-app manual (**Help**, F1); [docs/manual.md](docs/manual.md)
+is rendered from the same source with `npm --prefix web run docs:render`.
 
 Each tool is an independent window. Drag its title bar onto the edge of
 another window to move it. Drag the dividers to resize; focused dividers also
@@ -155,14 +157,14 @@ prompt.
 
 `build.jm` describes a small dependency graph with Ninja-style statements.
 The starter file in `/home/user` defines the main and 512-node images and an
-`all` group. The always-visible **Project** controls select the graph and target;
-**Defaults** follows the graph's default statement. **Build** (Cmd/Ctrl+B)
-opens the Build window and builds that selection. **Load** installs its image;
-for a group containing several images, a chooser identifies which one to load.
-**Run** (F5) executes the loaded image.
+`all` group. The Build window selects the graph and target; **Defaults**
+follows the graph's default statement. **Build** (Cmd/Ctrl+B) opens the Build
+window and builds that selection. **Load** installs its image; for a group
+containing several images, a chooser identifies which one to load. **Run**
+(F5) executes the loaded image.
 
-**Targets** opens the Build window's dependency inputs, definitions, per-target
-actions, and build reasons. **Edit graph** visits the selected `.jm` file, and
+The Build window lists each target's dependency inputs, definition, per-target
+actions, and build reason. **Edit graph** visits the selected `.jm` file, and
 **Guide** opens its manual page. `use-build path` selects a graph from the
 listener; `build [target]` and `load path.image` operate on it. An argument-free
 `build` uses the target selected in Project, or the graph defaults.
@@ -294,10 +296,15 @@ Presentation checks cover exact path and node values, command recall, and
 insertion without execution.
 
 `npm --prefix web test` runs compiler/LSP/debugger/workspace/build, network,
-keyboard, and graphical-output checks.
+keyboard, and graphical-output checks. `npm --prefix web run test:browser`
+runs the Playwright suite in `web/tests/browser/` against `web/dist`: boot,
+compile and run, the one-row header, the command palette, layouts, listener
+commands, and diagnostics that name the buffer pathname. It drives the
+installed Google Chrome; set `PLAYWRIGHT_CHANNEL=chromium` after
+`npx playwright install chromium` to use a downloaded build instead.
 `npm --prefix web run test:examples -- mesh512.c` runs just the full 512-node
-compile-and-execute regression. These engine tests run under Node; they do
-not substitute for checking browser interaction and layout.
+compile-and-execute regression. The engine tests run under Node; the
+Playwright suite covers browser interaction and layout.
 
 ## UI modules
 

@@ -1,7 +1,7 @@
 import { CompilerWasm } from './runtime.js';
 import { LanguageServer } from './language.js';
 
-const engine = fetch(new URL('./compiler.wasm', self.location.href)).then(async response => {
+const engine = fetch(new URL(`./compiler.wasm?v=${globalThis.__JM_BUILD_ID__ ?? 'dev'}`, self.location.href)).then(async response => {
   if (!response.ok) throw new Error(`compiler.wasm: HTTP ${response.status}`);
   const bytes = await response.arrayBuffer();
   const [module, digest] = await Promise.all([WebAssembly.compile(bytes), crypto.subtle.digest('SHA-256', bytes)]);

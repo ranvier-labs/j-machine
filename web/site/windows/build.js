@@ -19,6 +19,7 @@ export function buildWindow(ide) {
   const workflow = element('p', 'build-workflow', 'Select target → Build → Load → Run (F5)');
   root.append(workflow, toolbar, summary, targets, hint);
   const render = observe(ide, ['build', 'files', 'state'], () => {
+    workflow.hidden = !!ide.fs.data.session.projectLoaded;
     const paths = projectFiles(ide);
     select.replaceChildren(...paths.map(path => new Option(path, path))); select.value = ide.buildFile;
     select.disabled = !ide.builder || ide.busy; target.disabled = select.disabled || !!ide.debug?.running;

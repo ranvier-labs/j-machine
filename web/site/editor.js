@@ -14,14 +14,15 @@ import 'monaco-editor/editor/contrib/linesOperations/browser/linesOperations.js'
 import 'monaco-editor/editor/contrib/parameterHints/browser/parameterHints.js';
 import { KEYWORDS, BUILTINS } from './language.js';
 
-globalThis.MonacoEnvironment = { getWorker: () => new Worker(new URL('./editor.worker.js', window.location.href), { type: 'module' }) };
+const BUILD_ID = globalThis.__JM_BUILD_ID__ ?? 'dev';
+globalThis.MonacoEnvironment = { getWorker: () => new Worker(new URL(`./editor.worker.js?v=${BUILD_ID}`, window.location.href), { type: 'module' }) };
 const toRange = range => new monaco.Range(range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1);
 const toPosition = position => ({ line: position.lineNumber - 1, character: position.column - 1 });
 const location = item => ({ uri: monaco.Uri.parse(item.uri), range: toRange(item.range) });
 
 class LanguageClient {
   constructor(onDiagnostics, onFailure) {
-    this.worker = new Worker(new URL('./language.worker.js', window.location.href), { type: 'module' });
+    this.worker = new Worker(new URL(`./language.worker.js?v=${BUILD_ID}`, window.location.href), { type: 'module' });
     this.pending = new Map(); this.nextId = 1;
     this.worker.onmessage = ({ data }) => {
       if (data.method === 'textDocument/publishDiagnostics') { onDiagnostics(data.params); return; }

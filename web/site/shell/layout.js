@@ -12,13 +12,16 @@ function replace(node, id, replacement) {
   if (node.type === 'leaf') return node.id === id ? replacement : node;
   return { ...node, first: replace(node.first, id, replacement), second: replace(node.second, id, replacement) };
 }
-export function restoreLayout(value, allowed) {
+// `aliases` maps window ids from earlier releases onto their current names so
+// a saved layout survives a rename.
+export function restoreLayout(value, allowed, aliases = {}) {
   const seen = new Set(), splitIds = new Set();
   function visit(node, depth) {
     if (!node || depth > 24) return null;
     if (node.type === 'leaf') {
-      if (!allowed.includes(node.id) || seen.has(node.id)) return null;
-      seen.add(node.id); return leaf(node.id);
+      const id = aliases[node.id] ?? node.id;
+      if (!allowed.includes(id) || seen.has(id)) return null;
+      seen.add(id); return leaf(id);
     }
     if (node.type !== 'split' || !['x', 'y'].includes(node.axis)) return null;
     const first = visit(node.first, depth + 1), second = visit(node.second, depth + 1);

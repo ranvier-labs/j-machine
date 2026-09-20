@@ -66,7 +66,7 @@ export function packetsWindow(ide) {
       const actions = element('div', 'tool-strip');
       actions.append(button('Send source', 'Visit the captured send instruction', act(ide, () => ide.visitTraceSource(p.sourceIp))),
         button('Handler', 'Visit the message handler', act(ide, () => ide.visitTraceSource(p.handler))),
-        button('Route', 'Show this packet in the mesh', () => ide.services.openWindow('machine')),
+        button('Route', 'Show this packet in the mesh', () => ide.services.openWindow('geometry')),
         button('History', 'Follow this packet through its causal history', () => ide.services.openWindow('history')));
       details.append(actions);
       fields(details, [['Handler', p.handler == null ? '—' : `0x${p.handler.toString(16)}`], ['Payload words', p.words.length], ['Send / injection', `${p.sent} / ${numberText(p.injected)}`],
@@ -99,7 +99,7 @@ const svgElement = (name, attrs = {}, text) => { const e = document.createElemen
 export function geometryWindow(ide) {
   const root = element('div', 'network-window geometry-window'), tools = element('div', 'tool-strip'), plane = element('select'), mode = element('select'), priority = element('select'), port = element('select');
   plane.ariaLabel = 'Mesh plane'; plane.replaceChildren(...['XY','XZ','YZ'].map(p => new Option(p,p)));
-  mode.ariaLabel = 'Geometry view'; mode.replaceChildren(new Option('All slices','slices'),new Option('Selected slice','slice'),new Option('3D overview','iso'));
+  mode.ariaLabel = 'Geometry view'; mode.replaceChildren(new Option('Auto view','auto'),new Option('All slices','slices'),new Option('Selected slice','slice'),new Option('3D overview','iso'));
   priority.ariaLabel = 'Traffic priority'; priority.replaceChildren(new Option('Both priorities','all'),new Option('Priority 0','0'),new Option('Priority 1','1'));
   port.ariaLabel = 'Selected link direction'; port.replaceChildren(...PORTS.slice(1).map((p,i) => new Option(p,String(i+1))));
   const jump = button('Go to node', 'Jump to a node number or x,y,z coordinate', () => ide.services.jumpNode());
@@ -111,7 +111,7 @@ export function geometryWindow(ide) {
   const info = element('div', 'network-status'), stage = element('div', 'geometry-stage'); stage.tabIndex = 0; stage.setAttribute('role','grid'); stage.ariaLabel = 'Mesh geometry. Arrow keys move within the plane. Page Up and Page Down change slices. Enter inspects the selected node.';
   const svg = svgElement('svg', { viewBox:'0 0 800 600', 'aria-hidden':'true' }); stage.append(svg);
   const accessible = element('div', 'sr-only'); accessible.id = 'mesh-selection'; stage.append(accessible); stage.setAttribute('aria-describedby', accessible.id);
-  const legend = element('div','network-status','Arrows: move · PgUp/PgDn: slice · Enter: inspect · amber: observed packet route · dashed: expected route · red: stalled');
+  const legend = element('div','network-status','Arrows move · PgUp/PgDn slice · Enter inspect · amber observed route · dashed expected route · red stalled');
   root.append(tools,info,stage,legend);
   let selected = 0;
   const move = (axis, delta) => {
@@ -129,18 +129,21 @@ export function geometryWindow(ide) {
     const t = activeTrace(ide); svg.replaceChildren();
     if (!t) { info.textContent = 'Load a machine to view its routing geometry.'; return; }
     selected = Math.min(ide.selectedNode,t.nodes-1); const xyz = coordinates(selected,t.dims), axes = planeAxes(plane.value), slice = xyz[axes[2]], p = t.packets.get(t.selectedPacket), state = t.stateAt();
+    // Auto: a narrow window cannot show eight readable slices; use the 3D overview there.
+    const view = mode.value !== 'auto' ? mode.value : t.dims[axes[2]] > 1 && stage.clientWidth < 560 ? 'iso' : 'slices';
+    const radius = t.nodes <= 16 ? 12 : 4, selectedRadius = t.nodes <= 16 ? 16 : 8;
     info.textContent = `${t.mesh.replaceAll('x',' × ')} · N${selected} (${xyz.join(', ')}) · ${'XYZ'[axes[2]]}=${slice} · cycle ${t.cursor ?? t.cycle}${t.cursor !== null ? ' · HISTORY' : ''}`;
     accessible.textContent = info.textContent;
-    const slices = mode.value === 'slice' ? [slice] : Array.from({length:t.dims[axes[2]]},(_,i)=>i);
+    const slices = view === 'slice' ? [slice] : Array.from({length:t.dims[axes[2]]},(_,i)=>i);
     const cols = slices.length > 1 ? 2 : 1, rows = Math.ceil(slices.length/cols), positions = new Map();
     for (let n=0;n<t.nodes;n++) {
       const c=coordinates(n,t.dims), index=slices.indexOf(c[axes[2]]); if (index<0) continue;
       let x,y;
-      if (mode.value==='iso') { x=100+c[0]*40+c[2]*37; y=490-c[1]*45-c[2]*22; }
+      if (view==='iso') { x=100+c[0]*40+c[2]*37; y=490-c[1]*45-c[2]*22; }
       else { x=(index%cols)*800/cols+35+(c[axes[0]]+.5)*(800/cols-65)/t.dims[axes[0]]; y=Math.floor(index/cols)*600/rows+25+(c[axes[1]]+.5)*(600/rows-45)/t.dims[axes[1]]; }
       positions.set(n,{x,y});
     }
-    if (mode.value!=='iso') slices.forEach((s,i)=>svg.append(svgElement('text',{x:(i%cols)*800/cols+12,y:Math.floor(i/cols)*600/rows+17,class:'slice-label'},`${'XYZ'[axes[2]]} = ${s}`)));
+    if (view!=='iso') slices.forEach((s,i)=>svg.append(svgElement('text',{x:(i%cols)*800/cols+12,y:Math.floor(i/cols)*600/rows+17,class:'slice-label'},`${'XYZ'[axes[2]]} = ${s}`)));
     const drawLink=(node,direction,cls,width=1)=>{
       const next=neighbor(node,direction,t.dims),a=positions.get(node),b=positions.get(next);if(!a)return;
       const end=b??{x:a.x+18,y:a.y+(direction%2?-20:20)};
@@ -149,7 +152,7 @@ export function geometryWindow(ide) {
       line.onclick=()=>{t.selectedLink={node,port:direction};notify(ide);ide.services.openWindow('packets');};
       line.append(svgElement('title',{},`${linkLabel({node,port:direction})} → N${next??'outside slice'}`));svg.append(line);
     };
-    for(const n of positions.keys()) for(const axis of axes.slice(0,mode.value==='iso'?3:2)) if(neighbor(n,2+axis*2,t.dims)!==null) drawLink(n,2+axis*2,'mesh-link');
+    for(const n of positions.keys()) for(const axis of axes.slice(0,view==='iso'?3:2)) if(neighbor(n,2+axis*2,t.dims)!==null) drawLink(n,2+axis*2,'mesh-link');
     const traffic=state.links.filter(l=>l.port&&(priority.value==='all'||Number(priority.value)===l.priority));
     for(const l of traffic) if(l.flits) drawLink(l.node,l.port,'traffic-link',Math.min(5,1+Math.log2(l.flits+1)/3));
     if(p?.source!=null&&p.destination!=null) for(const h of expectedRoute(p.source,p.destination,t.dims)) drawLink(h.node,h.port,'expected-link',2);
@@ -158,13 +161,13 @@ export function geometryWindow(ide) {
     if(t.selectedLink) drawLink(t.selectedLink.node,t.selectedLink.port,'selected-link',6);
     for(const [n,{x,y}]of positions){
       const group=svgElement('g',{class:`mesh-node${n===selected?' selected':''}`});
-      group.append(svgElement('circle',{cx:x,cy:y,r:n===selected?8:4}),svgElement('title',{},`Node ${n} (${coordinates(n,t.dims).join(', ')})`));
-      if(mode.value==='slice'||t.nodes<=16||n===selected)group.append(svgElement('text',{x:x+9,y:y+4},String(n)));
+      group.append(svgElement('circle',{cx:x,cy:y,r:n===selected?selectedRadius:radius}),svgElement('title',{},`Node ${n} (${coordinates(n,t.dims).join(', ')})`));
+      if(view==='slice'||t.nodes<=16||n===selected)group.append(svgElement('text',{x:x+(n===selected?selectedRadius:radius)+5,y:y+4},String(n)));
       group.onclick=()=>{ if(ide.simulator&&n<ide.simulator.nodes)ide.selectNode(n);else{ide.selectedNode=n;notify(ide);} stage.focus(); };svg.append(group);
     }
   });
   for(const control of [plane,mode,priority])control.onchange=render; render();
-  return{id:'machine',title:'ROUTING GEOMETRY',element:root,onFocus:()=>stage.focus(),onResize:render,move};
+  return{id:'geometry',title:'ROUTING GEOMETRY',element:root,onFocus:()=>stage.focus(),onResize:render,move};
 }
 
 export function waitingWindow(ide) {

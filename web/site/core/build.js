@@ -173,8 +173,8 @@ export class BuildSystem {
             artifact = { sourcePath: step.inputs[0], sourceText: input, nodes: step.nodes, inputs: [...dependencies].map(([path, text]) => ({ path, text })) };
           } else { output = input; artifact = this.fs.stat(step.inputs[0]).metadata?.artifact; }
         } catch (error) {
-          const location = error.message.match(/:(\d+):(\d+):/);
-          throw new BuildError(error.message, step.inputs[0], Number(location?.[1] ?? 1), Number(location?.[2] ?? 1));
+          const message = String(error.message).replaceAll('<browser>', step.inputs[0]), location = message.match(/:(\d+):(\d+):/);
+          throw new BuildError(message, step.inputs[0], Number(location?.[1] ?? 1), Number(location?.[2] ?? 1));
         }
         stable(); const hash = await contentHash(output); stable();
         this.ensureDirectory(dirname(step.target));

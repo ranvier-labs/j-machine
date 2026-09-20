@@ -18,7 +18,7 @@ NETWORK  packets [filter] · packet id · break-network inject|deliver|link|hand
          delete-network-breakpoint id · trace-cycle n · trace-live
          save-trace [path] · open-trace path
 KEYBOARD commands · command id · keymap-reload · M-x searches all actions
-DESKTOP  window files|editor|machine|debugger|listener|packets|waiting|history|display|build
+DESKTOP  window files|editor|geometry|debugger|listener|packets|waiting|history|display|build
          tile development|editing|debugging|building|network|graphics|documentation
 MANUAL   help [topic] · doc [topic or search words] · window documentation · clear
 BUILD    use-build path · build [target] · load output.image
@@ -52,6 +52,14 @@ export class IDE {
     this.emit('log'); this.emit('state');
   }
   async perform(action) { try { return await action(); } catch (error) { this.message(error.message, 'error'); } }
+  // Status-only updates for long operations; they do not enter the listener log.
+  progress(text) { this.status = text; this.emit('state'); }
+  loadProgress(nodes, event) {
+    const mb = bytes => `${(bytes / 1048576).toFixed(1)} MB`;
+    if (event.stage === 'fetch') this.progress(`Fetching the ${nodes}-node simulator · ${mb(event.loaded)}${event.total ? ` / ${mb(event.total)}` : ''}`);
+    else if (event.stage === 'instantiate') this.progress(`Instantiating the ${nodes}-node simulator…`);
+    else if (event.stage === 'image') this.progress(`Loading the image into ${nodes} nodes…`);
+  }
   active() { return this.activePath && this.fs.exists(this.activePath) ? this.fs.stat(this.activePath) : null; }
   text(path = this.activePath) { return this.editor?.getText(path) ?? this.pending.get(path)?.text ?? this.fs.read(path); }
   dirty(path) { return this.pending.has(path) ? this.pending.get(path).text !== this.fs.read(path, { draft: false }) : this.fs.stat(path).draft !== undefined; }
@@ -233,9 +241,10 @@ export class IDE {
   async installImage(image, path, source, nodes, validate = () => {}, inputs = []) {
     const variant = this.variants.find(item => item.nodes === nodes); if (!variant) throw new Error('The image needs an unavailable machine topology.');
     const previousSimulator = this.simulator;
-    const simulator = previousSimulator?.nodes === nodes ? previousSimulator : await this.createSimulator(variant, this.baseUrl);
+    const simulator = previousSimulator?.nodes === nodes ? previousSimulator : await this.createSimulator(variant, this.baseUrl, { onProgress: event => this.loadProgress(nodes, event) });
     const debug = new DebuggerController(simulator, { yieldFrame: () => new Promise(resolve => setTimeout(resolve, 0)) });
     let count;
+    this.loadProgress(nodes, { stage: 'image' });
     try { validate(); count = debug.load(image); }
     catch (error) { if (simulator !== previousSimulator) simulator.destroy(); throw error; }
     if (previousSimulator === simulator && this.compiledPath === path) for (const watch of this.debug.watchpoints.values()) debug.addWatchpoint(watch.node, watch.address);
@@ -300,6 +309,7 @@ export class IDE {
       const validate = project ? await this.builder.validateOutput(this.builder.graph(project), path) : () => {};
       const image = this.fs.read(path), count = await this.installImage(image, artifact.sourcePath, artifact.sourceText, artifact.nodes, validate, artifact.inputs);
       this.image = image; this.imagePath = path; this.emit('image');
+      if (!this.fs.data.session.projectLoaded) this.fs.setSession({ projectLoaded: true });
       this.message(`Loaded ${path} · ${count.toLocaleString()} words${this.stale ? ' · source changed; rebuild before running' : ''}`);
     } finally { this.busy = false; this.emit('state'); }
   }

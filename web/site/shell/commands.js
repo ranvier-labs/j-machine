@@ -33,12 +33,16 @@ export class CommandRegistry {
     });
   }
   keymap() { return JSON.stringify({ version: 1, bindings: Object.fromEntries([...this.commands.values()].map(c => [c.id, this.keys(c)])) }, null, 2); }
-  loadKeymap(text) {
+  // `aliases` renames commands from earlier releases; with `tolerate`, entries
+  // for commands that no longer exist are skipped and reported instead of
+  // rejecting the whole file, so a keymap the app itself wrote keeps loading.
+  loadKeymap(text, { aliases = {}, tolerate = false } = {}) {
     const value = JSON.parse(text);
     if (value.version !== 1 || !value.bindings || Array.isArray(value.bindings) || typeof value.bindings !== 'object') throw new Error('Keymap needs version 1 and a bindings object.');
-    const next = {};
-    for (const [id, bindings] of Object.entries(value.bindings)) {
-      if (!this.commands.has(id)) throw new Error(`Unknown keymap command: ${id}`);
+    const next = {}, ignored = [];
+    for (const [name, bindings] of Object.entries(value.bindings)) {
+      const id = aliases[name] ?? name;
+      if (!this.commands.has(id)) { if (tolerate) { ignored.push(name); continue; } throw new Error(`Unknown keymap command: ${name}`); }
       if (!Array.isArray(bindings) || bindings.some(key => typeof key !== 'string' || !key.length || key.length > 80)) throw new Error(`Invalid key binding for ${id}.`);
       next[id] = bindings;
     }
@@ -51,6 +55,7 @@ export class CommandRegistry {
       }
     }
     this.overrides = next;
+    return { ignored };
   }
   handle(event, scope) {
     if (event.isComposing || event.defaultPrevented) return false;

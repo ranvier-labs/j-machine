@@ -1,0 +1,18 @@
+{
+  "name": "j-machine-workbench",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build_frontend.mjs",
+    "test": "node --test tests/compiler.test.mjs tests/lsp.test.mjs tests/debugger.test.mjs tests/workspace.test.mjs tests/ide.test.mjs tests/build.test.mjs tests/network.test.mjs tests/keyboard.test.mjs tests/graphics.test.mjs tests/documentation.test.mjs",
+    "test:examples": "node tests/compiler_examples.mjs",
+    "examples:render": "node render_examples.mjs",
+    "lsp": "node lsp/stdio.mjs"
+  },
+  "dependencies": {
+    "monaco-editor": "0.56.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

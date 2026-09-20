@@ -1,0 +1,94 @@
+{
+  "examples": [
+    {
+      "file": "factorial.c",
+      "title": "Factorial",
+      "nodes": 2,
+      "blurb": "Recursive factorial from Maskit's 1994 thesis: node 0 computes 6! = 720 while node 1 idles."
+    },
+    {
+      "file": "remote_call.c",
+      "title": "Remote Call",
+      "nodes": 2,
+      "blurb": "Node 0 fires a one-way message and a typed remote call at node 1, then reads back the future."
+    },
+    {
+      "file": "futures.c",
+      "title": "Futures",
+      "nodes": 2,
+      "blurb": "Two remote calls are in flight simultaneously; the caller blocks only when each future is consumed."
+    },
+    {
+      "file": "suspension.c",
+      "title": "Suspension",
+      "nodes": 2,
+      "blurb": "A nested call chain across both nodes suspends a process mid-expression while it waits on a future."
+    },
+    {
+      "file": "remote_bulk.c",
+      "title": "Remote Bulk Transfer",
+      "nodes": 2,
+      "blurb": "An eight-element array is bulk-copied to node 1, summed remotely, and the total is returned."
+    },
+    {
+      "file": "thread_local.c",
+      "title": "Thread-Local Storage",
+      "nodes": 2,
+      "blurb": "_Thread_local variables hold independent per-node values as the same function runs locally and remotely."
+    },
+    {
+      "file": "historical_hop.c",
+      "title": "Historical Hop",
+      "nodes": 2,
+      "blurb": "Thesis Figure 3.3: a message hops around the node ring four times, counting visits as it goes."
+    },
+    {
+      "file": "historical_dirichlet.c",
+      "title": "Historical Dirichlet",
+      "nodes": 4,
+      "blurb": "Thesis Figures 5.3-5.5: a four-node ring relaxes neighbor values with a global barrier every timestep."
+    },
+    {
+      "file": "aggregates.c",
+      "title": "Aggregates",
+      "nodes": 1,
+      "blurb": "Single-node showcase of structs, unions, arrays, and pointer-linked nodes."
+    },
+    {
+      "file": "switch.c",
+      "title": "Switch",
+      "nodes": 1,
+      "blurb": "Single-node showcase of nested switches, Duff-style case placement, and fallthrough."
+    },
+    {
+      "file": "mesh512.c",
+      "title": "Mesh 512",
+      "nodes": 512,
+      "blurb": "A remote array sum invoked on node 511 of the full 8x8x8 mesh, the machine's largest configuration."
+    },
+    {
+      "file": "distributed_mandelbrot.c",
+      "title": "Distributed Mandelbrot",
+      "nodes": 4,
+      "blurb": "Four nodes render a 2x2 mosaic of 16x16 RGB tiles. Open Graphical Display and select mosaic."
+    },
+    {
+      "file": "rule110.c",
+      "title": "Rule 110",
+      "nodes": 2,
+      "blurb": "A 32x24 space-time diagram of an elementary cellular automaton, rendered into node 0 memory."
+    },
+    {
+      "file": "message_hotspot.c",
+      "title": "Message Hotspot",
+      "nodes": 16,
+      "blurb": "Four senders converge on node 5 and paint progress columns. Inspect contention, queues, and the node 5 display."
+    },
+    {
+      "file": "mesh_rainbow.c",
+      "title": "Mesh Rainbow",
+      "nodes": 512,
+      "blurb": "Nodes 7, 56, 448, and 511 paint RGB tiles at distant corners of the 8x8x8 mesh."
+    }
+  ]
+}

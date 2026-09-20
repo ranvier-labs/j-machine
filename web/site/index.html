@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="description" content="A tiled development environment for the J-Machine. Browse files, edit Message-Driven C, and debug a cycle-accurate machine." />
+  <title>J-Machine / Development Environment</title>
+  <link rel="stylesheet" href="./app.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="workbench-header" aria-label="Development environment">
+    <div class="identity" title="J-Machine · MDP 11"><div class="machine-mark" aria-hidden="true">J<span>/</span>M</div><h1>J-MACHINE</h1></div>
+    <div class="header-group" role="group" aria-label="Files" data-help="files">
+      <button id="new-file" disabled title="New file">New</button>
+      <button id="find-file" disabled title="Find file (Cmd/Ctrl O)">Open…</button>
+      <button id="save-buffer" disabled title="Save buffer (Cmd/Ctrl S)">Save</button>
+    </div>
+    <div class="header-group buffer-controls" role="group" aria-label="Single buffer compilation" data-help="editor">
+      <label>Buffer <select id="node-count" aria-label="Single buffer compile target node count" title="Node count for buffer compilation; project targets use their build graph" disabled><option>2 nodes</option></select></label>
+      <button id="compile-buffer" disabled title="Compile and load the current C buffer (Cmd/Ctrl Enter)">Compile &amp; Load</button>
+    </div>
+    <div class="header-group project-controls" role="group" aria-label="Project build selection" data-help="build">
+      <label>Project <select id="project-file" aria-label="Active project build graph" disabled><option>build.jm</option></select></label>
+      <label>Target <select id="project-target" aria-label="Project build target" disabled><option>Defaults</option></select></label>
+    </div>
+    <div class="header-group" role="group" aria-label="Project build commands" data-help="build">
+      <button id="build-project" class="primary" disabled title="Build selected project targets (Cmd/Ctrl B)">Build</button>
+      <button id="load-project" disabled title="Load an image from the selected target">Load</button>
+      <button id="edit-project" title="Edit the active project build graph" disabled>Edit graph</button>
+      <button id="project-targets" title="Inspect project targets, dependencies, and build results">Targets…</button>
+    </div>
+    <div class="header-group" role="group" aria-label="Machine execution" data-help="debugger"><button id="run-machine" class="run-toggle" disabled title="Run loaded image (F5)">Run</button><button id="restart-machine" disabled title="Reset and run the loaded image (Shift F5)">Restart</button></div>
+    <div class="header-group" role="group" aria-label="Workspace commands">
+      <button id="window-menu" data-help="workspace">Windows</button>
+      <button id="layout-menu" data-help="workspace">Layout</button>
+      <button id="help-menu" title="Help for the current control or window (F1)">Help</button>
+      <button id="command-menu" data-help="keyboard" title="Commands (Alt X or Ctrl/Cmd Shift P)">M-x</button>
+    </div>
+  </header>
+  <main id="desktop" aria-label="Tiling workspace"><div id="boot-message" class="boot-message">Starting development environment…</div></main>
+  <footer class="minibuffer"><span id="focused-window">DESKTOP</span><span id="status-text" role="status">Loading files and tools…</span><span class="key-help">F9 BREAK · F10 INSTR · F11 SOURCE</span><span id="storage-state">LOCAL FS</span></footer>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

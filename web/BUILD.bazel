@@ -1,0 +1,53 @@
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+sh_binary(
+    name = "build",
+    srcs = ["build.sh"],
+    data = glob([
+        "compiler/**",
+        "simulator/**",
+        "site/**",
+        "tests/**",
+    ]) + [
+        "build_compiler.sh",
+        "build_simulator.sh",
+        "build_frontend.mjs",
+        "render_examples.mjs",
+        "package.json",
+        "package-lock.json",
+        "//compiler:examples/factorial.c",
+        "//compiler:examples/remote_call.c",
+        "//compiler:examples/futures.c",
+        "//compiler:examples/suspension.c",
+        "//compiler:examples/remote_bulk.c",
+        "//compiler:examples/thread_local.c",
+        "//compiler:examples/historical_hop.c",
+        "//compiler:examples/historical_dirichlet.c",
+        "//compiler:examples/aggregates.c",
+        "//compiler:examples/switch.c",
+        "//compiler:examples/mesh512.c",
+        "//compiler:examples/distributed_mandelbrot.c",
+        "//compiler:examples/rule110.c",
+        "//compiler:examples/message_hotspot.c",
+        "//compiler:examples/mesh_rainbow.c",
+    ],
+)
+
+sh_binary(
+    name = "test",
+    srcs = ["test.sh"],
+    data = glob(["tests/**", "site/**", "lsp/**"]),
+)
+
+sh_binary(
+    name = "serve",
+    srcs = ["serve.sh"],
+)
+
+exports_files([
+    "README.md",
+    "build_compiler.sh",
+    "build_simulator.sh",
+])

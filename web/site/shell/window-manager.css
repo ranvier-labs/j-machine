@@ -1,0 +1,24 @@
+/* The tiling shell has no dependency on any particular window contents. */
+.tile-split { display: grid; min-width: 0; min-height: 0; width: 100%; height: 100%; }
+.tile-split.axis-x { grid-template-rows: minmax(0, 1fr); }
+.tile-split.axis-y { grid-template-columns: minmax(0, 1fr); }
+.tile-frame { display: flex; flex-direction: column; position: relative; min-width: 0; min-height: 0; overflow: hidden; border: 1px solid var(--line, #444); background: var(--panel, #111); }
+.tile-header { flex: 0 0 29px; min-height: 29px; display: flex; align-items: stretch; background: var(--raised, #222); border-bottom: 1px solid var(--line, #444); user-select: none; cursor: grab; }
+.tile-header button { background: transparent; border: 0; color: var(--muted, #aaa); padding: 0; }
+.tile-title { flex: 1; min-width: 0; text-align: left; padding-left: 10px !important; font-size: 11px; letter-spacing: .10em; overflow: hidden; text-overflow: ellipsis; cursor: grab; }
+.tile-action { flex: 0 0 25px; font-size: 15px; }
+.tile-frame.focused { border-color: var(--accent, #bbb); }
+.tile-frame.focused > .tile-header { background: #292923; }
+.tile-frame.focused > .tile-header .tile-title { color: var(--accent, #ddd); }
+.tile-content { flex: 1; min-width: 0; min-height: 0; overflow: auto; }
+.tile-content[hidden] { display: none !important; }
+.tile-divider { touch-action: none; background: transparent; outline-offset: -2px; }
+.axis-x > .tile-divider { cursor: col-resize; }
+.axis-y > .tile-divider { cursor: row-resize; }
+.tile-divider:hover, .tile-divider:focus-visible { background: var(--accent, #bbb); opacity: .65; }
+.tile-frame[data-drop]::after { content: ''; position: absolute; z-index: 20; pointer-events: none; background: #d7ae6825; border: 2px solid var(--accent, #bbb); }
+.tile-frame[data-drop=left]::after { inset: 0 50% 0 0; }
+.tile-frame[data-drop=right]::after { inset: 0 0 0 50%; }
+.tile-frame[data-drop=top]::after { inset: 0 0 50% 0; }
+.tile-frame[data-drop=bottom]::after { inset: 50% 0 0 0; }
+.desktop-empty { padding: 25px; color: var(--muted, #aaa); }

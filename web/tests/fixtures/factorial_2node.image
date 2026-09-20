@@ -1,0 +1,2793 @@
+# factorial image for the two-node web simulator test
+# generated: bazel-bin/compiler/jmc compiler/examples/factorial.c -o web/tests/fixtures/factorial_2node.image --nodes 2
+# NODE  ADDRESS  36-BIT-WORD
+0  00080  40c000100  # CALL vector for factorial
+0  00081  40c022500  # CALL vector for main
+0  0004d  4004b5500  # priority-0 FUT fault vector
+0  00043  4804e1900  # priority-0 SEND fault vector
+0  00063  4804e1900  # priority-1 SEND fault vector
+0  00300  000000000  # main result mailbox
+0  01000  200000000  # checked execution
+0  01001  c40380000  # U := false
+0  01002  3001c0401  # address 0x00701, length 1
+0  01003  c400c0000  # set A2
+0  01004  c10840000  # load image node identity
+0  01005  c40280000  # NNR := node identity
+0  01006  100000000  # initial stack offset
+0  01007  c1c000000  # move r0, r3
+0  01008  301000000  # stack base
+0  01009  c400a0000  # A1 := stack
+0  0100a  3000c0001  # result base
+0  0100b  c400c0000  # A2 := result
+0  0100c  300200000  # global base
+0  0100d  c400e0000  # A3 := globals
+0  0100e  3080003ff  # priority-0 queue base/mask
+0  0100f  c40200000  # QBM0 := queue 0
+0  01010  308000000  # priority-0 queue head/length
+0  01011  c40220000  # QHL0 := empty
+0  01012  3084003ff  # priority-1 queue base/mask
+0  01013  c40600000  # QBM1 := queue 1
+0  01014  308400000  # priority-1 queue head/length
+0  01015  c40620000  # QHL1 := empty
+0  01016  200000000  # enable message dispatch
+0  01017  c40340000  # I := false
+0  01018  c30280000  # read node number
+0  01019  c14000000  # move r0, r1
+0  0101a  100000002  # displacement to .halt.0
+0  0101b  ff1000000  # branch .halt.0
+0  0101c  f10420000  # call main
+0  0101d  c20840000  # store main result
+0  0101e  1fffffffe  # displacement to .halt.0
+0  0101f  f80000000  # branch .halt.0
+0  30000  c30180000  # read return IP
+0  30001  c14000000  # move r0, r1
+0  30002  100000000  # frame slot 0
+0  30003  cb3000000  # frame offset
+0  30004  c21220000  # store r1, frame[0]
+0  30005  c10020000  # move r1, r0
+0  30006  100000001  # future-aware frame slot 1
+0  30007  cbb000000  # future-aware frame offset
+0  30008  c50320000  # inspect frame[1] tag
+0  30009  cc04e0000  # frame[1] still FUT
+0  3000a  c14000000  # move r0, r1
+0  3000b  100000008  # displacement to .future.resolved.4
+0  3000c  ff1000000  # branch .future.resolved.4
+0  3000d  c30320000  # future consumer is background context
+0  3000e  c14000000  # move r0, r1
+0  3000f  1fffffff7  # displacement to .future.inspect.3
+0  30010  fd1000000  # branch .future.inspect.3
+0  30011  c10320000  # move unresolved frame[1] FUT
+0  30012  e60000000  # force unresolved frame[1] with exact EQ
+0  30013  1fffffff3  # displacement to .future.inspect.3
+0  30014  f80000000  # branch .future.inspect.3
+0  30015  c10320000  # force frame[1]
+0  30016  c14000000  # move r0, r1
+0  30017  100000002  # frame slot 2
+0  30018  cb3000000  # frame offset
+0  30019  c21220000  # store r1, frame[2]
+0  3001a  c10020000  # move r1, r0
+0  3001b  100000000  # constant
+0  3001c  c14000000  # move r0, r1
+0  3001d  100000002  # frame slot 2
+0  3001e  cb3000000  # frame offset
+0  3001f  c10220000  # load frame[2], r0
+0  30020  e40020000  # integer equal
+0  30021  c60420000  # C boolean to INT tag
+0  30022  c14000000  # move r0, r1
+0  30023  10000000b  # displacement to .if.else.1
+0  30024  fe1000000  # branch .if.else.1
+0  30025  100000001  # constant
+0  30026  c14000000  # move r0, r1
+0  30027  3000c0001  # address 0x00300, length 1
+0  30028  c400c0000  # set A2
+0  30029  100000000  # frame slot 0
+0  3002a  cb3000000  # frame offset
+0  3002b  c18220000  # load frame[0], r2
+0  3002c  c10020000  # move r1, r0
+0  3002d  c70040000  # return
+0  3002e  100000000  # displacement to .if.end.2
+0  3002f  f80000000  # branch .if.end.2
+0  30030  100000001  # future-aware frame slot 1
+0  30031  cbb000000  # future-aware frame offset
+0  30032  c50320000  # inspect frame[1] tag
+0  30033  cc04e0000  # frame[1] still FUT
+0  30034  c14000000  # move r0, r1
+0  30035  100000008  # displacement to .future.resolved.6
+0  30036  ff1000000  # branch .future.resolved.6
+0  30037  c30320000  # future consumer is background context
+0  30038  c14000000  # move r0, r1
+0  30039  1fffffff7  # displacement to .future.inspect.5
+0  3003a  fd1000000  # branch .future.inspect.5
+0  3003b  c10320000  # move unresolved frame[1] FUT
+0  3003c  e60000000  # force unresolved frame[1] with exact EQ
+0  3003d  1fffffff3  # displacement to .future.inspect.5
+0  3003e  f80000000  # branch .future.inspect.5
+0  3003f  c10320000  # force frame[1]
+0  30040  c14000000  # move r0, r1
+0  30041  100000002  # frame slot 2
+0  30042  cb3000000  # frame offset
+0  30043  c21220000  # store r1, frame[2]
+0  30044  c10020000  # move r1, r0
+0  30045  100000001  # future-aware frame slot 1
+0  30046  cbb000000  # future-aware frame offset
+0  30047  c50320000  # inspect frame[1] tag
+0  30048  cc04e0000  # frame[1] still FUT
+0  30049  c14000000  # move r0, r1
+0  3004a  100000008  # displacement to .future.resolved.8
+0  3004b  ff1000000  # branch .future.resolved.8
+0  3004c  c30320000  # future consumer is background context
+0  3004d  c14000000  # move r0, r1
+0  3004e  1fffffff7  # displacement to .future.inspect.7
+0  3004f  fd1000000  # branch .future.inspect.7
+0  30050  c10320000  # move unresolved frame[1] FUT
+0  30051  e60000000  # force unresolved frame[1] with exact EQ
+0  30052  1fffffff3  # displacement to .future.inspect.7
+0  30053  f80000000  # branch .future.inspect.7
+0  30054  c10320000  # force frame[1]
+0  30055  c14000000  # move r0, r1
+0  30056  10000000b  # frame slot 11
+0  30057  cb3000000  # frame offset
+0  30058  c21220000  # store r1, frame[11]
+0  30059  c10020000  # move r1, r0
+0  3005a  100000001  # constant
+0  3005b  c14000000  # move r0, r1
+0  3005c  10000000b  # frame slot 11
+0  3005d  cb3000000  # frame offset
+0  3005e  c10220000  # load frame[11], r0
+0  3005f  cc0020000  # signed subtract
+0  30060  c14000000  # move r0, r1
+0  30061  10000000a  # frame slot 10
+0  30062  cb3000000  # frame offset
+0  30063  c21220000  # store r1, frame[10]
+0  30064  c10020000  # move r1, r0
+0  30065  10000000a  # frame slot 10
+0  30066  cb3000000  # frame offset
+0  30067  c10220000  # load frame[10], r0
+0  30068  c14000000  # move r0, r1
+0  30069  100000018  # frame slot 24
+0  3006a  cb3000000  # frame offset
+0  3006b  c21220000  # store r1, frame[24]
+0  3006c  c10020000  # move r1, r0
+0  3006d  100000017  # advance stack frame
+0  3006e  cbf000000  # sp += frame size
+0  3006f  f10400000  # call factorial
+0  30070  1ffffffe9  # restore stack frame
+0  30071  cbf000000  # sp -= frame size
+0  30072  c10020000  # move r1, r0
+0  30073  c14000000  # move r0, r1
+0  30074  100000002  # frame slot 2
+0  30075  cb3000000  # frame offset
+0  30076  c10220000  # load frame[2], r0
+0  30077  cf0020000  # signed multiply
+0  30078  c14000000  # move r0, r1
+0  30079  3000c0001  # address 0x00300, length 1
+0  3007a  c400c0000  # set A2
+0  3007b  100000000  # frame slot 0
+0  3007c  cb3000000  # frame offset
+0  3007d  c18220000  # load frame[0], r2
+0  3007e  c10020000  # move r1, r0
+0  3007f  c70040000  # return
+0  30080  100000000  # constant
+0  30081  c14000000  # move r0, r1
+0  30082  3000c0001  # address 0x00300, length 1
+0  30083  c400c0000  # set A2
+0  30084  100000000  # frame slot 0
+0  30085  cb3000000  # frame offset
+0  30086  c18220000  # load frame[0], r2
+0  30087  c10020000  # move r1, r0
+0  30088  c70040000  # return
+0  30089  c30180000  # read return IP
+0  3008a  c14000000  # move r0, r1
+0  3008b  100000000  # frame slot 0
+0  3008c  cb3000000  # frame offset
+0  3008d  c21220000  # store r1, frame[0]
+0  3008e  c10020000  # move r1, r0
+0  3008f  100000006  # constant
+0  30090  c14000000  # move r0, r1
+0  30091  100000001  # frame slot 1
+0  30092  cb3000000  # frame offset
+0  30093  c21220000  # store r1, frame[1]
+0  30094  c10020000  # move r1, r0
+0  30095  100000001  # frame slot 1
+0  30096  cb3000000  # frame offset
+0  30097  c10220000  # load frame[1], r0
+0  30098  c14000000  # move r0, r1
+0  30099  100000007  # frame slot 7
+0  3009a  cb3000000  # frame offset
+0  3009b  c21220000  # store r1, frame[7]
+0  3009c  c10020000  # move r1, r0
+0  3009d  100000006  # advance stack frame
+0  3009e  cbf000000  # sp += frame size
+0  3009f  f10400000  # call factorial
+0  300a0  1fffffffa  # restore stack frame
+0  300a1  cbf000000  # sp -= frame size
+0  300a2  c10020000  # move r1, r0
+0  300a3  c14000000  # move r0, r1
+0  300a4  3000c0001  # address 0x00300, length 1
+0  300a5  c400c0000  # set A2
+0  300a6  100000000  # frame slot 0
+0  300a7  cb3000000  # frame offset
+0  300a8  c18220000  # load frame[0], r2
+0  300a9  c10020000  # move r1, r0
+0  300aa  c70040000  # return
+0  300ab  100000000  # constant
+0  300ac  c14000000  # move r0, r1
+0  300ad  3000c0001  # address 0x00300, length 1
+0  300ae  c400c0000  # set A2
+0  300af  100000000  # frame slot 0
+0  300b0  cb3000000  # frame offset
+0  300b1  c18220000  # load frame[0], r2
+0  300b2  c10020000  # move r1, r0
+0  300b3  c70040000  # return
+0  01020  3001c0801  # address 0x00702, length 1
+0  01021  c400c0000  # set A2
+0  01022  c10840000  # load MDC process free-list head
+0  01023  c14000000  # move r0, r1
+0  01024  100000012  # displacement to .mdc.process.fresh.9
+0  01025  fe1000000  # branch .mdc.process.fresh.9
+0  01026  c1c020000  # move r1, r3
+0  01027  c10060000  # move r3, r0
+0  01028  d10540000  # address base << 10
+0  01029  c14000000  # move r0, r1
+0  0102a  100000001  # address length := 1
+0  0102b  d91000000  # combine address base and length
+0  0102c  c14000000  # move r0, r1
+0  0102d  100000003  # ADDR tag
+0  0102e  c61000000  # construct dynamic ADDR
+0  0102f  c400c0000  # reused MDC process block := A2
+0  01030  c18840000  # pop MDC process free-list link
+0  01031  3001c0801  # address 0x00702, length 1
+0  01032  c400c0000  # set A2
+0  01033  c22840000  # commit MDC process free-list pop
+0  01034  c10060000  # move r3, r0
+0  01035  c14000000  # move r0, r1
+0  01036  10000000a  # displacement to .mdc.process.allocated.10
+0  01037  f80000000  # branch .mdc.process.allocated.10
+0  01038  3001c0001  # address 0x00700, length 1
+0  01039  c400c0000  # set A2
+0  0103a  c10840000  # allocate fresh MDC process stack
+0  0103b  c18000000  # move r0, r2
+0  0103c  c14000000  # move r0, r1
+0  0103d  100000200  # MDC process stack words
+0  0103e  cb1000000  # advance MDC process heap
+0  0103f  c20840000  # commit fresh MDC process stack allocation
+0  01040  c10040000  # move r2, r0
+0  01041  c14000000  # move r0, r1
+0  01042  c10020000  # move r1, r0
+0  01043  d10540000  # address base << 10
+0  01044  c14000000  # move r0, r1
+0  01045  100000200  # address length := 512
+0  01046  d91000000  # combine address base and length
+0  01047  c14000000  # move r0, r1
+0  01048  100000003  # ADDR tag
+0  01049  c61000000  # construct dynamic ADDR
+0  0104a  c400a0000  # MDC process stack := A1
+0  0104b  100000000  # MDC handler frame offset
+0  0104c  c1c000000  # move r0, r3
+0  0104d  c300e0000  # save message A3
+0  0104e  c14000000  # move r0, r1
+0  0104f  100000007  # frame slot 7
+0  01050  cb3000000  # frame offset
+0  01051  c21220000  # store r1, frame[7]
+0  01052  c10020000  # move r1, r0
+0  01053  100000000  # no owned MDC bulk blocks
+0  01054  c14000000  # move r0, r1
+0  01055  10000002a  # frame slot 42
+0  01056  cb3000000  # frame offset
+0  01057  c21220000  # store r1, frame[42]
+0  01058  c10020000  # move r1, r0
+0  01059  3001c1001  # address 0x00704, length 1
+0  0105a  c400c0000  # set A2
+0  0105b  c10840000  # load application-code cache state
+0  0105c  c14000000  # move r0, r1
+0  0105d  10000000c  # displacement to .mdc.code.ready.11
+0  0105e  ff1000000  # branch .mdc.code.ready.11
+0  0105f  100000000  # application-code home node
+0  01060  f40000000  # route application-code request
+0  01061  5004c4002  # message header for __mdc_code_request, length 2
+0  01062  f40000000  # application-code request header
+0  01063  c30280000  # application-code requester node
+0  01064  f50000000  # finish application-code request
+0  01065  3001c1001  # address 0x00704, length 1
+0  01066  c400c0000  # set A2
+0  01067  c10840000  # poll application-code cache state
+0  01068  c14000000  # move r0, r1
+0  01069  1fffffffa  # displacement to .mdc.code.wait.12
+0  0106a  fe1000000  # branch .mdc.code.wait.12
+0  0106b  c108e0000  # load message[1], r0
+0  0106c  c14000000  # move r0, r1
+0  0106d  100000004  # frame slot 4
+0  0106e  cb3000000  # frame offset
+0  0106f  c21220000  # store r1, frame[4]
+0  01070  c10020000  # move r1, r0
+0  01071  c109e0000  # load message[3], r0
+0  01072  c14000000  # move r0, r1
+0  01073  100000001  # frame slot 1
+0  01074  cb3000000  # frame offset
+0  01075  c21220000  # store r1, frame[1]
+0  01076  c10020000  # move r1, r0
+0  01077  c10a60000  # load message[4], r0
+0  01078  c14000000  # move r0, r1
+0  01079  100000002  # frame slot 2
+0  0107a  cb3000000  # frame offset
+0  0107b  c21220000  # store r1, frame[2]
+0  0107c  c10020000  # move r1, r0
+0  0107d  c10ae0000  # load message[5], r0
+0  0107e  c14000000  # move r0, r1
+0  0107f  100000003  # frame slot 3
+0  01080  cb3000000  # frame offset
+0  01081  c21220000  # store r1, frame[3]
+0  01082  c10020000  # move r1, r0
+0  01083  c10b60000  # load message[6], r0
+0  01084  c14000000  # move r0, r1
+0  01085  100000006  # frame slot 6
+0  01086  cb3000000  # frame offset
+0  01087  c21220000  # store r1, frame[6]
+0  01088  c10020000  # move r1, r0
+0  01089  100000004  # frame slot 4
+0  0108a  cb3000000  # frame offset
+0  0108b  c10220000  # load frame[4], r0
+0  0108c  cc0400000  # MDC function id == 0
+0  0108d  c14000000  # move r0, r1
+0  0108e  100000009  # displacement to .mdc.args.0.15
+0  0108f  fe1000000  # branch .mdc.args.0.15
+0  01090  100000004  # frame slot 4
+0  01091  cb3000000  # frame offset
+0  01092  c10220000  # load frame[4], r0
+0  01093  cc0420000  # MDC function id == 1
+0  01094  c14000000  # move r0, r1
+0  01095  100000042  # displacement to .mdc.args.1.16
+0  01096  fe1000000  # branch .mdc.args.1.16
+0  01097  100000055  # displacement to .mdc.malformed.14
+0  01098  f80000000  # branch .mdc.malformed.14
+0  01099  100000000  # scalar or void MDC result kind
+0  0109a  c14000000  # move r0, r1
+0  0109b  10000000e  # frame slot 14
+0  0109c  cb3000000  # frame offset
+0  0109d  c21220000  # store r1, frame[14]
+0  0109e  c10020000  # move r1, r0
+0  0109f  100000006  # frame slot 6
+0  010a0  cb3000000  # frame offset
+0  010a1  c10220000  # load frame[6], r0
+0  010a2  cc0420000  # validate MDC logical argument count
+0  010a3  c14000000  # move r0, r1
+0  010a4  100000048  # displacement to .mdc.malformed.14
+0  010a5  ff1000000  # branch .mdc.malformed.14
+0  010a6  100000007  # first MDC logical argument
+0  010a7  c14000000  # move r0, r1
+0  010a8  100000008  # frame slot 8
+0  010a9  cb3000000  # frame offset
+0  010aa  c21220000  # store r1, frame[8]
+0  010ab  c10020000  # move r1, r0
+0  010ac  100000008  # frame slot 8
+0  010ad  cb3000000  # frame offset
+0  010ae  c10220000  # load frame[8], r0
+0  010af  c10260000  # load message[frame[8]], r0
+0  010b0  c14000000  # move r0, r1
+0  010b1  100000009  # frame slot 9
+0  010b2  cb3000000  # frame offset
+0  010b3  c21220000  # store r1, frame[9]
+0  010b4  c10020000  # move r1, r0
+0  010b5  100000008  # frame slot 8
+0  010b6  cb3000000  # frame offset
+0  010b7  c10220000  # load frame[8], r0
+0  010b8  cb0420000  # advance past MDC length
+0  010b9  c14000000  # move r0, r1
+0  010ba  100000008  # frame slot 8
+0  010bb  cb3000000  # frame offset
+0  010bc  c21220000  # store r1, frame[8]
+0  010bd  c10020000  # move r1, r0
+0  010be  100000009  # frame slot 9
+0  010bf  cb3000000  # frame offset
+0  010c0  c10220000  # load frame[9], r0
+0  010c1  cc0420000  # scalar MDC length == 1
+0  010c2  c14000000  # move r0, r1
+0  010c3  100000029  # displacement to .mdc.malformed.14
+0  010c4  ff1000000  # branch .mdc.malformed.14
+0  010c5  100000008  # frame slot 8
+0  010c6  cb3000000  # frame offset
+0  010c7  c10220000  # load frame[8], r0
+0  010c8  c10260000  # load message[frame[8]], r0
+0  010c9  c14000000  # move r0, r1
+0  010ca  100000041  # frame slot 65
+0  010cb  cb3000000  # frame offset
+0  010cc  c21220000  # store r1, frame[65]
+0  010cd  c10020000  # move r1, r0
+0  010ce  100000008  # frame slot 8
+0  010cf  cb3000000  # frame offset
+0  010d0  c10220000  # load frame[8], r0
+0  010d1  cb0420000  # advance past MDC scalar
+0  010d2  c14000000  # move r0, r1
+0  010d3  100000008  # frame slot 8
+0  010d4  cb3000000  # frame offset
+0  010d5  c21220000  # store r1, frame[8]
+0  010d6  c10020000  # move r1, r0
+0  010d7  10000007c  # displacement to .mdc.invoke.13
+0  010d8  f80000000  # branch .mdc.invoke.13
+0  010d9  100000000  # scalar or void MDC result kind
+0  010da  c14000000  # move r0, r1
+0  010db  10000000e  # frame slot 14
+0  010dc  cb3000000  # frame offset
+0  010dd  c21220000  # store r1, frame[14]
+0  010de  c10020000  # move r1, r0
+0  010df  100000006  # frame slot 6
+0  010e0  cb3000000  # frame offset
+0  010e1  c10220000  # load frame[6], r0
+0  010e2  cc0400000  # validate MDC logical argument count
+0  010e3  c14000000  # move r0, r1
+0  010e4  100000008  # displacement to .mdc.malformed.14
+0  010e5  ff1000000  # branch .mdc.malformed.14
+0  010e6  100000007  # first MDC logical argument
+0  010e7  c14000000  # move r0, r1
+0  010e8  100000008  # frame slot 8
+0  010e9  cb3000000  # frame offset
+0  010ea  c21220000  # store r1, frame[8]
+0  010eb  c10020000  # move r1, r0
+0  010ec  100000067  # displacement to .mdc.invoke.13
+0  010ed  f80000000  # branch .mdc.invoke.13
+0  010ee  100000000  # first MDC bulk allocation to reclaim
+0  010ef  c14000000  # move r0, r1
+0  010f0  10000000b  # frame slot 11
+0  010f1  cb3000000  # frame offset
+0  010f2  c21220000  # store r1, frame[11]
+0  010f3  c10020000  # move r1, r0
+0  010f4  10000002a  # frame slot 42
+0  010f5  cb3000000  # frame offset
+0  010f6  c14220000  # load frame[42], r1
+0  010f7  10000000b  # frame slot 11
+0  010f8  cb3000000  # frame offset
+0  010f9  c10220000  # load frame[11], r0
+0  010fa  e00020000  # bulk reclaim index < count
+0  010fb  c60420000  # C boolean to INT tag
+0  010fc  c14000000  # move r0, r1
+0  010fd  10000002d  # displacement to .mdc.reclaim.bulk.done.18
+0  010fe  fe1000000  # branch .mdc.reclaim.bulk.done.18
+0  010ff  10000000b  # frame slot 11
+0  01100  cb3000000  # frame offset
+0  01101  c10220000  # load frame[11], r0
+0  01102  c18000000  # move r0, r2
+0  01103  10000002b  # MDC bulk-list base slot
+0  01104  cb2000000  # MDC bulk-list slot
+0  01105  cb3000000  # MDC bulk-list frame offset
+0  01106  c10220000  # load reclaimed MDC bulk block
+0  01107  c14000000  # move r0, r1
+0  01108  10000000a  # frame slot 10
+0  01109  cb3000000  # frame offset
+0  0110a  c21220000  # store r1, frame[10]
+0  0110b  c10020000  # move r1, r0
+0  0110c  3001c0c01  # address 0x00703, length 1
+0  0110d  c400c0000  # set A2
+0  0110e  c18840000  # load MDC bulk free-list head
+0  0110f  10000000a  # frame slot 10
+0  01110  cb3000000  # frame offset
+0  01111  c10220000  # load frame[10], r0
+0  01112  d10540000  # address base << 10
+0  01113  c14000000  # move r0, r1
+0  01114  100000001  # address length := 1
+0  01115  d91000000  # combine address base and length
+0  01116  c14000000  # move r0, r1
+0  01117  100000003  # ADDR tag
+0  01118  c61000000  # construct dynamic ADDR
+0  01119  c400c0000  # reclaimed MDC bulk block := A2
+0  0111a  c22840000  # link reclaimed MDC bulk block
+0  0111b  10000000a  # frame slot 10
+0  0111c  cb3000000  # frame offset
+0  0111d  c14220000  # load frame[10], r1
+0  0111e  3001c0c01  # address 0x00703, length 1
+0  0111f  c400c0000  # set A2
+0  01120  c21840000  # publish MDC bulk free-list head
+0  01121  10000000b  # frame slot 11
+0  01122  cb3000000  # frame offset
+0  01123  c10220000  # load frame[11], r0
+0  01124  cb0420000  # next MDC bulk allocation
+0  01125  c14000000  # move r0, r1
+0  01126  10000000b  # frame slot 11
+0  01127  cb3000000  # frame offset
+0  01128  c21220000  # store r1, frame[11]
+0  01129  c10020000  # move r1, r0
+0  0112a  1ffffffc8  # displacement to .mdc.reclaim.bulk.loop.17
+0  0112b  f80000000  # branch .mdc.reclaim.bulk.loop.17
+0  0112c  200000001  # enter pointer-field extraction
+0  0112d  c40380000  # U := true
+0  0112e  c300a0000  # read A1
+0  0112f  c60420000  # retag address data as INT
+0  01130  c14000000  # move r0, r1
+0  01131  1fffffff6  # address base right-shift count
+0  01132  d11000000  # extract address base
+0  01133  c14000000  # move r0, r1
+0  01134  1000fffff  # address base field mask
+0  01135  d81000000  # mask address base field
+0  01136  c14000000  # move r0, r1
+0  01137  200000000  # leave pointer-field extraction
+0  01138  c40380000  # U := false
+0  01139  c10020000  # move r1, r0
+0  0113a  c14000000  # move r0, r1
+0  0113b  10000000a  # frame slot 10
+0  0113c  cb3000000  # frame offset
+0  0113d  c21220000  # store r1, frame[10]
+0  0113e  c10020000  # move r1, r0
+0  0113f  3001c0801  # address 0x00702, length 1
+0  01140  c400c0000  # set A2
+0  01141  c18840000  # load MDC process free-list head
+0  01142  10000000a  # frame slot 10
+0  01143  cb3000000  # frame offset
+0  01144  c10220000  # load frame[10], r0
+0  01145  d10540000  # address base << 10
+0  01146  c14000000  # move r0, r1
+0  01147  100000001  # address length := 1
+0  01148  d91000000  # combine address base and length
+0  01149  c14000000  # move r0, r1
+0  0114a  100000003  # ADDR tag
+0  0114b  c61000000  # construct dynamic ADDR
+0  0114c  c400c0000  # reclaimed MDC process block := A2
+0  0114d  c22840000  # link reclaimed MDC process block
+0  0114e  10000000a  # frame slot 10
+0  0114f  cb3000000  # frame offset
+0  01150  c14220000  # load frame[10], r1
+0  01151  3001c0801  # address 0x00702, length 1
+0  01152  c400c0000  # set A2
+0  01153  c21840000  # publish MDC process free-list head
+0  01154  f00000000  # discard malformed MDC spawn message
+0  01155  100000004  # frame slot 4
+0  01156  cb3000000  # frame offset
+0  01157  c18220000  # load frame[4], r2
+0  01158  100000040  # advance MDC runtime frame
+0  01159  cbf000000  # MDC sp += runtime frame
+0  0115a  200000000  # disable queue-relative A3 for C globals
+0  0115b  c403a0000  # Q := false
+0  0115c  300200000  # address 0x00800, length 0
+0  0115d  c400e0000  # set A3
+0  0115e  f10040000  # invoke MDC function id
+0  0115f  c14000000  # move r0, r1
+0  01160  1ffffffc0  # restore MDC runtime frame
+0  01161  cbf000000  # MDC sp -= runtime frame
+0  01162  c10020000  # move r1, r0
+0  01163  c14000000  # move r0, r1
+0  01164  100000005  # frame slot 5
+0  01165  cb3000000  # frame offset
+0  01166  c21220000  # store r1, frame[5]
+0  01167  c10020000  # move r1, r0
+0  01168  100000001  # frame slot 1
+0  01169  cb3000000  # frame offset
+0  0116a  c10220000  # load frame[1], r0
+0  0116b  cc07e0000  # MDC return length == -1
+0  0116c  c14000000  # move r0, r1
+0  0116d  100000069  # displacement to .mdc.no.response.19
+0  0116e  fe1000000  # branch .mdc.no.response.19
+0  0116f  10000000e  # frame slot 14
+0  01170  cb3000000  # frame offset
+0  01171  c10220000  # load frame[14], r0
+0  01172  c14000000  # move r0, r1
+0  01173  100000010  # displacement to .mdc.aggregate.response.20
+0  01174  ff1000000  # branch .mdc.aggregate.response.20
+0  01175  100000002  # frame slot 2
+0  01176  cb3000000  # frame offset
+0  01177  c10220000  # load frame[2], r0
+0  01178  f44000000  # MDC response routing word
+0  01179  580491403  # message header for __mdc_set, length 3
+0  0117a  f44000000  # MDC SET header
+0  0117b  100000003  # frame slot 3
+0  0117c  cb3000000  # frame offset
+0  0117d  c10220000  # load frame[3], r0
+0  0117e  f44000000  # MDC return address
+0  0117f  100000005  # frame slot 5
+0  01180  cb3000000  # frame offset
+0  01181  c10220000  # load frame[5], r0
+0  01182  f54000000  # MDC return value
+0  01183  100000053  # displacement to .mdc.response.finished.21
+0  01184  f80000000  # branch .mdc.response.finished.21
+0  01185  100000001  # frame slot 1
+0  01186  cb3000000  # frame offset
+0  01187  c10220000  # load frame[1], r0
+0  01188  cb0460000  # aggregate SET header, address, count, and data length
+0  01189  c14000000  # move r0, r1
+0  0118a  10000000d  # frame slot 13
+0  0118b  cb3000000  # frame offset
+0  0118c  c21220000  # store r1, frame[13]
+0  0118d  c10020000  # move r1, r0
+0  0118e  100000002  # frame slot 2
+0  0118f  cb3000000  # frame offset
+0  01190  c10220000  # load frame[2], r0
+0  01191  f44000000  # aggregate MDC response routing word
+0  01192  10000000d  # frame slot 13
+0  01193  cb3000000  # frame offset
+0  01194  c14220000  # load frame[13], r1
+0  01195  50049b400  # message header for __mdc_set_aggregate, length 0
+0  01196  c60420000  # retag relocatable message base as INT
+0  01197  d90020000  # insert dynamic MDC message length
+0  01198  c604a0000  # construct dynamic MSG header
+0  01199  f44000000  # aggregate MDC SET header
+0  0119a  100000003  # frame slot 3
+0  0119b  cb3000000  # frame offset
+0  0119c  c10220000  # load frame[3], r0
+0  0119d  f44000000  # aggregate MDC return address
+0  0119e  100000001  # frame slot 1
+0  0119f  cb3000000  # frame offset
+0  011a0  c10220000  # load frame[1], r0
+0  011a1  f44000000  # aggregate MDC return word count
+0  011a2  100000000  # first aggregate MDC return word
+0  011a3  c14000000  # move r0, r1
+0  011a4  10000000b  # frame slot 11
+0  011a5  cb3000000  # frame offset
+0  011a6  c21220000  # store r1, frame[11]
+0  011a7  c10020000  # move r1, r0
+0  011a8  100000001  # frame slot 1
+0  011a9  cb3000000  # frame offset
+0  011aa  c14220000  # load frame[1], r1
+0  011ab  10000000c  # frame slot 12
+0  011ac  cb3000000  # frame offset
+0  011ad  c10220000  # load frame[12], r0
+0  011ae  d10540000  # address base << 10
+0  011af  d90020000  # combine dynamic address length
+0  011b0  c60460000  # construct dynamic ADDR
+0  011b1  c400c0000  # aggregate MDC return source := A2
+0  011b2  10000000b  # frame slot 11
+0  011b3  cb3000000  # frame offset
+0  011b4  c10220000  # load frame[11], r0
+0  011b5  c14240000  # load aggregate MDC return word
+0  011b6  10000000a  # frame slot 10
+0  011b7  cb3000000  # frame offset
+0  011b8  c21220000  # store r1, frame[10]
+0  011b9  100000001  # frame slot 1
+0  011ba  cb3000000  # frame offset
+0  011bb  c14220000  # load frame[1], r1
+0  011bc  10000000b  # frame slot 11
+0  011bd  cb3000000  # frame offset
+0  011be  c10220000  # load frame[11], r0
+0  011bf  cb0420000  # next aggregate return index
+0  011c0  e40020000  # last aggregate return word
+0  011c1  c60420000  # C boolean to INT tag
+0  011c2  c14000000  # move r0, r1
+0  011c3  10000000f  # displacement to .mdc.aggregate.response.last.23
+0  011c4  ff1000000  # branch .mdc.aggregate.response.last.23
+0  011c5  10000000a  # frame slot 10
+0  011c6  cb3000000  # frame offset
+0  011c7  c10220000  # load frame[10], r0
+0  011c8  f44000000  # send aggregate MDC return word
+0  011c9  10000000b  # frame slot 11
+0  011ca  cb3000000  # frame offset
+0  011cb  c10220000  # load frame[11], r0
+0  011cc  cb0420000  # advance aggregate return index
+0  011cd  c14000000  # move r0, r1
+0  011ce  10000000b  # frame slot 11
+0  011cf  cb3000000  # frame offset
+0  011d0  c21220000  # store r1, frame[11]
+0  011d1  c10020000  # move r1, r0
+0  011d2  1ffffffd4  # displacement to .mdc.aggregate.response.loop.22
+0  011d3  f80000000  # branch .mdc.aggregate.response.loop.22
+0  011d4  10000000a  # frame slot 10
+0  011d5  cb3000000  # frame offset
+0  011d6  c10220000  # load frame[10], r0
+0  011d7  f54000000  # send final aggregate MDC return word
+0  011d8  100000007  # frame slot 7
+0  011d9  cb3000000  # frame offset
+0  011da  c10220000  # load frame[7], r0
+0  011db  c400e0000  # restore message A3
+0  011dc  100000000  # first MDC bulk allocation to reclaim
+0  011dd  c14000000  # move r0, r1
+0  011de  10000000b  # frame slot 11
+0  011df  cb3000000  # frame offset
+0  011e0  c21220000  # store r1, frame[11]
+0  011e1  c10020000  # move r1, r0
+0  011e2  10000002a  # frame slot 42
+0  011e3  cb3000000  # frame offset
+0  011e4  c14220000  # load frame[42], r1
+0  011e5  10000000b  # frame slot 11
+0  011e6  cb3000000  # frame offset
+0  011e7  c10220000  # load frame[11], r0
+0  011e8  e00020000  # bulk reclaim index < count
+0  011e9  c60420000  # C boolean to INT tag
+0  011ea  c14000000  # move r0, r1
+0  011eb  10000002d  # displacement to .mdc.reclaim.bulk.done.25
+0  011ec  fe1000000  # branch .mdc.reclaim.bulk.done.25
+0  011ed  10000000b  # frame slot 11
+0  011ee  cb3000000  # frame offset
+0  011ef  c10220000  # load frame[11], r0
+0  011f0  c18000000  # move r0, r2
+0  011f1  10000002b  # MDC bulk-list base slot
+0  011f2  cb2000000  # MDC bulk-list slot
+0  011f3  cb3000000  # MDC bulk-list frame offset
+0  011f4  c10220000  # load reclaimed MDC bulk block
+0  011f5  c14000000  # move r0, r1
+0  011f6  10000000a  # frame slot 10
+0  011f7  cb3000000  # frame offset
+0  011f8  c21220000  # store r1, frame[10]
+0  011f9  c10020000  # move r1, r0
+0  011fa  3001c0c01  # address 0x00703, length 1
+0  011fb  c400c0000  # set A2
+0  011fc  c18840000  # load MDC bulk free-list head
+0  011fd  10000000a  # frame slot 10
+0  011fe  cb3000000  # frame offset
+0  011ff  c10220000  # load frame[10], r0
+0  01200  d10540000  # address base << 10
+0  01201  c14000000  # move r0, r1
+0  01202  100000001  # address length := 1
+0  01203  d91000000  # combine address base and length
+0  01204  c14000000  # move r0, r1
+0  01205  100000003  # ADDR tag
+0  01206  c61000000  # construct dynamic ADDR
+0  01207  c400c0000  # reclaimed MDC bulk block := A2
+0  01208  c22840000  # link reclaimed MDC bulk block
+0  01209  10000000a  # frame slot 10
+0  0120a  cb3000000  # frame offset
+0  0120b  c14220000  # load frame[10], r1
+0  0120c  3001c0c01  # address 0x00703, length 1
+0  0120d  c400c0000  # set A2
+0  0120e  c21840000  # publish MDC bulk free-list head
+0  0120f  10000000b  # frame slot 11
+0  01210  cb3000000  # frame offset
+0  01211  c10220000  # load frame[11], r0
+0  01212  cb0420000  # next MDC bulk allocation
+0  01213  c14000000  # move r0, r1
+0  01214  10000000b  # frame slot 11
+0  01215  cb3000000  # frame offset
+0  01216  c21220000  # store r1, frame[11]
+0  01217  c10020000  # move r1, r0
+0  01218  1ffffffc8  # displacement to .mdc.reclaim.bulk.loop.24
+0  01219  f80000000  # branch .mdc.reclaim.bulk.loop.24
+0  0121a  200000001  # enter pointer-field extraction
+0  0121b  c40380000  # U := true
+0  0121c  c300a0000  # read A1
+0  0121d  c60420000  # retag address data as INT
+0  0121e  c14000000  # move r0, r1
+0  0121f  1fffffff6  # address base right-shift count
+0  01220  d11000000  # extract address base
+0  01221  c14000000  # move r0, r1
+0  01222  1000fffff  # address base field mask
+0  01223  d81000000  # mask address base field
+0  01224  c14000000  # move r0, r1
+0  01225  200000000  # leave pointer-field extraction
+0  01226  c40380000  # U := false
+0  01227  c10020000  # move r1, r0
+0  01228  c14000000  # move r0, r1
+0  01229  10000000a  # frame slot 10
+0  0122a  cb3000000  # frame offset
+0  0122b  c21220000  # store r1, frame[10]
+0  0122c  c10020000  # move r1, r0
+0  0122d  3001c0801  # address 0x00702, length 1
+0  0122e  c400c0000  # set A2
+0  0122f  c18840000  # load MDC process free-list head
+0  01230  10000000a  # frame slot 10
+0  01231  cb3000000  # frame offset
+0  01232  c10220000  # load frame[10], r0
+0  01233  d10540000  # address base << 10
+0  01234  c14000000  # move r0, r1
+0  01235  100000001  # address length := 1
+0  01236  d91000000  # combine address base and length
+0  01237  c14000000  # move r0, r1
+0  01238  100000003  # ADDR tag
+0  01239  c61000000  # construct dynamic ADDR
+0  0123a  c400c0000  # reclaimed MDC process block := A2
+0  0123b  c22840000  # link reclaimed MDC process block
+0  0123c  10000000a  # frame slot 10
+0  0123d  cb3000000  # frame offset
+0  0123e  c14220000  # load frame[10], r1
+0  0123f  3001c0801  # address 0x00702, length 1
+0  01240  c400c0000  # set A2
+0  01241  c21840000  # publish MDC process free-list head
+0  01242  200000001  # restore queue-relative A3
+0  01243  c403a0000  # Q := true
+0  01244  f00000000  # release MDC spawn message
+0  01245  c18960000  # load message[2], r2
+0  01246  c108e0000  # load message[1], r0
+0  01247  d10540000  # address base << 10
+0  01248  c14000000  # move r0, r1
+0  01249  100000001  # address length := 1
+0  0124a  d91000000  # combine address base and length
+0  0124b  c14000000  # move r0, r1
+0  0124c  100000003  # ADDR tag
+0  0124d  c61000000  # construct dynamic ADDR
+0  0124e  c400a0000  # set dynamic A1
+0  0124f  200000001  # inspect FUT waiter list unchecked
+0  01250  c40380000  # U := true
+0  01251  c10820000  # load FUT waiter-list head
+0  01252  c60420000  # extract FUT waiter-list head
+0  01253  c1c000000  # move r0, r3
+0  01254  200000000  # finish FUT waiter-list inspection
+0  01255  c40380000  # U := false
+0  01256  c22820000  # resolve MDC result future
+0  01257  c10060000  # move r3, r0
+0  01258  c14000000  # move r0, r1
+0  01259  100000011  # displacement to .mdc.wake.done.27
+0  0125a  fe1000000  # branch .mdc.wake.done.27
+0  0125b  c30280000  # wake routing computer
+0  0125c  f40000000  # MDC wake routing word
+0  0125d  5004af402  # message header for __mdc_wakeup, length 2
+0  0125e  f40000000  # MDC wake header
+0  0125f  f50060000  # MDC suspended-process address
+0  01260  c10060000  # move r3, r0
+0  01261  d10540000  # address base << 10
+0  01262  c14000000  # move r0, r1
+0  01263  100000200  # address length := 512
+0  01264  d91000000  # combine address base and length
+0  01265  c14000000  # move r0, r1
+0  01266  100000003  # ADDR tag
+0  01267  c61000000  # construct dynamic ADDR
+0  01268  c400c0000  # set dynamic A2
+0  01269  c1ecc0000  # next FUT waiter
+0  0126a  1ffffffeb  # displacement to .mdc.wake.loop.26
+0  0126b  f80000000  # branch .mdc.wake.loop.26
+0  0126c  f00000000  # release MDC SET message
+0  0126d  c148e0000  # load message[1], r1
+0  0126e  3001c2801  # address 0x0070a, length 1
+0  0126f  c400c0000  # set A2
+0  01270  c21840000  # save aggregate SET destination base
+0  01271  c14960000  # load message[2], r1
+0  01272  3001c2c01  # address 0x0070b, length 1
+0  01273  c400c0000  # set A2
+0  01274  c21840000  # save aggregate SET word count
+0  01275  3001c3001  # address 0x0070c, length 1
+0  01276  c400c0000  # set A2
+0  01277  100000000  # first aggregate SET word
+0  01278  c20840000  # initialize aggregate SET index
+0  01279  3001c2c01  # address 0x0070b, length 1
+0  0127a  c400c0000  # set A2
+0  0127b  c14840000  # load aggregate SET word count
+0  0127c  3001c3001  # address 0x0070c, length 1
+0  0127d  c400c0000  # set A2
+0  0127e  c10840000  # load aggregate SET index
+0  0127f  e00020000  # aggregate SET index < count
+0  01280  c60420000  # C boolean to INT tag
+0  01281  c14000000  # move r0, r1
+0  01282  100000038  # displacement to .mdc.aggregate.set.done.29
+0  01283  fe1000000  # branch .mdc.aggregate.set.done.29
+0  01284  3001c2801  # address 0x0070a, length 1
+0  01285  c400c0000  # set A2
+0  01286  c14840000  # load aggregate SET destination base
+0  01287  3001c3001  # address 0x0070c, length 1
+0  01288  c400c0000  # set A2
+0  01289  c10840000  # load aggregate SET destination index
+0  0128a  cb0020000  # aggregate SET destination word
+0  0128b  d10540000  # address base << 10
+0  0128c  c14000000  # move r0, r1
+0  0128d  100000001  # address length := 1
+0  0128e  d91000000  # combine address base and length
+0  0128f  c14000000  # move r0, r1
+0  01290  100000003  # ADDR tag
+0  01291  c61000000  # construct dynamic ADDR
+0  01292  c400a0000  # set dynamic A1
+0  01293  200000001  # inspect aggregate FUT waiter list unchecked
+0  01294  c40380000  # U := true
+0  01295  c10820000  # load aggregate FUT waiter-list head
+0  01296  c60420000  # extract aggregate FUT waiter-list head
+0  01297  c1c000000  # move r0, r3
+0  01298  200000000  # finish aggregate FUT waiter-list inspection
+0  01299  c40380000  # U := false
+0  0129a  3001c3001  # address 0x0070c, length 1
+0  0129b  c400c0000  # set A2
+0  0129c  c10840000  # load aggregate SET source index
+0  0129d  cb0460000  # aggregate SET message data offset
+0  0129e  c18260000  # load aggregate SET data word
+0  0129f  c22820000  # resolve aggregate MDC result future
+0  012a0  c10060000  # move r3, r0
+0  012a1  c14000000  # move r0, r1
+0  012a2  100000011  # displacement to .mdc.aggregate.wake.done.31
+0  012a3  fe1000000  # branch .mdc.aggregate.wake.done.31
+0  012a4  c30280000  # aggregate wake routing computer
+0  012a5  f40000000  # aggregate MDC wake routing word
+0  012a6  5004af402  # message header for __mdc_wakeup, length 2
+0  012a7  f40000000  # aggregate MDC wake header
+0  012a8  f50060000  # aggregate MDC suspended-process address
+0  012a9  c10060000  # move r3, r0
+0  012aa  d10540000  # address base << 10
+0  012ab  c14000000  # move r0, r1
+0  012ac  100000200  # address length := 512
+0  012ad  d91000000  # combine address base and length
+0  012ae  c14000000  # move r0, r1
+0  012af  100000003  # ADDR tag
+0  012b0  c61000000  # construct dynamic ADDR
+0  012b1  c400c0000  # set dynamic A2
+0  012b2  c1ecc0000  # next aggregate FUT waiter
+0  012b3  1ffffffeb  # displacement to .mdc.aggregate.wake.loop.30
+0  012b4  f80000000  # branch .mdc.aggregate.wake.loop.30
+0  012b5  3001c3001  # address 0x0070c, length 1
+0  012b6  c400c0000  # set A2
+0  012b7  c10840000  # reload aggregate SET index
+0  012b8  cb0420000  # advance aggregate SET index
+0  012b9  c20840000  # commit aggregate SET index
+0  012ba  1ffffffbd  # displacement to .mdc.aggregate.set.loop.28
+0  012bb  f80000000  # branch .mdc.aggregate.set.loop.28
+0  012bc  f00000000  # release aggregate MDC SET message
+0  012bd  c108e0000  # load message[1], r0
+0  012be  d10540000  # address base << 10
+0  012bf  c14000000  # move r0, r1
+0  012c0  100000200  # address length := 512
+0  012c1  d91000000  # combine address base and length
+0  012c2  c14000000  # move r0, r1
+0  012c3  100000003  # ADDR tag
+0  012c4  c61000000  # construct dynamic ADDR
+0  012c5  c400a0000  # restore suspended process A1
+0  012c6  c300e0000  # capture wake-message A3
+0  012c7  c20ba0000  # store r0, process header[7]
+0  012c8  200000000  # leave queue-relative wake-message addressing
+0  012c9  c403a0000  # Q := false
+0  012ca  c12aa0000  # load process header[37], r0
+0  012cb  c40080000  # restore A0
+0  012cc  c12b20000  # load process header[38], r0
+0  012cd  c400c0000  # restore A2
+0  012ce  c12ba0000  # load process header[39], r0
+0  012cf  c400e0000  # restore A3
+0  012d0  c16920000  # load process header[34], r1
+0  012d1  c1a9a0000  # load process header[35], r2
+0  012d2  c1ea20000  # load process header[36], r3
+0  012d3  c128a0000  # load process header[33], r0
+0  012d4  c78820000  # resume suspended process
+0  012d5  c302a0000  # capture future-fault memory address before changing MAR
+0  012d6  c28c20000  # store r0, process header[40]
+0  012d7  c301c0000  # recover faulting R0 from FOP0
+0  012d8  c288a0000  # store r0, process header[33]
+0  012d9  c29920000  # store r1, process header[34]
+0  012da  c2a9a0000  # store r2, process header[35]
+0  012db  c2ba20000  # store r3, process header[36]
+0  012dc  c30180000  # read future-fault FIP
+0  012dd  c28820000  # store r0, process header[32]
+0  012de  c30080000  # save A0
+0  012df  c28aa0000  # store r0, process header[37]
+0  012e0  c300c0000  # save A2
+0  012e1  c28b20000  # store r0, process header[38]
+0  012e2  c300e0000  # save A3
+0  012e3  c28ba0000  # store r0, process header[39]
+0  012e4  3001c2001  # address 0x00708, length 1
+0  012e5  c400c0000  # set A2
+0  012e6  c10840000  # load architectural FUT-fault count
+0  012e7  cb0420000  # count architectural FUT fault
+0  012e8  c20840000  # store architectural FUT-fault count
+0  012e9  c12c20000  # load process header[40], r0
+0  012ea  d10540000  # address base << 10
+0  012eb  c14000000  # move r0, r1
+0  012ec  100000001  # address length := 1
+0  012ed  d91000000  # combine address base and length
+0  012ee  c14000000  # move r0, r1
+0  012ef  100000003  # ADDR tag
+0  012f0  c61000000  # construct dynamic ADDR
+0  012f1  c400c0000  # set dynamic A2
+0  012f2  200000001  # read unresolved FUT data unchecked
+0  012f3  c40380000  # U := true
+0  012f4  c10840000  # load prior FUT waiter
+0  012f5  c60420000  # extract prior FUT waiter
+0  012f6  c14000000  # move r0, r1
+0  012f7  200000000  # finish unresolved FUT data read
+0  012f8  c40380000  # U := false
+0  012f9  c10020000  # move r1, r0
+0  012fa  c28ca0000  # store r0, process header[41]
+0  012fb  200000001  # enter pointer-field extraction
+0  012fc  c40380000  # U := true
+0  012fd  c300a0000  # read A1
+0  012fe  c60420000  # retag address data as INT
+0  012ff  c14000000  # move r0, r1
+0  01300  1fffffff6  # address base right-shift count
+0  01301  d11000000  # extract address base
+0  01302  c14000000  # move r0, r1
+0  01303  1000fffff  # address base field mask
+0  01304  d81000000  # mask address base field
+0  01305  c14000000  # move r0, r1
+0  01306  200000000  # leave pointer-field extraction
+0  01307  c40380000  # U := false
+0  01308  c10020000  # move r1, r0
+0  01309  c604e0000  # link process into FUT waiter list
+0  0130a  c20840000  # commit FUT waiter-list head
+0  0130b  c10ba0000  # load process header[7], r0
+0  0130c  c400e0000  # restore active process message A3
+0  0130d  200000001  # restore queue-relative process message
+0  0130e  c403a0000  # Q := true
+0  0130f  f00000000  # suspend process on unresolved FUT
+0  01310  3001c1401  # address 0x00705, length 1
+0  01311  c400c0000  # set A2
+0  01312  c10840000  # load application-code request count
+0  01313  cb0420000  # count application-code request
+0  01314  c20840000  # store application-code request count
+0  01315  3001c1c01  # address 0x00707, length 1
+0  01316  c400c0000  # set A2
+0  01317  100000000  # reset application-code chunk acknowledgement count
+0  01318  c20840000  # reset application-code chunk acknowledgement count
+0  01319  c108e0000  # load message[1], r0
+0  0131a  f44000000  # route application-code chunk
+0  0131b  5804cf4b8  # message header for __mdc_code_install, length 184
+0  0131c  f44000000  # application-code chunk header
+0  0131d  100000000  # application-code cache offset
+0  0131e  f44000000  # send application-code cache offset
+0  0131f  1000000b4  # application-code chunk length
+0  01320  f44000000  # send application-code chunk length
+0  01321  100000001  # application-code final chunk flag
+0  01322  f44000000  # send application-code final flag
+0  01323  30c0000b4  # address 0x30000, length 180
+0  01324  c400c0000  # set A2
+0  01325  100000000  # application-code source index
+0  01326  c18000000  # move r0, r2
+0  01327  1000000b3  # last application-code source index
+0  01328  c1c000000  # move r0, r3
+0  01329  e42060000  # last application-code word
+0  0132a  c60420000  # C boolean to INT tag
+0  0132b  c14000000  # move r0, r1
+0  0132c  100000005  # displacement to .mdc.code.send.last.33
+0  0132d  ff1000000  # branch .mdc.code.send.last.33
+0  0132e  c10340000  # load application-code word
+0  0132f  f44000000  # send application-code word
+0  01330  cba420000  # next application-code word
+0  01331  1fffffff6  # displacement to .mdc.code.send.loop.32
+0  01332  f80000000  # branch .mdc.code.send.loop.32
+0  01333  c10340000  # load final application-code word
+0  01334  f54000000  # finish application-code chunk
+0  01335  3001c1c01  # address 0x00707, length 1
+0  01336  c400c0000  # set A2
+0  01337  c10840000  # load application-code chunk acknowledgement count
+0  01338  cc0420000  # await application-code chunk acknowledgement
+0  01339  c14000000  # move r0, r1
+0  0133a  1fffffff9  # displacement to .mdc.code.ack.wait.34
+0  0133b  ff1000000  # branch .mdc.code.ack.wait.34
+0  0133c  f00000000  # release application-code request
+0  0133d  3001c1801  # address 0x00706, length 1
+0  0133e  c400c0000  # set A2
+0  0133f  c10840000  # load application-code installed-chunk count
+0  01340  cb0420000  # count installed application-code chunk
+0  01341  c20840000  # store application-code installed-chunk count
+0  01342  c30220000  # load current-priority queue head/length
+0  01343  c60420000  # C boolean to INT tag
+0  01344  c14000000  # move r0, r1
+0  01345  1000003ff  # queue occupancy mask
+0  01346  d80020000  # extract committed queue occupancy
+0  01347  c18000000  # move r0, r2
+0  01348  c10960000  # load message[2], r0
+0  01349  cb04e0000  # application-code aligned message length bias
+0  0134a  d80780000  # application-code aligned message length
+0  0134b  c14000000  # move r0, r1
+0  0134c  e02020000  # committed queue occupancy < application-code message length
+0  0134d  c60420000  # C boolean to INT tag
+0  0134e  c14000000  # move r0, r1
+0  0134f  1fffffff1  # displacement to .mdc.code.install.arrived.35
+0  01350  ff1000000  # branch .mdc.code.install.arrived.35
+0  01351  c148e0000  # load message[1], r1
+0  01352  100030000  # application-code cache base
+0  01353  cb0020000  # application-code chunk destination
+0  01354  d10540000  # address base << 10
+0  01355  c14000000  # move r0, r1
+0  01356  100000000  # address length := 0
+0  01357  d91000000  # combine address base and length
+0  01358  c14000000  # move r0, r1
+0  01359  100000003  # ADDR tag
+0  0135a  c61000000  # construct dynamic ADDR
+0  0135b  c400c0000  # application-code chunk destination := A2
+0  0135c  c1c960000  # load message[2], r3
+0  0135d  100000000  # application-code install index
+0  0135e  c18000000  # move r0, r2
+0  0135f  e02060000  # application-code install index < length
+0  01360  c60420000  # C boolean to INT tag
+0  01361  c14000000  # move r0, r1
+0  01362  100000007  # displacement to .mdc.code.install.done.37
+0  01363  fe1000000  # branch .mdc.code.install.done.37
+0  01364  c10040000  # move r2, r0
+0  01365  cb0480000  # application-code message offset
+0  01366  c14260000  # load transported application-code word
+0  01367  c21340000  # install application-code word
+0  01368  cba420000  # next installed application-code word
+0  01369  1fffffff4  # displacement to .mdc.code.install.loop.36
+0  0136a  f80000000  # branch .mdc.code.install.loop.36
+0  0136b  c109e0000  # load message[3], r0
+0  0136c  c14000000  # move r0, r1
+0  0136d  100000004  # displacement to .mdc.code.install.complete.38
+0  0136e  fe1000000  # branch .mdc.code.install.complete.38
+0  0136f  3001c1001  # address 0x00704, length 1
+0  01370  c400c0000  # set A2
+0  01371  100000001  # application-code cache ready
+0  01372  c20840000  # publish application-code cache readiness
+0  01373  100000000  # application-code home node
+0  01374  f44000000  # route application-code chunk acknowledgement
+0  01375  5804de802  # message header for __mdc_code_ack, length 2
+0  01376  f44000000  # application-code chunk acknowledgement header
+0  01377  c108e0000  # load message[1], r0
+0  01378  f54000000  # finish application-code chunk acknowledgement
+0  01379  f00000000  # release application-code chunk
+0  0137a  3001c1c01  # address 0x00707, length 1
+0  0137b  c400c0000  # set A2
+0  0137c  c10840000  # load application-code chunk acknowledgement count
+0  0137d  cb0420000  # count application-code chunk acknowledgement
+0  0137e  c20840000  # store application-code chunk acknowledgement count
+0  0137f  f00000000  # release application-code chunk acknowledgement
+0  01380  3001c3401  # address 0x0070d, length 1
+0  01381  c400c0000  # set A2
+0  01382  100000001  # MDC argument envelope runtime error
+0  01383  c20840000  # publish MDC argument envelope runtime error
+0  01384  1fffffffe  # displacement to .mdc.argument.error.halt.39
+0  01385  f80000000  # branch .mdc.argument.error.halt.39
+0  01386  c40080000  # park fault-context R0 in reserved A0
+0  01387  200000001  # mask dispatch during SEND recovery
+0  01388  c40340000  # I := true
+0  01389  c30320000  # select background SEND retry frame
+0  0138a  ff0780000  # inline branch .send.fault.background.40
+0  0138b  c30300000  # select priority SEND retry frame
+0  0138c  ff05a0000  # inline branch .send.fault.priority1.41
+0  0138d  10000074d  # SEND entry slot 13
+0  0138e  c21200000  # save entry r1
+0  0138f  10000074e  # SEND entry slot 14
+0  01390  c22200000  # save entry r2
+0  01391  10000074f  # SEND entry slot 15
+0  01392  c23200000  # save entry r3
+0  01393  c34080000  # recover entry R0 parked in A0
+0  01394  10000074c  # SEND entry slot 12
+0  01395  c21200000  # save entry r0
+0  01396  100000740  # selected SEND retry-frame base
+0  01397  c1c000000  # move r0, r3
+0  01398  10000001a  # displacement to .send.fault.common.42
+0  01399  f80000000  # branch .send.fault.common.42
+0  0139a  10000076d  # SEND entry slot 13
+0  0139b  c21200000  # save entry r1
+0  0139c  10000076e  # SEND entry slot 14
+0  0139d  c22200000  # save entry r2
+0  0139e  10000076f  # SEND entry slot 15
+0  0139f  c23200000  # save entry r3
+0  013a0  c34080000  # recover entry R0 parked in A0
+0  013a1  10000076c  # SEND entry slot 12
+0  013a2  c21200000  # save entry r0
+0  013a3  100000760  # selected SEND retry-frame base
+0  013a4  c1c000000  # move r0, r3
+0  013a5  10000000d  # displacement to .send.fault.common.42
+0  013a6  f80000000  # branch .send.fault.common.42
+0  013a7  10000072d  # SEND entry slot 13
+0  013a8  c21200000  # save entry r1
+0  013a9  10000072e  # SEND entry slot 14
+0  013aa  c22200000  # save entry r2
+0  013ab  10000072f  # SEND entry slot 15
+0  013ac  c23200000  # save entry r3
+0  013ad  c34080000  # recover entry R0 parked in A0
+0  013ae  10000072c  # SEND entry slot 12
+0  013af  c21200000  # save entry r0
+0  013b0  100000720  # selected SEND retry-frame base
+0  013b1  c1c000000  # move r0, r3
+0  013b2  100000000  # displacement to .send.fault.common.42
+0  013b3  f80000000  # branch .send.fault.common.42
+0  013b4  c18060000  # move r3, r2
+0  013b5  c10300000  # load SEND retry frame[0], r0
+0  013b6  c14000000  # move r0, r1
+0  013b7  100000047  # displacement to .send.fault.count.45
+0  013b8  ff1000000  # branch .send.fault.count.45
+0  013b9  c10060000  # move r3, r0
+0  013ba  cb0580000  # SEND retry-frame slot 12
+0  013bb  c14200000  # load SEND retry frame[12], r1
+0  013bc  c10060000  # move r3, r0
+0  013bd  cb0420000  # SEND retry-frame slot 1
+0  013be  c21200000  # store r1, SEND retry frame[1]
+0  013bf  c10060000  # move r3, r0
+0  013c0  cb05a0000  # SEND retry-frame slot 13
+0  013c1  c14200000  # load SEND retry frame[13], r1
+0  013c2  c10060000  # move r3, r0
+0  013c3  cb0440000  # SEND retry-frame slot 2
+0  013c4  c21200000  # store r1, SEND retry frame[2]
+0  013c5  c10060000  # move r3, r0
+0  013c6  cb05c0000  # SEND retry-frame slot 14
+0  013c7  c14200000  # load SEND retry frame[14], r1
+0  013c8  c10060000  # move r3, r0
+0  013c9  cb0460000  # SEND retry-frame slot 3
+0  013ca  c21200000  # store r1, SEND retry frame[3]
+0  013cb  c10060000  # move r3, r0
+0  013cc  cb05e0000  # SEND retry-frame slot 15
+0  013cd  c14200000  # load SEND retry frame[15], r1
+0  013ce  c10060000  # move r3, r0
+0  013cf  cb0480000  # SEND retry-frame slot 4
+0  013d0  c21200000  # store r1, SEND retry frame[4]
+0  013d1  c340a0000  # save A1 for SEND retry
+0  013d2  c10060000  # move r3, r0
+0  013d3  cb04a0000  # SEND retry-frame slot 5
+0  013d4  c21200000  # store r1, SEND retry frame[5]
+0  013d5  c340c0000  # save A2 for SEND retry
+0  013d6  c10060000  # move r3, r0
+0  013d7  cb04c0000  # SEND retry-frame slot 6
+0  013d8  c21200000  # store r1, SEND retry frame[6]
+0  013d9  c340e0000  # save A3 for SEND retry
+0  013da  c10060000  # move r3, r0
+0  013db  cb04e0000  # SEND retry-frame slot 7
+0  013dc  c21200000  # store r1, SEND retry frame[7]
+0  013dd  c34180000  # save original SEND continuation FIP
+0  013de  c10060000  # move r3, r0
+0  013df  cb0500000  # SEND retry-frame slot 8
+0  013e0  c21200000  # store r1, SEND retry frame[8]
+0  013e1  c30320000  # background fault-register bank selection
+0  013e2  ff05c0000  # inline branch .send.fault.save.background.43
+0  013e3  c341c0000  # save faulting SEND operand 0
+0  013e4  c10060000  # move r3, r0
+0  013e5  cb0520000  # SEND retry-frame slot 9
+0  013e6  c21200000  # store r1, SEND retry frame[9]
+0  013e7  c341e0000  # save faulting SEND operand 1
+0  013e8  c10060000  # move r3, r0
+0  013e9  cb0540000  # SEND retry-frame slot 10
+0  013ea  c21200000  # store r1, SEND retry frame[10]
+0  013eb  c341a0000  # save faulting SEND instruction
+0  013ec  c10060000  # move r3, r0
+0  013ed  cb0560000  # SEND retry-frame slot 11
+0  013ee  c21200000  # store r1, SEND retry frame[11]
+0  013ef  10000000c  # displacement to .send.fault.saved.44
+0  013f0  f80000000  # branch .send.fault.saved.44
+0  013f1  c349c0000  # save faulting SEND operand 0
+0  013f2  c10060000  # move r3, r0
+0  013f3  cb0520000  # SEND retry-frame slot 9
+0  013f4  c21200000  # store r1, SEND retry frame[9]
+0  013f5  c349e0000  # save faulting SEND operand 1
+0  013f6  c10060000  # move r3, r0
+0  013f7  cb0540000  # SEND retry-frame slot 10
+0  013f8  c21200000  # store r1, SEND retry frame[10]
+0  013f9  c349a0000  # save faulting SEND instruction
+0  013fa  c10060000  # move r3, r0
+0  013fb  cb0560000  # SEND retry-frame slot 11
+0  013fc  c21200000  # store r1, SEND retry frame[11]
+0  013fd  100000001  # mark SEND retry frame active
+0  013fe  c18060000  # move r3, r2
+0  013ff  c20300000  # store r0, SEND retry frame[0]
+0  01400  3001c2401  # address 0x00709, length 1
+0  01401  c400c0000  # set A2
+0  01402  c10840000  # load architectural SEND-fault count
+0  01403  cb0420000  # count architectural SEND fault
+0  01404  c20840000  # store architectural SEND-fault count
+0  01405  c10060000  # move r3, r0
+0  01406  cb0560000  # SEND retry-frame slot 11
+0  01407  c14200000  # load SEND retry frame[11], r1
+0  01408  100001000  # SEND FIR mask 0x1000
+0  01409  d81000000  # test SEND FIR bit
+0  0140a  c14000000  # move r0, r1
+0  0140b  100000020  # displacement to .send.fault.retry.two.46
+0  0140c  ff1000000  # branch .send.fault.retry.two.46
+0  0140d  c10060000  # move r3, r0
+0  0140e  cb0560000  # SEND retry-frame slot 11
+0  0140f  c14200000  # load SEND retry frame[11], r1
+0  01410  100000800  # SEND FIR mask 0x0800
+0  01411  d81000000  # test SEND FIR bit
+0  01412  c14000000  # move r0, r1
+0  01413  10000000c  # displacement to .send.fault.retry.single.end.47
+0  01414  ff1000000  # branch .send.fault.retry.single.end.47
+0  01415  c10060000  # move r3, r0
+0  01416  cb0560000  # SEND retry-frame slot 11
+0  01417  c14200000  # load SEND retry frame[11], r1
+0  01418  100000200  # SEND FIR mask 0x0200
+0  01419  d81000000  # test SEND FIR bit
+0  0141a  c14000000  # move r0, r1
+0  0141b  100000002  # displacement to .send.fault.retry.single.p1.48
+0  0141c  ff1000000  # branch .send.fault.retry.single.p1.48
+0  0141d  10000002e  # displacement to .send.fault.instruction.send.p0.53
+0  0141e  f80000000  # branch .send.fault.instruction.send.p0.53
+0  0141f  100000032  # displacement to .send.fault.instruction.send.p1.54
+0  01420  f80000000  # branch .send.fault.instruction.send.p1.54
+0  01421  c10060000  # move r3, r0
+0  01422  cb0560000  # SEND retry-frame slot 11
+0  01423  c14200000  # load SEND retry frame[11], r1
+0  01424  100000200  # SEND FIR mask 0x0200
+0  01425  d81000000  # test SEND FIR bit
+0  01426  c14000000  # move r0, r1
+0  01427  100000002  # displacement to .send.fault.retry.single.end.p1.49
+0  01428  ff1000000  # branch .send.fault.retry.single.end.p1.49
+0  01429  10000002e  # displacement to .send.fault.instruction.sende.p0.55
+0  0142a  f80000000  # branch .send.fault.instruction.sende.p0.55
+0  0142b  100000032  # displacement to .send.fault.instruction.sende.p1.56
+0  0142c  f80000000  # branch .send.fault.instruction.sende.p1.56
+0  0142d  c10060000  # move r3, r0
+0  0142e  cb0560000  # SEND retry-frame slot 11
+0  0142f  c14200000  # load SEND retry frame[11], r1
+0  01430  100000800  # SEND FIR mask 0x0800
+0  01431  d81000000  # test SEND FIR bit
+0  01432  c14000000  # move r0, r1
+0  01433  10000000c  # displacement to .send.fault.retry.two.end.50
+0  01434  ff1000000  # branch .send.fault.retry.two.end.50
+0  01435  c10060000  # move r3, r0
+0  01436  cb0560000  # SEND retry-frame slot 11
+0  01437  c14200000  # load SEND retry frame[11], r1
+0  01438  100000200  # SEND FIR mask 0x0200
+0  01439  d81000000  # test SEND FIR bit
+0  0143a  c14000000  # move r0, r1
+0  0143b  100000002  # displacement to .send.fault.retry.two.p1.51
+0  0143c  ff1000000  # branch .send.fault.retry.two.p1.51
+0  0143d  100000026  # displacement to .send.fault.instruction.send2.p0.57
+0  0143e  f80000000  # branch .send.fault.instruction.send2.p0.57
+0  0143f  10000002d  # displacement to .send.fault.instruction.send2.p1.58
+0  01440  f80000000  # branch .send.fault.instruction.send2.p1.58
+0  01441  c10060000  # move r3, r0
+0  01442  cb0560000  # SEND retry-frame slot 11
+0  01443  c14200000  # load SEND retry frame[11], r1
+0  01444  100000200  # SEND FIR mask 0x0200
+0  01445  d81000000  # test SEND FIR bit
+0  01446  c14000000  # move r0, r1
+0  01447  100000002  # displacement to .send.fault.retry.two.end.p1.52
+0  01448  ff1000000  # branch .send.fault.retry.two.end.p1.52
+0  01449  10000002c  # displacement to .send.fault.instruction.send2e.p0.59
+0  0144a  f80000000  # branch .send.fault.instruction.send2e.p0.59
+0  0144b  100000033  # displacement to .send.fault.instruction.send2e.p1.60
+0  0144c  f80000000  # branch .send.fault.instruction.send2e.p1.60
+0  0144d  c18060000  # move r3, r2
+0  0144e  cba520000  # SEND retry-frame slot 9
+0  0144f  c10300000  # load SEND retry frame[9], r0
+0  01450  f40000000  # retry faulting JMachineC.MDP.Opcode.send, priority 0
+0  01451  100000036  # displacement to .send.fault.cleanup.61
+0  01452  f80000000  # branch .send.fault.cleanup.61
+0  01453  c18060000  # move r3, r2
+0  01454  cba520000  # SEND retry-frame slot 9
+0  01455  c10300000  # load SEND retry frame[9], r0
+0  01456  f44000000  # retry faulting JMachineC.MDP.Opcode.send, priority 1
+0  01457  100000030  # displacement to .send.fault.cleanup.61
+0  01458  f80000000  # branch .send.fault.cleanup.61
+0  01459  c18060000  # move r3, r2
+0  0145a  cba520000  # SEND retry-frame slot 9
+0  0145b  c10300000  # load SEND retry frame[9], r0
+0  0145c  f50000000  # retry faulting JMachineC.MDP.Opcode.sendEnd, priority 0
+0  0145d  10000002a  # displacement to .send.fault.cleanup.61
+0  0145e  f80000000  # branch .send.fault.cleanup.61
+0  0145f  c18060000  # move r3, r2
+0  01460  cba520000  # SEND retry-frame slot 9
+0  01461  c10300000  # load SEND retry frame[9], r0
+0  01462  f54000000  # retry faulting JMachineC.MDP.Opcode.sendEnd, priority 1
+0  01463  100000024  # displacement to .send.fault.cleanup.61
+0  01464  f80000000  # branch .send.fault.cleanup.61
+0  01465  c10060000  # move r3, r0
+0  01466  cb0540000  # SEND retry-frame slot 10
+0  01467  c14200000  # load SEND retry frame[10], r1
+0  01468  c18060000  # move r3, r2
+0  01469  cba520000  # SEND retry-frame slot 9
+0  0146a  c10300000  # load SEND retry frame[9], r0
+0  0146b  f61000000  # retry faulting JMachineC.MDP.Opcode.send2, priority 0
+0  0146c  10000001b  # displacement to .send.fault.cleanup.61
+0  0146d  f80000000  # branch .send.fault.cleanup.61
+0  0146e  c10060000  # move r3, r0
+0  0146f  cb0540000  # SEND retry-frame slot 10
+0  01470  c14200000  # load SEND retry frame[10], r1
+0  01471  c18060000  # move r3, r2
+0  01472  cba520000  # SEND retry-frame slot 9
+0  01473  c10300000  # load SEND retry frame[9], r0
+0  01474  f65000000  # retry faulting JMachineC.MDP.Opcode.send2, priority 1
+0  01475  100000012  # displacement to .send.fault.cleanup.61
+0  01476  f80000000  # branch .send.fault.cleanup.61
+0  01477  c10060000  # move r3, r0
+0  01478  cb0540000  # SEND retry-frame slot 10
+0  01479  c14200000  # load SEND retry frame[10], r1
+0  0147a  c18060000  # move r3, r2
+0  0147b  cba520000  # SEND retry-frame slot 9
+0  0147c  c10300000  # load SEND retry frame[9], r0
+0  0147d  f71000000  # retry faulting JMachineC.MDP.Opcode.send2End, priority 0
+0  0147e  100000009  # displacement to .send.fault.cleanup.61
+0  0147f  f80000000  # branch .send.fault.cleanup.61
+0  01480  c10060000  # move r3, r0
+0  01481  cb0540000  # SEND retry-frame slot 10
+0  01482  c14200000  # load SEND retry frame[10], r1
+0  01483  c18060000  # move r3, r2
+0  01484  cba520000  # SEND retry-frame slot 9
+0  01485  c10300000  # load SEND retry frame[9], r0
+0  01486  f75000000  # retry faulting JMachineC.MDP.Opcode.send2End, priority 1
+0  01487  100000000  # displacement to .send.fault.cleanup.61
+0  01488  f80000000  # branch .send.fault.cleanup.61
+0  01489  100000000  # release SEND retry frame
+0  0148a  c18060000  # move r3, r2
+0  0148b  c20300000  # store r0, SEND retry frame[0]
+0  0148c  c18060000  # move r3, r2
+0  0148d  cba4a0000  # SEND retry-frame slot 5
+0  0148e  c10300000  # load SEND retry frame[5], r0
+0  0148f  c400a0000  # restore A1 after SEND retry
+0  01490  c18060000  # move r3, r2
+0  01491  cba4c0000  # SEND retry-frame slot 6
+0  01492  c10300000  # load SEND retry frame[6], r0
+0  01493  c400c0000  # restore A2 after SEND retry
+0  01494  c18060000  # move r3, r2
+0  01495  cba4e0000  # SEND retry-frame slot 7
+0  01496  c10300000  # load SEND retry frame[7], r0
+0  01497  c400e0000  # restore A3 after SEND retry
+0  01498  c18060000  # move r3, r2
+0  01499  cba500000  # SEND retry-frame slot 8
+0  0149a  c10300000  # load SEND retry frame[8], r0
+0  0149b  c40180000  # restore original SEND continuation FIP
+0  0149c  c18060000  # move r3, r2
+0  0149d  cba420000  # SEND retry-frame slot 1
+0  0149e  c10300000  # load SEND retry frame[1], r0
+0  0149f  c40080000  # park restored R0 in reserved A0
+0  014a0  c10060000  # move r3, r0
+0  014a1  cb0440000  # SEND retry-frame slot 2
+0  014a2  c14200000  # load SEND retry frame[2], r1
+0  014a3  c10060000  # move r3, r0
+0  014a4  cb0460000  # SEND retry-frame slot 3
+0  014a5  c18200000  # load SEND retry frame[3], r2
+0  014a6  c10060000  # move r3, r0
+0  014a7  cb0480000  # SEND retry-frame slot 4
+0  014a8  c1c200000  # load SEND retry frame[4], r3
+0  014a9  c30080000  # restore R0 from reserved A0
+0  014aa  c80180000  # resume after faulting SEND
+0  00700  100010000  # MDC node-local heap bump pointer
+0  00702  100000000  # MDC process-block free-list head
+0  00703  100000000  # MDC bulk-block free-list head
+0  00705  100000000  # application-code transport request count
+0  00706  100000000  # application-code installed-chunk count
+0  00707  100000000  # application-code acknowledged-chunk count
+0  00708  100000000  # architectural FUT-fault count
+0  00709  100000000  # architectural SEND-fault count
+0  0070d  100000000  # MDC argument-envelope runtime error
+0  00720  100000000  # inactive background SEND retry frame
+0  00740  100000000  # inactive priority-0 SEND retry frame
+0  00760  100000000  # inactive priority-1 SEND retry frame
+0  00701  100000000  # image-assigned packed X/Y/Z architectural NNR
+0  00704  100000001  # replicated application code is ready
+1  00080  40c000100  # CALL vector for factorial
+1  00081  40c022500  # CALL vector for main
+1  0004d  4004b5500  # priority-0 FUT fault vector
+1  00043  4804e1900  # priority-0 SEND fault vector
+1  00063  4804e1900  # priority-1 SEND fault vector
+1  00300  000000000  # main result mailbox
+1  01000  200000000  # checked execution
+1  01001  c40380000  # U := false
+1  01002  3001c0401  # address 0x00701, length 1
+1  01003  c400c0000  # set A2
+1  01004  c10840000  # load image node identity
+1  01005  c40280000  # NNR := node identity
+1  01006  100000000  # initial stack offset
+1  01007  c1c000000  # move r0, r3
+1  01008  301000000  # stack base
+1  01009  c400a0000  # A1 := stack
+1  0100a  3000c0001  # result base
+1  0100b  c400c0000  # A2 := result
+1  0100c  300200000  # global base
+1  0100d  c400e0000  # A3 := globals
+1  0100e  3080003ff  # priority-0 queue base/mask
+1  0100f  c40200000  # QBM0 := queue 0
+1  01010  308000000  # priority-0 queue head/length
+1  01011  c40220000  # QHL0 := empty
+1  01012  3084003ff  # priority-1 queue base/mask
+1  01013  c40600000  # QBM1 := queue 1
+1  01014  308400000  # priority-1 queue head/length
+1  01015  c40620000  # QHL1 := empty
+1  01016  200000000  # enable message dispatch
+1  01017  c40340000  # I := false
+1  01018  c30280000  # read node number
+1  01019  c14000000  # move r0, r1
+1  0101a  100000002  # displacement to .halt.0
+1  0101b  ff1000000  # branch .halt.0
+1  0101c  f10420000  # call main
+1  0101d  c20840000  # store main result
+1  0101e  1fffffffe  # displacement to .halt.0
+1  0101f  f80000000  # branch .halt.0
+1  30000  c30180000  # read return IP
+1  30001  c14000000  # move r0, r1
+1  30002  100000000  # frame slot 0
+1  30003  cb3000000  # frame offset
+1  30004  c21220000  # store r1, frame[0]
+1  30005  c10020000  # move r1, r0
+1  30006  100000001  # future-aware frame slot 1
+1  30007  cbb000000  # future-aware frame offset
+1  30008  c50320000  # inspect frame[1] tag
+1  30009  cc04e0000  # frame[1] still FUT
+1  3000a  c14000000  # move r0, r1
+1  3000b  100000008  # displacement to .future.resolved.4
+1  3000c  ff1000000  # branch .future.resolved.4
+1  3000d  c30320000  # future consumer is background context
+1  3000e  c14000000  # move r0, r1
+1  3000f  1fffffff7  # displacement to .future.inspect.3
+1  30010  fd1000000  # branch .future.inspect.3
+1  30011  c10320000  # move unresolved frame[1] FUT
+1  30012  e60000000  # force unresolved frame[1] with exact EQ
+1  30013  1fffffff3  # displacement to .future.inspect.3
+1  30014  f80000000  # branch .future.inspect.3
+1  30015  c10320000  # force frame[1]
+1  30016  c14000000  # move r0, r1
+1  30017  100000002  # frame slot 2
+1  30018  cb3000000  # frame offset
+1  30019  c21220000  # store r1, frame[2]
+1  3001a  c10020000  # move r1, r0
+1  3001b  100000000  # constant
+1  3001c  c14000000  # move r0, r1
+1  3001d  100000002  # frame slot 2
+1  3001e  cb3000000  # frame offset
+1  3001f  c10220000  # load frame[2], r0
+1  30020  e40020000  # integer equal
+1  30021  c60420000  # C boolean to INT tag
+1  30022  c14000000  # move r0, r1
+1  30023  10000000b  # displacement to .if.else.1
+1  30024  fe1000000  # branch .if.else.1
+1  30025  100000001  # constant
+1  30026  c14000000  # move r0, r1
+1  30027  3000c0001  # address 0x00300, length 1
+1  30028  c400c0000  # set A2
+1  30029  100000000  # frame slot 0
+1  3002a  cb3000000  # frame offset
+1  3002b  c18220000  # load frame[0], r2
+1  3002c  c10020000  # move r1, r0
+1  3002d  c70040000  # return
+1  3002e  100000000  # displacement to .if.end.2
+1  3002f  f80000000  # branch .if.end.2
+1  30030  100000001  # future-aware frame slot 1
+1  30031  cbb000000  # future-aware frame offset
+1  30032  c50320000  # inspect frame[1] tag
+1  30033  cc04e0000  # frame[1] still FUT
+1  30034  c14000000  # move r0, r1
+1  30035  100000008  # displacement to .future.resolved.6
+1  30036  ff1000000  # branch .future.resolved.6
+1  30037  c30320000  # future consumer is background context
+1  30038  c14000000  # move r0, r1
+1  30039  1fffffff7  # displacement to .future.inspect.5
+1  3003a  fd1000000  # branch .future.inspect.5
+1  3003b  c10320000  # move unresolved frame[1] FUT
+1  3003c  e60000000  # force unresolved frame[1] with exact EQ
+1  3003d  1fffffff3  # displacement to .future.inspect.5
+1  3003e  f80000000  # branch .future.inspect.5
+1  3003f  c10320000  # force frame[1]
+1  30040  c14000000  # move r0, r1
+1  30041  100000002  # frame slot 2
+1  30042  cb3000000  # frame offset
+1  30043  c21220000  # store r1, frame[2]
+1  30044  c10020000  # move r1, r0
+1  30045  100000001  # future-aware frame slot 1
+1  30046  cbb000000  # future-aware frame offset
+1  30047  c50320000  # inspect frame[1] tag
+1  30048  cc04e0000  # frame[1] still FUT
+1  30049  c14000000  # move r0, r1
+1  3004a  100000008  # displacement to .future.resolved.8
+1  3004b  ff1000000  # branch .future.resolved.8
+1  3004c  c30320000  # future consumer is background context
+1  3004d  c14000000  # move r0, r1
+1  3004e  1fffffff7  # displacement to .future.inspect.7
+1  3004f  fd1000000  # branch .future.inspect.7
+1  30050  c10320000  # move unresolved frame[1] FUT
+1  30051  e60000000  # force unresolved frame[1] with exact EQ
+1  30052  1fffffff3  # displacement to .future.inspect.7
+1  30053  f80000000  # branch .future.inspect.7
+1  30054  c10320000  # force frame[1]
+1  30055  c14000000  # move r0, r1
+1  30056  10000000b  # frame slot 11
+1  30057  cb3000000  # frame offset
+1  30058  c21220000  # store r1, frame[11]
+1  30059  c10020000  # move r1, r0
+1  3005a  100000001  # constant
+1  3005b  c14000000  # move r0, r1
+1  3005c  10000000b  # frame slot 11
+1  3005d  cb3000000  # frame offset
+1  3005e  c10220000  # load frame[11], r0
+1  3005f  cc0020000  # signed subtract
+1  30060  c14000000  # move r0, r1
+1  30061  10000000a  # frame slot 10
+1  30062  cb3000000  # frame offset
+1  30063  c21220000  # store r1, frame[10]
+1  30064  c10020000  # move r1, r0
+1  30065  10000000a  # frame slot 10
+1  30066  cb3000000  # frame offset
+1  30067  c10220000  # load frame[10], r0
+1  30068  c14000000  # move r0, r1
+1  30069  100000018  # frame slot 24
+1  3006a  cb3000000  # frame offset
+1  3006b  c21220000  # store r1, frame[24]
+1  3006c  c10020000  # move r1, r0
+1  3006d  100000017  # advance stack frame
+1  3006e  cbf000000  # sp += frame size
+1  3006f  f10400000  # call factorial
+1  30070  1ffffffe9  # restore stack frame
+1  30071  cbf000000  # sp -= frame size
+1  30072  c10020000  # move r1, r0
+1  30073  c14000000  # move r0, r1
+1  30074  100000002  # frame slot 2
+1  30075  cb3000000  # frame offset
+1  30076  c10220000  # load frame[2], r0
+1  30077  cf0020000  # signed multiply
+1  30078  c14000000  # move r0, r1
+1  30079  3000c0001  # address 0x00300, length 1
+1  3007a  c400c0000  # set A2
+1  3007b  100000000  # frame slot 0
+1  3007c  cb3000000  # frame offset
+1  3007d  c18220000  # load frame[0], r2
+1  3007e  c10020000  # move r1, r0
+1  3007f  c70040000  # return
+1  30080  100000000  # constant
+1  30081  c14000000  # move r0, r1
+1  30082  3000c0001  # address 0x00300, length 1
+1  30083  c400c0000  # set A2
+1  30084  100000000  # frame slot 0
+1  30085  cb3000000  # frame offset
+1  30086  c18220000  # load frame[0], r2
+1  30087  c10020000  # move r1, r0
+1  30088  c70040000  # return
+1  30089  c30180000  # read return IP
+1  3008a  c14000000  # move r0, r1
+1  3008b  100000000  # frame slot 0
+1  3008c  cb3000000  # frame offset
+1  3008d  c21220000  # store r1, frame[0]
+1  3008e  c10020000  # move r1, r0
+1  3008f  100000006  # constant
+1  30090  c14000000  # move r0, r1
+1  30091  100000001  # frame slot 1
+1  30092  cb3000000  # frame offset
+1  30093  c21220000  # store r1, frame[1]
+1  30094  c10020000  # move r1, r0
+1  30095  100000001  # frame slot 1
+1  30096  cb3000000  # frame offset
+1  30097  c10220000  # load frame[1], r0
+1  30098  c14000000  # move r0, r1
+1  30099  100000007  # frame slot 7
+1  3009a  cb3000000  # frame offset
+1  3009b  c21220000  # store r1, frame[7]
+1  3009c  c10020000  # move r1, r0
+1  3009d  100000006  # advance stack frame
+1  3009e  cbf000000  # sp += frame size
+1  3009f  f10400000  # call factorial
+1  300a0  1fffffffa  # restore stack frame
+1  300a1  cbf000000  # sp -= frame size
+1  300a2  c10020000  # move r1, r0
+1  300a3  c14000000  # move r0, r1
+1  300a4  3000c0001  # address 0x00300, length 1
+1  300a5  c400c0000  # set A2
+1  300a6  100000000  # frame slot 0
+1  300a7  cb3000000  # frame offset
+1  300a8  c18220000  # load frame[0], r2
+1  300a9  c10020000  # move r1, r0
+1  300aa  c70040000  # return
+1  300ab  100000000  # constant
+1  300ac  c14000000  # move r0, r1
+1  300ad  3000c0001  # address 0x00300, length 1
+1  300ae  c400c0000  # set A2
+1  300af  100000000  # frame slot 0
+1  300b0  cb3000000  # frame offset
+1  300b1  c18220000  # load frame[0], r2
+1  300b2  c10020000  # move r1, r0
+1  300b3  c70040000  # return
+1  01020  3001c0801  # address 0x00702, length 1
+1  01021  c400c0000  # set A2
+1  01022  c10840000  # load MDC process free-list head
+1  01023  c14000000  # move r0, r1
+1  01024  100000012  # displacement to .mdc.process.fresh.9
+1  01025  fe1000000  # branch .mdc.process.fresh.9
+1  01026  c1c020000  # move r1, r3
+1  01027  c10060000  # move r3, r0
+1  01028  d10540000  # address base << 10
+1  01029  c14000000  # move r0, r1
+1  0102a  100000001  # address length := 1
+1  0102b  d91000000  # combine address base and length
+1  0102c  c14000000  # move r0, r1
+1  0102d  100000003  # ADDR tag
+1  0102e  c61000000  # construct dynamic ADDR
+1  0102f  c400c0000  # reused MDC process block := A2
+1  01030  c18840000  # pop MDC process free-list link
+1  01031  3001c0801  # address 0x00702, length 1
+1  01032  c400c0000  # set A2
+1  01033  c22840000  # commit MDC process free-list pop
+1  01034  c10060000  # move r3, r0
+1  01035  c14000000  # move r0, r1
+1  01036  10000000a  # displacement to .mdc.process.allocated.10
+1  01037  f80000000  # branch .mdc.process.allocated.10
+1  01038  3001c0001  # address 0x00700, length 1
+1  01039  c400c0000  # set A2
+1  0103a  c10840000  # allocate fresh MDC process stack
+1  0103b  c18000000  # move r0, r2
+1  0103c  c14000000  # move r0, r1
+1  0103d  100000200  # MDC process stack words
+1  0103e  cb1000000  # advance MDC process heap
+1  0103f  c20840000  # commit fresh MDC process stack allocation
+1  01040  c10040000  # move r2, r0
+1  01041  c14000000  # move r0, r1
+1  01042  c10020000  # move r1, r0
+1  01043  d10540000  # address base << 10
+1  01044  c14000000  # move r0, r1
+1  01045  100000200  # address length := 512
+1  01046  d91000000  # combine address base and length
+1  01047  c14000000  # move r0, r1
+1  01048  100000003  # ADDR tag
+1  01049  c61000000  # construct dynamic ADDR
+1  0104a  c400a0000  # MDC process stack := A1
+1  0104b  100000000  # MDC handler frame offset
+1  0104c  c1c000000  # move r0, r3
+1  0104d  c300e0000  # save message A3
+1  0104e  c14000000  # move r0, r1
+1  0104f  100000007  # frame slot 7
+1  01050  cb3000000  # frame offset
+1  01051  c21220000  # store r1, frame[7]
+1  01052  c10020000  # move r1, r0
+1  01053  100000000  # no owned MDC bulk blocks
+1  01054  c14000000  # move r0, r1
+1  01055  10000002a  # frame slot 42
+1  01056  cb3000000  # frame offset
+1  01057  c21220000  # store r1, frame[42]
+1  01058  c10020000  # move r1, r0
+1  01059  3001c1001  # address 0x00704, length 1
+1  0105a  c400c0000  # set A2
+1  0105b  c10840000  # load application-code cache state
+1  0105c  c14000000  # move r0, r1
+1  0105d  10000000c  # displacement to .mdc.code.ready.11
+1  0105e  ff1000000  # branch .mdc.code.ready.11
+1  0105f  100000000  # application-code home node
+1  01060  f40000000  # route application-code request
+1  01061  5004c4002  # message header for __mdc_code_request, length 2
+1  01062  f40000000  # application-code request header
+1  01063  c30280000  # application-code requester node
+1  01064  f50000000  # finish application-code request
+1  01065  3001c1001  # address 0x00704, length 1
+1  01066  c400c0000  # set A2
+1  01067  c10840000  # poll application-code cache state
+1  01068  c14000000  # move r0, r1
+1  01069  1fffffffa  # displacement to .mdc.code.wait.12
+1  0106a  fe1000000  # branch .mdc.code.wait.12
+1  0106b  c108e0000  # load message[1], r0
+1  0106c  c14000000  # move r0, r1
+1  0106d  100000004  # frame slot 4
+1  0106e  cb3000000  # frame offset
+1  0106f  c21220000  # store r1, frame[4]
+1  01070  c10020000  # move r1, r0
+1  01071  c109e0000  # load message[3], r0
+1  01072  c14000000  # move r0, r1
+1  01073  100000001  # frame slot 1
+1  01074  cb3000000  # frame offset
+1  01075  c21220000  # store r1, frame[1]
+1  01076  c10020000  # move r1, r0
+1  01077  c10a60000  # load message[4], r0
+1  01078  c14000000  # move r0, r1
+1  01079  100000002  # frame slot 2
+1  0107a  cb3000000  # frame offset
+1  0107b  c21220000  # store r1, frame[2]
+1  0107c  c10020000  # move r1, r0
+1  0107d  c10ae0000  # load message[5], r0
+1  0107e  c14000000  # move r0, r1
+1  0107f  100000003  # frame slot 3
+1  01080  cb3000000  # frame offset
+1  01081  c21220000  # store r1, frame[3]
+1  01082  c10020000  # move r1, r0
+1  01083  c10b60000  # load message[6], r0
+1  01084  c14000000  # move r0, r1
+1  01085  100000006  # frame slot 6
+1  01086  cb3000000  # frame offset
+1  01087  c21220000  # store r1, frame[6]
+1  01088  c10020000  # move r1, r0
+1  01089  100000004  # frame slot 4
+1  0108a  cb3000000  # frame offset
+1  0108b  c10220000  # load frame[4], r0
+1  0108c  cc0400000  # MDC function id == 0
+1  0108d  c14000000  # move r0, r1
+1  0108e  100000009  # displacement to .mdc.args.0.15
+1  0108f  fe1000000  # branch .mdc.args.0.15
+1  01090  100000004  # frame slot 4
+1  01091  cb3000000  # frame offset
+1  01092  c10220000  # load frame[4], r0
+1  01093  cc0420000  # MDC function id == 1
+1  01094  c14000000  # move r0, r1
+1  01095  100000042  # displacement to .mdc.args.1.16
+1  01096  fe1000000  # branch .mdc.args.1.16
+1  01097  100000055  # displacement to .mdc.malformed.14
+1  01098  f80000000  # branch .mdc.malformed.14
+1  01099  100000000  # scalar or void MDC result kind
+1  0109a  c14000000  # move r0, r1
+1  0109b  10000000e  # frame slot 14
+1  0109c  cb3000000  # frame offset
+1  0109d  c21220000  # store r1, frame[14]
+1  0109e  c10020000  # move r1, r0
+1  0109f  100000006  # frame slot 6
+1  010a0  cb3000000  # frame offset
+1  010a1  c10220000  # load frame[6], r0
+1  010a2  cc0420000  # validate MDC logical argument count
+1  010a3  c14000000  # move r0, r1
+1  010a4  100000048  # displacement to .mdc.malformed.14
+1  010a5  ff1000000  # branch .mdc.malformed.14
+1  010a6  100000007  # first MDC logical argument
+1  010a7  c14000000  # move r0, r1
+1  010a8  100000008  # frame slot 8
+1  010a9  cb3000000  # frame offset
+1  010aa  c21220000  # store r1, frame[8]
+1  010ab  c10020000  # move r1, r0
+1  010ac  100000008  # frame slot 8
+1  010ad  cb3000000  # frame offset
+1  010ae  c10220000  # load frame[8], r0
+1  010af  c10260000  # load message[frame[8]], r0
+1  010b0  c14000000  # move r0, r1
+1  010b1  100000009  # frame slot 9
+1  010b2  cb3000000  # frame offset
+1  010b3  c21220000  # store r1, frame[9]
+1  010b4  c10020000  # move r1, r0
+1  010b5  100000008  # frame slot 8
+1  010b6  cb3000000  # frame offset
+1  010b7  c10220000  # load frame[8], r0
+1  010b8  cb0420000  # advance past MDC length
+1  010b9  c14000000  # move r0, r1
+1  010ba  100000008  # frame slot 8
+1  010bb  cb3000000  # frame offset
+1  010bc  c21220000  # store r1, frame[8]
+1  010bd  c10020000  # move r1, r0
+1  010be  100000009  # frame slot 9
+1  010bf  cb3000000  # frame offset
+1  010c0  c10220000  # load frame[9], r0
+1  010c1  cc0420000  # scalar MDC length == 1
+1  010c2  c14000000  # move r0, r1
+1  010c3  100000029  # displacement to .mdc.malformed.14
+1  010c4  ff1000000  # branch .mdc.malformed.14
+1  010c5  100000008  # frame slot 8
+1  010c6  cb3000000  # frame offset
+1  010c7  c10220000  # load frame[8], r0
+1  010c8  c10260000  # load message[frame[8]], r0
+1  010c9  c14000000  # move r0, r1
+1  010ca  100000041  # frame slot 65
+1  010cb  cb3000000  # frame offset
+1  010cc  c21220000  # store r1, frame[65]
+1  010cd  c10020000  # move r1, r0
+1  010ce  100000008  # frame slot 8
+1  010cf  cb3000000  # frame offset
+1  010d0  c10220000  # load frame[8], r0
+1  010d1  cb0420000  # advance past MDC scalar
+1  010d2  c14000000  # move r0, r1
+1  010d3  100000008  # frame slot 8
+1  010d4  cb3000000  # frame offset
+1  010d5  c21220000  # store r1, frame[8]
+1  010d6  c10020000  # move r1, r0
+1  010d7  10000007c  # displacement to .mdc.invoke.13
+1  010d8  f80000000  # branch .mdc.invoke.13
+1  010d9  100000000  # scalar or void MDC result kind
+1  010da  c14000000  # move r0, r1
+1  010db  10000000e  # frame slot 14
+1  010dc  cb3000000  # frame offset
+1  010dd  c21220000  # store r1, frame[14]
+1  010de  c10020000  # move r1, r0
+1  010df  100000006  # frame slot 6
+1  010e0  cb3000000  # frame offset
+1  010e1  c10220000  # load frame[6], r0
+1  010e2  cc0400000  # validate MDC logical argument count
+1  010e3  c14000000  # move r0, r1
+1  010e4  100000008  # displacement to .mdc.malformed.14
+1  010e5  ff1000000  # branch .mdc.malformed.14
+1  010e6  100000007  # first MDC logical argument
+1  010e7  c14000000  # move r0, r1
+1  010e8  100000008  # frame slot 8
+1  010e9  cb3000000  # frame offset
+1  010ea  c21220000  # store r1, frame[8]
+1  010eb  c10020000  # move r1, r0
+1  010ec  100000067  # displacement to .mdc.invoke.13
+1  010ed  f80000000  # branch .mdc.invoke.13
+1  010ee  100000000  # first MDC bulk allocation to reclaim
+1  010ef  c14000000  # move r0, r1
+1  010f0  10000000b  # frame slot 11
+1  010f1  cb3000000  # frame offset
+1  010f2  c21220000  # store r1, frame[11]
+1  010f3  c10020000  # move r1, r0
+1  010f4  10000002a  # frame slot 42
+1  010f5  cb3000000  # frame offset
+1  010f6  c14220000  # load frame[42], r1
+1  010f7  10000000b  # frame slot 11
+1  010f8  cb3000000  # frame offset
+1  010f9  c10220000  # load frame[11], r0
+1  010fa  e00020000  # bulk reclaim index < count
+1  010fb  c60420000  # C boolean to INT tag
+1  010fc  c14000000  # move r0, r1
+1  010fd  10000002d  # displacement to .mdc.reclaim.bulk.done.18
+1  010fe  fe1000000  # branch .mdc.reclaim.bulk.done.18
+1  010ff  10000000b  # frame slot 11
+1  01100  cb3000000  # frame offset
+1  01101  c10220000  # load frame[11], r0
+1  01102  c18000000  # move r0, r2
+1  01103  10000002b  # MDC bulk-list base slot
+1  01104  cb2000000  # MDC bulk-list slot
+1  01105  cb3000000  # MDC bulk-list frame offset
+1  01106  c10220000  # load reclaimed MDC bulk block
+1  01107  c14000000  # move r0, r1
+1  01108  10000000a  # frame slot 10
+1  01109  cb3000000  # frame offset
+1  0110a  c21220000  # store r1, frame[10]
+1  0110b  c10020000  # move r1, r0
+1  0110c  3001c0c01  # address 0x00703, length 1
+1  0110d  c400c0000  # set A2
+1  0110e  c18840000  # load MDC bulk free-list head
+1  0110f  10000000a  # frame slot 10
+1  01110  cb3000000  # frame offset
+1  01111  c10220000  # load frame[10], r0
+1  01112  d10540000  # address base << 10
+1  01113  c14000000  # move r0, r1
+1  01114  100000001  # address length := 1
+1  01115  d91000000  # combine address base and length
+1  01116  c14000000  # move r0, r1
+1  01117  100000003  # ADDR tag
+1  01118  c61000000  # construct dynamic ADDR
+1  01119  c400c0000  # reclaimed MDC bulk block := A2
+1  0111a  c22840000  # link reclaimed MDC bulk block
+1  0111b  10000000a  # frame slot 10
+1  0111c  cb3000000  # frame offset
+1  0111d  c14220000  # load frame[10], r1
+1  0111e  3001c0c01  # address 0x00703, length 1
+1  0111f  c400c0000  # set A2
+1  01120  c21840000  # publish MDC bulk free-list head
+1  01121  10000000b  # frame slot 11
+1  01122  cb3000000  # frame offset
+1  01123  c10220000  # load frame[11], r0
+1  01124  cb0420000  # next MDC bulk allocation
+1  01125  c14000000  # move r0, r1
+1  01126  10000000b  # frame slot 11
+1  01127  cb3000000  # frame offset
+1  01128  c21220000  # store r1, frame[11]
+1  01129  c10020000  # move r1, r0
+1  0112a  1ffffffc8  # displacement to .mdc.reclaim.bulk.loop.17
+1  0112b  f80000000  # branch .mdc.reclaim.bulk.loop.17
+1  0112c  200000001  # enter pointer-field extraction
+1  0112d  c40380000  # U := true
+1  0112e  c300a0000  # read A1
+1  0112f  c60420000  # retag address data as INT
+1  01130  c14000000  # move r0, r1
+1  01131  1fffffff6  # address base right-shift count
+1  01132  d11000000  # extract address base
+1  01133  c14000000  # move r0, r1
+1  01134  1000fffff  # address base field mask
+1  01135  d81000000  # mask address base field
+1  01136  c14000000  # move r0, r1
+1  01137  200000000  # leave pointer-field extraction
+1  01138  c40380000  # U := false
+1  01139  c10020000  # move r1, r0
+1  0113a  c14000000  # move r0, r1
+1  0113b  10000000a  # frame slot 10
+1  0113c  cb3000000  # frame offset
+1  0113d  c21220000  # store r1, frame[10]
+1  0113e  c10020000  # move r1, r0
+1  0113f  3001c0801  # address 0x00702, length 1
+1  01140  c400c0000  # set A2
+1  01141  c18840000  # load MDC process free-list head
+1  01142  10000000a  # frame slot 10
+1  01143  cb3000000  # frame offset
+1  01144  c10220000  # load frame[10], r0
+1  01145  d10540000  # address base << 10
+1  01146  c14000000  # move r0, r1
+1  01147  100000001  # address length := 1
+1  01148  d91000000  # combine address base and length
+1  01149  c14000000  # move r0, r1
+1  0114a  100000003  # ADDR tag
+1  0114b  c61000000  # construct dynamic ADDR
+1  0114c  c400c0000  # reclaimed MDC process block := A2
+1  0114d  c22840000  # link reclaimed MDC process block
+1  0114e  10000000a  # frame slot 10
+1  0114f  cb3000000  # frame offset
+1  01150  c14220000  # load frame[10], r1
+1  01151  3001c0801  # address 0x00702, length 1
+1  01152  c400c0000  # set A2
+1  01153  c21840000  # publish MDC process free-list head
+1  01154  f00000000  # discard malformed MDC spawn message
+1  01155  100000004  # frame slot 4
+1  01156  cb3000000  # frame offset
+1  01157  c18220000  # load frame[4], r2
+1  01158  100000040  # advance MDC runtime frame
+1  01159  cbf000000  # MDC sp += runtime frame
+1  0115a  200000000  # disable queue-relative A3 for C globals
+1  0115b  c403a0000  # Q := false
+1  0115c  300200000  # address 0x00800, length 0
+1  0115d  c400e0000  # set A3
+1  0115e  f10040000  # invoke MDC function id
+1  0115f  c14000000  # move r0, r1
+1  01160  1ffffffc0  # restore MDC runtime frame
+1  01161  cbf000000  # MDC sp -= runtime frame
+1  01162  c10020000  # move r1, r0
+1  01163  c14000000  # move r0, r1
+1  01164  100000005  # frame slot 5
+1  01165  cb3000000  # frame offset
+1  01166  c21220000  # store r1, frame[5]
+1  01167  c10020000  # move r1, r0
+1  01168  100000001  # frame slot 1
+1  01169  cb3000000  # frame offset
+1  0116a  c10220000  # load frame[1], r0
+1  0116b  cc07e0000  # MDC return length == -1
+1  0116c  c14000000  # move r0, r1
+1  0116d  100000069  # displacement to .mdc.no.response.19
+1  0116e  fe1000000  # branch .mdc.no.response.19
+1  0116f  10000000e  # frame slot 14
+1  01170  cb3000000  # frame offset
+1  01171  c10220000  # load frame[14], r0
+1  01172  c14000000  # move r0, r1
+1  01173  100000010  # displacement to .mdc.aggregate.response.20
+1  01174  ff1000000  # branch .mdc.aggregate.response.20
+1  01175  100000002  # frame slot 2
+1  01176  cb3000000  # frame offset
+1  01177  c10220000  # load frame[2], r0
+1  01178  f44000000  # MDC response routing word
+1  01179  580491403  # message header for __mdc_set, length 3
+1  0117a  f44000000  # MDC SET header
+1  0117b  100000003  # frame slot 3
+1  0117c  cb3000000  # frame offset
+1  0117d  c10220000  # load frame[3], r0
+1  0117e  f44000000  # MDC return address
+1  0117f  100000005  # frame slot 5
+1  01180  cb3000000  # frame offset
+1  01181  c10220000  # load frame[5], r0
+1  01182  f54000000  # MDC return value
+1  01183  100000053  # displacement to .mdc.response.finished.21
+1  01184  f80000000  # branch .mdc.response.finished.21
+1  01185  100000001  # frame slot 1
+1  01186  cb3000000  # frame offset
+1  01187  c10220000  # load frame[1], r0
+1  01188  cb0460000  # aggregate SET header, address, count, and data length
+1  01189  c14000000  # move r0, r1
+1  0118a  10000000d  # frame slot 13
+1  0118b  cb3000000  # frame offset
+1  0118c  c21220000  # store r1, frame[13]
+1  0118d  c10020000  # move r1, r0
+1  0118e  100000002  # frame slot 2
+1  0118f  cb3000000  # frame offset
+1  01190  c10220000  # load frame[2], r0
+1  01191  f44000000  # aggregate MDC response routing word
+1  01192  10000000d  # frame slot 13
+1  01193  cb3000000  # frame offset
+1  01194  c14220000  # load frame[13], r1
+1  01195  50049b400  # message header for __mdc_set_aggregate, length 0
+1  01196  c60420000  # retag relocatable message base as INT
+1  01197  d90020000  # insert dynamic MDC message length
+1  01198  c604a0000  # construct dynamic MSG header
+1  01199  f44000000  # aggregate MDC SET header
+1  0119a  100000003  # frame slot 3
+1  0119b  cb3000000  # frame offset
+1  0119c  c10220000  # load frame[3], r0
+1  0119d  f44000000  # aggregate MDC return address
+1  0119e  100000001  # frame slot 1
+1  0119f  cb3000000  # frame offset
+1  011a0  c10220000  # load frame[1], r0
+1  011a1  f44000000  # aggregate MDC return word count
+1  011a2  100000000  # first aggregate MDC return word
+1  011a3  c14000000  # move r0, r1
+1  011a4  10000000b  # frame slot 11
+1  011a5  cb3000000  # frame offset
+1  011a6  c21220000  # store r1, frame[11]
+1  011a7  c10020000  # move r1, r0
+1  011a8  100000001  # frame slot 1
+1  011a9  cb3000000  # frame offset
+1  011aa  c14220000  # load frame[1], r1
+1  011ab  10000000c  # frame slot 12
+1  011ac  cb3000000  # frame offset
+1  011ad  c10220000  # load frame[12], r0
+1  011ae  d10540000  # address base << 10
+1  011af  d90020000  # combine dynamic address length
+1  011b0  c60460000  # construct dynamic ADDR
+1  011b1  c400c0000  # aggregate MDC return source := A2
+1  011b2  10000000b  # frame slot 11
+1  011b3  cb3000000  # frame offset
+1  011b4  c10220000  # load frame[11], r0
+1  011b5  c14240000  # load aggregate MDC return word
+1  011b6  10000000a  # frame slot 10
+1  011b7  cb3000000  # frame offset
+1  011b8  c21220000  # store r1, frame[10]
+1  011b9  100000001  # frame slot 1
+1  011ba  cb3000000  # frame offset
+1  011bb  c14220000  # load frame[1], r1
+1  011bc  10000000b  # frame slot 11
+1  011bd  cb3000000  # frame offset
+1  011be  c10220000  # load frame[11], r0
+1  011bf  cb0420000  # next aggregate return index
+1  011c0  e40020000  # last aggregate return word
+1  011c1  c60420000  # C boolean to INT tag
+1  011c2  c14000000  # move r0, r1
+1  011c3  10000000f  # displacement to .mdc.aggregate.response.last.23
+1  011c4  ff1000000  # branch .mdc.aggregate.response.last.23
+1  011c5  10000000a  # frame slot 10
+1  011c6  cb3000000  # frame offset
+1  011c7  c10220000  # load frame[10], r0
+1  011c8  f44000000  # send aggregate MDC return word
+1  011c9  10000000b  # frame slot 11
+1  011ca  cb3000000  # frame offset
+1  011cb  c10220000  # load frame[11], r0
+1  011cc  cb0420000  # advance aggregate return index
+1  011cd  c14000000  # move r0, r1
+1  011ce  10000000b  # frame slot 11
+1  011cf  cb3000000  # frame offset
+1  011d0  c21220000  # store r1, frame[11]
+1  011d1  c10020000  # move r1, r0
+1  011d2  1ffffffd4  # displacement to .mdc.aggregate.response.loop.22
+1  011d3  f80000000  # branch .mdc.aggregate.response.loop.22
+1  011d4  10000000a  # frame slot 10
+1  011d5  cb3000000  # frame offset
+1  011d6  c10220000  # load frame[10], r0
+1  011d7  f54000000  # send final aggregate MDC return word
+1  011d8  100000007  # frame slot 7
+1  011d9  cb3000000  # frame offset
+1  011da  c10220000  # load frame[7], r0
+1  011db  c400e0000  # restore message A3
+1  011dc  100000000  # first MDC bulk allocation to reclaim
+1  011dd  c14000000  # move r0, r1
+1  011de  10000000b  # frame slot 11
+1  011df  cb3000000  # frame offset
+1  011e0  c21220000  # store r1, frame[11]
+1  011e1  c10020000  # move r1, r0
+1  011e2  10000002a  # frame slot 42
+1  011e3  cb3000000  # frame offset
+1  011e4  c14220000  # load frame[42], r1
+1  011e5  10000000b  # frame slot 11
+1  011e6  cb3000000  # frame offset
+1  011e7  c10220000  # load frame[11], r0
+1  011e8  e00020000  # bulk reclaim index < count
+1  011e9  c60420000  # C boolean to INT tag
+1  011ea  c14000000  # move r0, r1
+1  011eb  10000002d  # displacement to .mdc.reclaim.bulk.done.25
+1  011ec  fe1000000  # branch .mdc.reclaim.bulk.done.25
+1  011ed  10000000b  # frame slot 11
+1  011ee  cb3000000  # frame offset
+1  011ef  c10220000  # load frame[11], r0
+1  011f0  c18000000  # move r0, r2
+1  011f1  10000002b  # MDC bulk-list base slot
+1  011f2  cb2000000  # MDC bulk-list slot
+1  011f3  cb3000000  # MDC bulk-list frame offset
+1  011f4  c10220000  # load reclaimed MDC bulk block
+1  011f5  c14000000  # move r0, r1
+1  011f6  10000000a  # frame slot 10
+1  011f7  cb3000000  # frame offset
+1  011f8  c21220000  # store r1, frame[10]
+1  011f9  c10020000  # move r1, r0
+1  011fa  3001c0c01  # address 0x00703, length 1
+1  011fb  c400c0000  # set A2
+1  011fc  c18840000  # load MDC bulk free-list head
+1  011fd  10000000a  # frame slot 10
+1  011fe  cb3000000  # frame offset
+1  011ff  c10220000  # load frame[10], r0
+1  01200  d10540000  # address base << 10
+1  01201  c14000000  # move r0, r1
+1  01202  100000001  # address length := 1
+1  01203  d91000000  # combine address base and length
+1  01204  c14000000  # move r0, r1
+1  01205  100000003  # ADDR tag
+1  01206  c61000000  # construct dynamic ADDR
+1  01207  c400c0000  # reclaimed MDC bulk block := A2
+1  01208  c22840000  # link reclaimed MDC bulk block
+1  01209  10000000a  # frame slot 10
+1  0120a  cb3000000  # frame offset
+1  0120b  c14220000  # load frame[10], r1
+1  0120c  3001c0c01  # address 0x00703, length 1
+1  0120d  c400c0000  # set A2
+1  0120e  c21840000  # publish MDC bulk free-list head
+1  0120f  10000000b  # frame slot 11
+1  01210  cb3000000  # frame offset
+1  01211  c10220000  # load frame[11], r0
+1  01212  cb0420000  # next MDC bulk allocation
+1  01213  c14000000  # move r0, r1
+1  01214  10000000b  # frame slot 11
+1  01215  cb3000000  # frame offset
+1  01216  c21220000  # store r1, frame[11]
+1  01217  c10020000  # move r1, r0
+1  01218  1ffffffc8  # displacement to .mdc.reclaim.bulk.loop.24
+1  01219  f80000000  # branch .mdc.reclaim.bulk.loop.24
+1  0121a  200000001  # enter pointer-field extraction
+1  0121b  c40380000  # U := true
+1  0121c  c300a0000  # read A1
+1  0121d  c60420000  # retag address data as INT
+1  0121e  c14000000  # move r0, r1
+1  0121f  1fffffff6  # address base right-shift count
+1  01220  d11000000  # extract address base
+1  01221  c14000000  # move r0, r1
+1  01222  1000fffff  # address base field mask
+1  01223  d81000000  # mask address base field
+1  01224  c14000000  # move r0, r1
+1  01225  200000000  # leave pointer-field extraction
+1  01226  c40380000  # U := false
+1  01227  c10020000  # move r1, r0
+1  01228  c14000000  # move r0, r1
+1  01229  10000000a  # frame slot 10
+1  0122a  cb3000000  # frame offset
+1  0122b  c21220000  # store r1, frame[10]
+1  0122c  c10020000  # move r1, r0
+1  0122d  3001c0801  # address 0x00702, length 1
+1  0122e  c400c0000  # set A2
+1  0122f  c18840000  # load MDC process free-list head
+1  01230  10000000a  # frame slot 10
+1  01231  cb3000000  # frame offset
+1  01232  c10220000  # load frame[10], r0
+1  01233  d10540000  # address base << 10
+1  01234  c14000000  # move r0, r1
+1  01235  100000001  # address length := 1
+1  01236  d91000000  # combine address base and length
+1  01237  c14000000  # move r0, r1
+1  01238  100000003  # ADDR tag
+1  01239  c61000000  # construct dynamic ADDR
+1  0123a  c400c0000  # reclaimed MDC process block := A2
+1  0123b  c22840000  # link reclaimed MDC process block
+1  0123c  10000000a  # frame slot 10
+1  0123d  cb3000000  # frame offset
+1  0123e  c14220000  # load frame[10], r1
+1  0123f  3001c0801  # address 0x00702, length 1
+1  01240  c400c0000  # set A2
+1  01241  c21840000  # publish MDC process free-list head
+1  01242  200000001  # restore queue-relative A3
+1  01243  c403a0000  # Q := true
+1  01244  f00000000  # release MDC spawn message
+1  01245  c18960000  # load message[2], r2
+1  01246  c108e0000  # load message[1], r0
+1  01247  d10540000  # address base << 10
+1  01248  c14000000  # move r0, r1
+1  01249  100000001  # address length := 1
+1  0124a  d91000000  # combine address base and length
+1  0124b  c14000000  # move r0, r1
+1  0124c  100000003  # ADDR tag
+1  0124d  c61000000  # construct dynamic ADDR
+1  0124e  c400a0000  # set dynamic A1
+1  0124f  200000001  # inspect FUT waiter list unchecked
+1  01250  c40380000  # U := true
+1  01251  c10820000  # load FUT waiter-list head
+1  01252  c60420000  # extract FUT waiter-list head
+1  01253  c1c000000  # move r0, r3
+1  01254  200000000  # finish FUT waiter-list inspection
+1  01255  c40380000  # U := false
+1  01256  c22820000  # resolve MDC result future
+1  01257  c10060000  # move r3, r0
+1  01258  c14000000  # move r0, r1
+1  01259  100000011  # displacement to .mdc.wake.done.27
+1  0125a  fe1000000  # branch .mdc.wake.done.27
+1  0125b  c30280000  # wake routing computer
+1  0125c  f40000000  # MDC wake routing word
+1  0125d  5004af402  # message header for __mdc_wakeup, length 2
+1  0125e  f40000000  # MDC wake header
+1  0125f  f50060000  # MDC suspended-process address
+1  01260  c10060000  # move r3, r0
+1  01261  d10540000  # address base << 10
+1  01262  c14000000  # move r0, r1
+1  01263  100000200  # address length := 512
+1  01264  d91000000  # combine address base and length
+1  01265  c14000000  # move r0, r1
+1  01266  100000003  # ADDR tag
+1  01267  c61000000  # construct dynamic ADDR
+1  01268  c400c0000  # set dynamic A2
+1  01269  c1ecc0000  # next FUT waiter
+1  0126a  1ffffffeb  # displacement to .mdc.wake.loop.26
+1  0126b  f80000000  # branch .mdc.wake.loop.26
+1  0126c  f00000000  # release MDC SET message
+1  0126d  c148e0000  # load message[1], r1
+1  0126e  3001c2801  # address 0x0070a, length 1
+1  0126f  c400c0000  # set A2
+1  01270  c21840000  # save aggregate SET destination base
+1  01271  c14960000  # load message[2], r1
+1  01272  3001c2c01  # address 0x0070b, length 1
+1  01273  c400c0000  # set A2
+1  01274  c21840000  # save aggregate SET word count
+1  01275  3001c3001  # address 0x0070c, length 1
+1  01276  c400c0000  # set A2
+1  01277  100000000  # first aggregate SET word
+1  01278  c20840000  # initialize aggregate SET index
+1  01279  3001c2c01  # address 0x0070b, length 1
+1  0127a  c400c0000  # set A2
+1  0127b  c14840000  # load aggregate SET word count
+1  0127c  3001c3001  # address 0x0070c, length 1
+1  0127d  c400c0000  # set A2
+1  0127e  c10840000  # load aggregate SET index
+1  0127f  e00020000  # aggregate SET index < count
+1  01280  c60420000  # C boolean to INT tag
+1  01281  c14000000  # move r0, r1
+1  01282  100000038  # displacement to .mdc.aggregate.set.done.29
+1  01283  fe1000000  # branch .mdc.aggregate.set.done.29
+1  01284  3001c2801  # address 0x0070a, length 1
+1  01285  c400c0000  # set A2
+1  01286  c14840000  # load aggregate SET destination base
+1  01287  3001c3001  # address 0x0070c, length 1
+1  01288  c400c0000  # set A2
+1  01289  c10840000  # load aggregate SET destination index
+1  0128a  cb0020000  # aggregate SET destination word
+1  0128b  d10540000  # address base << 10
+1  0128c  c14000000  # move r0, r1
+1  0128d  100000001  # address length := 1
+1  0128e  d91000000  # combine address base and length
+1  0128f  c14000000  # move r0, r1
+1  01290  100000003  # ADDR tag
+1  01291  c61000000  # construct dynamic ADDR
+1  01292  c400a0000  # set dynamic A1
+1  01293  200000001  # inspect aggregate FUT waiter list unchecked
+1  01294  c40380000  # U := true
+1  01295  c10820000  # load aggregate FUT waiter-list head
+1  01296  c60420000  # extract aggregate FUT waiter-list head
+1  01297  c1c000000  # move r0, r3
+1  01298  200000000  # finish aggregate FUT waiter-list inspection
+1  01299  c40380000  # U := false
+1  0129a  3001c3001  # address 0x0070c, length 1
+1  0129b  c400c0000  # set A2
+1  0129c  c10840000  # load aggregate SET source index
+1  0129d  cb0460000  # aggregate SET message data offset
+1  0129e  c18260000  # load aggregate SET data word
+1  0129f  c22820000  # resolve aggregate MDC result future
+1  012a0  c10060000  # move r3, r0
+1  012a1  c14000000  # move r0, r1
+1  012a2  100000011  # displacement to .mdc.aggregate.wake.done.31
+1  012a3  fe1000000  # branch .mdc.aggregate.wake.done.31
+1  012a4  c30280000  # aggregate wake routing computer
+1  012a5  f40000000  # aggregate MDC wake routing word
+1  012a6  5004af402  # message header for __mdc_wakeup, length 2
+1  012a7  f40000000  # aggregate MDC wake header
+1  012a8  f50060000  # aggregate MDC suspended-process address
+1  012a9  c10060000  # move r3, r0
+1  012aa  d10540000  # address base << 10
+1  012ab  c14000000  # move r0, r1
+1  012ac  100000200  # address length := 512
+1  012ad  d91000000  # combine address base and length
+1  012ae  c14000000  # move r0, r1
+1  012af  100000003  # ADDR tag
+1  012b0  c61000000  # construct dynamic ADDR
+1  012b1  c400c0000  # set dynamic A2
+1  012b2  c1ecc0000  # next aggregate FUT waiter
+1  012b3  1ffffffeb  # displacement to .mdc.aggregate.wake.loop.30
+1  012b4  f80000000  # branch .mdc.aggregate.wake.loop.30
+1  012b5  3001c3001  # address 0x0070c, length 1
+1  012b6  c400c0000  # set A2
+1  012b7  c10840000  # reload aggregate SET index
+1  012b8  cb0420000  # advance aggregate SET index
+1  012b9  c20840000  # commit aggregate SET index
+1  012ba  1ffffffbd  # displacement to .mdc.aggregate.set.loop.28
+1  012bb  f80000000  # branch .mdc.aggregate.set.loop.28
+1  012bc  f00000000  # release aggregate MDC SET message
+1  012bd  c108e0000  # load message[1], r0
+1  012be  d10540000  # address base << 10
+1  012bf  c14000000  # move r0, r1
+1  012c0  100000200  # address length := 512
+1  012c1  d91000000  # combine address base and length
+1  012c2  c14000000  # move r0, r1
+1  012c3  100000003  # ADDR tag
+1  012c4  c61000000  # construct dynamic ADDR
+1  012c5  c400a0000  # restore suspended process A1
+1  012c6  c300e0000  # capture wake-message A3
+1  012c7  c20ba0000  # store r0, process header[7]
+1  012c8  200000000  # leave queue-relative wake-message addressing
+1  012c9  c403a0000  # Q := false
+1  012ca  c12aa0000  # load process header[37], r0
+1  012cb  c40080000  # restore A0
+1  012cc  c12b20000  # load process header[38], r0
+1  012cd  c400c0000  # restore A2
+1  012ce  c12ba0000  # load process header[39], r0
+1  012cf  c400e0000  # restore A3
+1  012d0  c16920000  # load process header[34], r1
+1  012d1  c1a9a0000  # load process header[35], r2
+1  012d2  c1ea20000  # load process header[36], r3
+1  012d3  c128a0000  # load process header[33], r0
+1  012d4  c78820000  # resume suspended process
+1  012d5  c302a0000  # capture future-fault memory address before changing MAR
+1  012d6  c28c20000  # store r0, process header[40]
+1  012d7  c301c0000  # recover faulting R0 from FOP0
+1  012d8  c288a0000  # store r0, process header[33]
+1  012d9  c29920000  # store r1, process header[34]
+1  012da  c2a9a0000  # store r2, process header[35]
+1  012db  c2ba20000  # store r3, process header[36]
+1  012dc  c30180000  # read future-fault FIP
+1  012dd  c28820000  # store r0, process header[32]
+1  012de  c30080000  # save A0
+1  012df  c28aa0000  # store r0, process header[37]
+1  012e0  c300c0000  # save A2
+1  012e1  c28b20000  # store r0, process header[38]
+1  012e2  c300e0000  # save A3
+1  012e3  c28ba0000  # store r0, process header[39]
+1  012e4  3001c2001  # address 0x00708, length 1
+1  012e5  c400c0000  # set A2
+1  012e6  c10840000  # load architectural FUT-fault count
+1  012e7  cb0420000  # count architectural FUT fault
+1  012e8  c20840000  # store architectural FUT-fault count
+1  012e9  c12c20000  # load process header[40], r0
+1  012ea  d10540000  # address base << 10
+1  012eb  c14000000  # move r0, r1
+1  012ec  100000001  # address length := 1
+1  012ed  d91000000  # combine address base and length
+1  012ee  c14000000  # move r0, r1
+1  012ef  100000003  # ADDR tag
+1  012f0  c61000000  # construct dynamic ADDR
+1  012f1  c400c0000  # set dynamic A2
+1  012f2  200000001  # read unresolved FUT data unchecked
+1  012f3  c40380000  # U := true
+1  012f4  c10840000  # load prior FUT waiter
+1  012f5  c60420000  # extract prior FUT waiter
+1  012f6  c14000000  # move r0, r1
+1  012f7  200000000  # finish unresolved FUT data read
+1  012f8  c40380000  # U := false
+1  012f9  c10020000  # move r1, r0
+1  012fa  c28ca0000  # store r0, process header[41]
+1  012fb  200000001  # enter pointer-field extraction
+1  012fc  c40380000  # U := true
+1  012fd  c300a0000  # read A1
+1  012fe  c60420000  # retag address data as INT
+1  012ff  c14000000  # move r0, r1
+1  01300  1fffffff6  # address base right-shift count
+1  01301  d11000000  # extract address base
+1  01302  c14000000  # move r0, r1
+1  01303  1000fffff  # address base field mask
+1  01304  d81000000  # mask address base field
+1  01305  c14000000  # move r0, r1
+1  01306  200000000  # leave pointer-field extraction
+1  01307  c40380000  # U := false
+1  01308  c10020000  # move r1, r0
+1  01309  c604e0000  # link process into FUT waiter list
+1  0130a  c20840000  # commit FUT waiter-list head
+1  0130b  c10ba0000  # load process header[7], r0
+1  0130c  c400e0000  # restore active process message A3
+1  0130d  200000001  # restore queue-relative process message
+1  0130e  c403a0000  # Q := true
+1  0130f  f00000000  # suspend process on unresolved FUT
+1  01310  3001c1401  # address 0x00705, length 1
+1  01311  c400c0000  # set A2
+1  01312  c10840000  # load application-code request count
+1  01313  cb0420000  # count application-code request
+1  01314  c20840000  # store application-code request count
+1  01315  3001c1c01  # address 0x00707, length 1
+1  01316  c400c0000  # set A2
+1  01317  100000000  # reset application-code chunk acknowledgement count
+1  01318  c20840000  # reset application-code chunk acknowledgement count
+1  01319  c108e0000  # load message[1], r0
+1  0131a  f44000000  # route application-code chunk
+1  0131b  5804cf4b8  # message header for __mdc_code_install, length 184
+1  0131c  f44000000  # application-code chunk header
+1  0131d  100000000  # application-code cache offset
+1  0131e  f44000000  # send application-code cache offset
+1  0131f  1000000b4  # application-code chunk length
+1  01320  f44000000  # send application-code chunk length
+1  01321  100000001  # application-code final chunk flag
+1  01322  f44000000  # send application-code final flag
+1  01323  30c0000b4  # address 0x30000, length 180
+1  01324  c400c0000  # set A2
+1  01325  100000000  # application-code source index
+1  01326  c18000000  # move r0, r2
+1  01327  1000000b3  # last application-code source index
+1  01328  c1c000000  # move r0, r3
+1  01329  e42060000  # last application-code word
+1  0132a  c60420000  # C boolean to INT tag
+1  0132b  c14000000  # move r0, r1
+1  0132c  100000005  # displacement to .mdc.code.send.last.33
+1  0132d  ff1000000  # branch .mdc.code.send.last.33
+1  0132e  c10340000  # load application-code word
+1  0132f  f44000000  # send application-code word
+1  01330  cba420000  # next application-code word
+1  01331  1fffffff6  # displacement to .mdc.code.send.loop.32
+1  01332  f80000000  # branch .mdc.code.send.loop.32
+1  01333  c10340000  # load final application-code word
+1  01334  f54000000  # finish application-code chunk
+1  01335  3001c1c01  # address 0x00707, length 1
+1  01336  c400c0000  # set A2
+1  01337  c10840000  # load application-code chunk acknowledgement count
+1  01338  cc0420000  # await application-code chunk acknowledgement
+1  01339  c14000000  # move r0, r1
+1  0133a  1fffffff9  # displacement to .mdc.code.ack.wait.34
+1  0133b  ff1000000  # branch .mdc.code.ack.wait.34
+1  0133c  f00000000  # release application-code request
+1  0133d  3001c1801  # address 0x00706, length 1
+1  0133e  c400c0000  # set A2
+1  0133f  c10840000  # load application-code installed-chunk count
+1  01340  cb0420000  # count installed application-code chunk
+1  01341  c20840000  # store application-code installed-chunk count
+1  01342  c30220000  # load current-priority queue head/length
+1  01343  c60420000  # C boolean to INT tag
+1  01344  c14000000  # move r0, r1
+1  01345  1000003ff  # queue occupancy mask
+1  01346  d80020000  # extract committed queue occupancy
+1  01347  c18000000  # move r0, r2
+1  01348  c10960000  # load message[2], r0
+1  01349  cb04e0000  # application-code aligned message length bias
+1  0134a  d80780000  # application-code aligned message length
+1  0134b  c14000000  # move r0, r1
+1  0134c  e02020000  # committed queue occupancy < application-code message length
+1  0134d  c60420000  # C boolean to INT tag
+1  0134e  c14000000  # move r0, r1
+1  0134f  1fffffff1  # displacement to .mdc.code.install.arrived.35
+1  01350  ff1000000  # branch .mdc.code.install.arrived.35
+1  01351  c148e0000  # load message[1], r1
+1  01352  100030000  # application-code cache base
+1  01353  cb0020000  # application-code chunk destination
+1  01354  d10540000  # address base << 10
+1  01355  c14000000  # move r0, r1
+1  01356  100000000  # address length := 0
+1  01357  d91000000  # combine address base and length
+1  01358  c14000000  # move r0, r1
+1  01359  100000003  # ADDR tag
+1  0135a  c61000000  # construct dynamic ADDR
+1  0135b  c400c0000  # application-code chunk destination := A2
+1  0135c  c1c960000  # load message[2], r3
+1  0135d  100000000  # application-code install index
+1  0135e  c18000000  # move r0, r2
+1  0135f  e02060000  # application-code install index < length
+1  01360  c60420000  # C boolean to INT tag
+1  01361  c14000000  # move r0, r1
+1  01362  100000007  # displacement to .mdc.code.install.done.37
+1  01363  fe1000000  # branch .mdc.code.install.done.37
+1  01364  c10040000  # move r2, r0
+1  01365  cb0480000  # application-code message offset
+1  01366  c14260000  # load transported application-code word
+1  01367  c21340000  # install application-code word
+1  01368  cba420000  # next installed application-code word
+1  01369  1fffffff4  # displacement to .mdc.code.install.loop.36
+1  0136a  f80000000  # branch .mdc.code.install.loop.36
+1  0136b  c109e0000  # load message[3], r0
+1  0136c  c14000000  # move r0, r1
+1  0136d  100000004  # displacement to .mdc.code.install.complete.38
+1  0136e  fe1000000  # branch .mdc.code.install.complete.38
+1  0136f  3001c1001  # address 0x00704, length 1
+1  01370  c400c0000  # set A2
+1  01371  100000001  # application-code cache ready
+1  01372  c20840000  # publish application-code cache readiness
+1  01373  100000000  # application-code home node
+1  01374  f44000000  # route application-code chunk acknowledgement
+1  01375  5804de802  # message header for __mdc_code_ack, length 2
+1  01376  f44000000  # application-code chunk acknowledgement header
+1  01377  c108e0000  # load message[1], r0
+1  01378  f54000000  # finish application-code chunk acknowledgement
+1  01379  f00000000  # release application-code chunk
+1  0137a  3001c1c01  # address 0x00707, length 1
+1  0137b  c400c0000  # set A2
+1  0137c  c10840000  # load application-code chunk acknowledgement count
+1  0137d  cb0420000  # count application-code chunk acknowledgement
+1  0137e  c20840000  # store application-code chunk acknowledgement count
+1  0137f  f00000000  # release application-code chunk acknowledgement
+1  01380  3001c3401  # address 0x0070d, length 1
+1  01381  c400c0000  # set A2
+1  01382  100000001  # MDC argument envelope runtime error
+1  01383  c20840000  # publish MDC argument envelope runtime error
+1  01384  1fffffffe  # displacement to .mdc.argument.error.halt.39
+1  01385  f80000000  # branch .mdc.argument.error.halt.39
+1  01386  c40080000  # park fault-context R0 in reserved A0
+1  01387  200000001  # mask dispatch during SEND recovery
+1  01388  c40340000  # I := true
+1  01389  c30320000  # select background SEND retry frame
+1  0138a  ff0780000  # inline branch .send.fault.background.40
+1  0138b  c30300000  # select priority SEND retry frame
+1  0138c  ff05a0000  # inline branch .send.fault.priority1.41
+1  0138d  10000074d  # SEND entry slot 13
+1  0138e  c21200000  # save entry r1
+1  0138f  10000074e  # SEND entry slot 14
+1  01390  c22200000  # save entry r2
+1  01391  10000074f  # SEND entry slot 15
+1  01392  c23200000  # save entry r3
+1  01393  c34080000  # recover entry R0 parked in A0
+1  01394  10000074c  # SEND entry slot 12
+1  01395  c21200000  # save entry r0
+1  01396  100000740  # selected SEND retry-frame base
+1  01397  c1c000000  # move r0, r3
+1  01398  10000001a  # displacement to .send.fault.common.42
+1  01399  f80000000  # branch .send.fault.common.42
+1  0139a  10000076d  # SEND entry slot 13
+1  0139b  c21200000  # save entry r1
+1  0139c  10000076e  # SEND entry slot 14
+1  0139d  c22200000  # save entry r2
+1  0139e  10000076f  # SEND entry slot 15
+1  0139f  c23200000  # save entry r3
+1  013a0  c34080000  # recover entry R0 parked in A0
+1  013a1  10000076c  # SEND entry slot 12
+1  013a2  c21200000  # save entry r0
+1  013a3  100000760  # selected SEND retry-frame base
+1  013a4  c1c000000  # move r0, r3
+1  013a5  10000000d  # displacement to .send.fault.common.42
+1  013a6  f80000000  # branch .send.fault.common.42
+1  013a7  10000072d  # SEND entry slot 13
+1  013a8  c21200000  # save entry r1
+1  013a9  10000072e  # SEND entry slot 14
+1  013aa  c22200000  # save entry r2
+1  013ab  10000072f  # SEND entry slot 15
+1  013ac  c23200000  # save entry r3
+1  013ad  c34080000  # recover entry R0 parked in A0
+1  013ae  10000072c  # SEND entry slot 12
+1  013af  c21200000  # save entry r0
+1  013b0  100000720  # selected SEND retry-frame base
+1  013b1  c1c000000  # move r0, r3
+1  013b2  100000000  # displacement to .send.fault.common.42
+1  013b3  f80000000  # branch .send.fault.common.42
+1  013b4  c18060000  # move r3, r2
+1  013b5  c10300000  # load SEND retry frame[0], r0
+1  013b6  c14000000  # move r0, r1
+1  013b7  100000047  # displacement to .send.fault.count.45
+1  013b8  ff1000000  # branch .send.fault.count.45
+1  013b9  c10060000  # move r3, r0
+1  013ba  cb0580000  # SEND retry-frame slot 12
+1  013bb  c14200000  # load SEND retry frame[12], r1
+1  013bc  c10060000  # move r3, r0
+1  013bd  cb0420000  # SEND retry-frame slot 1
+1  013be  c21200000  # store r1, SEND retry frame[1]
+1  013bf  c10060000  # move r3, r0
+1  013c0  cb05a0000  # SEND retry-frame slot 13
+1  013c1  c14200000  # load SEND retry frame[13], r1
+1  013c2  c10060000  # move r3, r0
+1  013c3  cb0440000  # SEND retry-frame slot 2
+1  013c4  c21200000  # store r1, SEND retry frame[2]
+1  013c5  c10060000  # move r3, r0
+1  013c6  cb05c0000  # SEND retry-frame slot 14
+1  013c7  c14200000  # load SEND retry frame[14], r1
+1  013c8  c10060000  # move r3, r0
+1  013c9  cb0460000  # SEND retry-frame slot 3
+1  013ca  c21200000  # store r1, SEND retry frame[3]
+1  013cb  c10060000  # move r3, r0
+1  013cc  cb05e0000  # SEND retry-frame slot 15
+1  013cd  c14200000  # load SEND retry frame[15], r1
+1  013ce  c10060000  # move r3, r0
+1  013cf  cb0480000  # SEND retry-frame slot 4
+1  013d0  c21200000  # store r1, SEND retry frame[4]
+1  013d1  c340a0000  # save A1 for SEND retry
+1  013d2  c10060000  # move r3, r0
+1  013d3  cb04a0000  # SEND retry-frame slot 5
+1  013d4  c21200000  # store r1, SEND retry frame[5]
+1  013d5  c340c0000  # save A2 for SEND retry
+1  013d6  c10060000  # move r3, r0
+1  013d7  cb04c0000  # SEND retry-frame slot 6
+1  013d8  c21200000  # store r1, SEND retry frame[6]
+1  013d9  c340e0000  # save A3 for SEND retry
+1  013da  c10060000  # move r3, r0
+1  013db  cb04e0000  # SEND retry-frame slot 7
+1  013dc  c21200000  # store r1, SEND retry frame[7]
+1  013dd  c34180000  # save original SEND continuation FIP
+1  013de  c10060000  # move r3, r0
+1  013df  cb0500000  # SEND retry-frame slot 8
+1  013e0  c21200000  # store r1, SEND retry frame[8]
+1  013e1  c30320000  # background fault-register bank selection
+1  013e2  ff05c0000  # inline branch .send.fault.save.background.43
+1  013e3  c341c0000  # save faulting SEND operand 0
+1  013e4  c10060000  # move r3, r0
+1  013e5  cb0520000  # SEND retry-frame slot 9
+1  013e6  c21200000  # store r1, SEND retry frame[9]
+1  013e7  c341e0000  # save faulting SEND operand 1
+1  013e8  c10060000  # move r3, r0
+1  013e9  cb0540000  # SEND retry-frame slot 10
+1  013ea  c21200000  # store r1, SEND retry frame[10]
+1  013eb  c341a0000  # save faulting SEND instruction
+1  013ec  c10060000  # move r3, r0
+1  013ed  cb0560000  # SEND retry-frame slot 11
+1  013ee  c21200000  # store r1, SEND retry frame[11]
+1  013ef  10000000c  # displacement to .send.fault.saved.44
+1  013f0  f80000000  # branch .send.fault.saved.44
+1  013f1  c349c0000  # save faulting SEND operand 0
+1  013f2  c10060000  # move r3, r0
+1  013f3  cb0520000  # SEND retry-frame slot 9
+1  013f4  c21200000  # store r1, SEND retry frame[9]
+1  013f5  c349e0000  # save faulting SEND operand 1
+1  013f6  c10060000  # move r3, r0
+1  013f7  cb0540000  # SEND retry-frame slot 10
+1  013f8  c21200000  # store r1, SEND retry frame[10]
+1  013f9  c349a0000  # save faulting SEND instruction
+1  013fa  c10060000  # move r3, r0
+1  013fb  cb0560000  # SEND retry-frame slot 11
+1  013fc  c21200000  # store r1, SEND retry frame[11]
+1  013fd  100000001  # mark SEND retry frame active
+1  013fe  c18060000  # move r3, r2
+1  013ff  c20300000  # store r0, SEND retry frame[0]
+1  01400  3001c2401  # address 0x00709, length 1
+1  01401  c400c0000  # set A2
+1  01402  c10840000  # load architectural SEND-fault count
+1  01403  cb0420000  # count architectural SEND fault
+1  01404  c20840000  # store architectural SEND-fault count
+1  01405  c10060000  # move r3, r0
+1  01406  cb0560000  # SEND retry-frame slot 11
+1  01407  c14200000  # load SEND retry frame[11], r1
+1  01408  100001000  # SEND FIR mask 0x1000
+1  01409  d81000000  # test SEND FIR bit
+1  0140a  c14000000  # move r0, r1
+1  0140b  100000020  # displacement to .send.fault.retry.two.46
+1  0140c  ff1000000  # branch .send.fault.retry.two.46
+1  0140d  c10060000  # move r3, r0
+1  0140e  cb0560000  # SEND retry-frame slot 11
+1  0140f  c14200000  # load SEND retry frame[11], r1
+1  01410  100000800  # SEND FIR mask 0x0800
+1  01411  d81000000  # test SEND FIR bit
+1  01412  c14000000  # move r0, r1
+1  01413  10000000c  # displacement to .send.fault.retry.single.end.47
+1  01414  ff1000000  # branch .send.fault.retry.single.end.47
+1  01415  c10060000  # move r3, r0
+1  01416  cb0560000  # SEND retry-frame slot 11
+1  01417  c14200000  # load SEND retry frame[11], r1
+1  01418  100000200  # SEND FIR mask 0x0200
+1  01419  d81000000  # test SEND FIR bit
+1  0141a  c14000000  # move r0, r1
+1  0141b  100000002  # displacement to .send.fault.retry.single.p1.48
+1  0141c  ff1000000  # branch .send.fault.retry.single.p1.48
+1  0141d  10000002e  # displacement to .send.fault.instruction.send.p0.53
+1  0141e  f80000000  # branch .send.fault.instruction.send.p0.53
+1  0141f  100000032  # displacement to .send.fault.instruction.send.p1.54
+1  01420  f80000000  # branch .send.fault.instruction.send.p1.54
+1  01421  c10060000  # move r3, r0
+1  01422  cb0560000  # SEND retry-frame slot 11
+1  01423  c14200000  # load SEND retry frame[11], r1
+1  01424  100000200  # SEND FIR mask 0x0200
+1  01425  d81000000  # test SEND FIR bit
+1  01426  c14000000  # move r0, r1
+1  01427  100000002  # displacement to .send.fault.retry.single.end.p1.49
+1  01428  ff1000000  # branch .send.fault.retry.single.end.p1.49
+1  01429  10000002e  # displacement to .send.fault.instruction.sende.p0.55
+1  0142a  f80000000  # branch .send.fault.instruction.sende.p0.55
+1  0142b  100000032  # displacement to .send.fault.instruction.sende.p1.56
+1  0142c  f80000000  # branch .send.fault.instruction.sende.p1.56
+1  0142d  c10060000  # move r3, r0
+1  0142e  cb0560000  # SEND retry-frame slot 11
+1  0142f  c14200000  # load SEND retry frame[11], r1
+1  01430  100000800  # SEND FIR mask 0x0800
+1  01431  d81000000  # test SEND FIR bit
+1  01432  c14000000  # move r0, r1
+1  01433  10000000c  # displacement to .send.fault.retry.two.end.50
+1  01434  ff1000000  # branch .send.fault.retry.two.end.50
+1  01435  c10060000  # move r3, r0
+1  01436  cb0560000  # SEND retry-frame slot 11
+1  01437  c14200000  # load SEND retry frame[11], r1
+1  01438  100000200  # SEND FIR mask 0x0200
+1  01439  d81000000  # test SEND FIR bit
+1  0143a  c14000000  # move r0, r1
+1  0143b  100000002  # displacement to .send.fault.retry.two.p1.51
+1  0143c  ff1000000  # branch .send.fault.retry.two.p1.51
+1  0143d  100000026  # displacement to .send.fault.instruction.send2.p0.57
+1  0143e  f80000000  # branch .send.fault.instruction.send2.p0.57
+1  0143f  10000002d  # displacement to .send.fault.instruction.send2.p1.58
+1  01440  f80000000  # branch .send.fault.instruction.send2.p1.58
+1  01441  c10060000  # move r3, r0
+1  01442  cb0560000  # SEND retry-frame slot 11
+1  01443  c14200000  # load SEND retry frame[11], r1
+1  01444  100000200  # SEND FIR mask 0x0200
+1  01445  d81000000  # test SEND FIR bit
+1  01446  c14000000  # move r0, r1
+1  01447  100000002  # displacement to .send.fault.retry.two.end.p1.52
+1  01448  ff1000000  # branch .send.fault.retry.two.end.p1.52
+1  01449  10000002c  # displacement to .send.fault.instruction.send2e.p0.59
+1  0144a  f80000000  # branch .send.fault.instruction.send2e.p0.59
+1  0144b  100000033  # displacement to .send.fault.instruction.send2e.p1.60
+1  0144c  f80000000  # branch .send.fault.instruction.send2e.p1.60
+1  0144d  c18060000  # move r3, r2
+1  0144e  cba520000  # SEND retry-frame slot 9
+1  0144f  c10300000  # load SEND retry frame[9], r0
+1  01450  f40000000  # retry faulting JMachineC.MDP.Opcode.send, priority 0
+1  01451  100000036  # displacement to .send.fault.cleanup.61
+1  01452  f80000000  # branch .send.fault.cleanup.61
+1  01453  c18060000  # move r3, r2
+1  01454  cba520000  # SEND retry-frame slot 9
+1  01455  c10300000  # load SEND retry frame[9], r0
+1  01456  f44000000  # retry faulting JMachineC.MDP.Opcode.send, priority 1
+1  01457  100000030  # displacement to .send.fault.cleanup.61
+1  01458  f80000000  # branch .send.fault.cleanup.61
+1  01459  c18060000  # move r3, r2
+1  0145a  cba520000  # SEND retry-frame slot 9
+1  0145b  c10300000  # load SEND retry frame[9], r0
+1  0145c  f50000000  # retry faulting JMachineC.MDP.Opcode.sendEnd, priority 0
+1  0145d  10000002a  # displacement to .send.fault.cleanup.61
+1  0145e  f80000000  # branch .send.fault.cleanup.61
+1  0145f  c18060000  # move r3, r2
+1  01460  cba520000  # SEND retry-frame slot 9
+1  01461  c10300000  # load SEND retry frame[9], r0
+1  01462  f54000000  # retry faulting JMachineC.MDP.Opcode.sendEnd, priority 1
+1  01463  100000024  # displacement to .send.fault.cleanup.61
+1  01464  f80000000  # branch .send.fault.cleanup.61
+1  01465  c10060000  # move r3, r0
+1  01466  cb0540000  # SEND retry-frame slot 10
+1  01467  c14200000  # load SEND retry frame[10], r1
+1  01468  c18060000  # move r3, r2
+1  01469  cba520000  # SEND retry-frame slot 9
+1  0146a  c10300000  # load SEND retry frame[9], r0
+1  0146b  f61000000  # retry faulting JMachineC.MDP.Opcode.send2, priority 0
+1  0146c  10000001b  # displacement to .send.fault.cleanup.61
+1  0146d  f80000000  # branch .send.fault.cleanup.61
+1  0146e  c10060000  # move r3, r0
+1  0146f  cb0540000  # SEND retry-frame slot 10
+1  01470  c14200000  # load SEND retry frame[10], r1
+1  01471  c18060000  # move r3, r2
+1  01472  cba520000  # SEND retry-frame slot 9
+1  01473  c10300000  # load SEND retry frame[9], r0
+1  01474  f65000000  # retry faulting JMachineC.MDP.Opcode.send2, priority 1
+1  01475  100000012  # displacement to .send.fault.cleanup.61
+1  01476  f80000000  # branch .send.fault.cleanup.61
+1  01477  c10060000  # move r3, r0
+1  01478  cb0540000  # SEND retry-frame slot 10
+1  01479  c14200000  # load SEND retry frame[10], r1
+1  0147a  c18060000  # move r3, r2
+1  0147b  cba520000  # SEND retry-frame slot 9
+1  0147c  c10300000  # load SEND retry frame[9], r0
+1  0147d  f71000000  # retry faulting JMachineC.MDP.Opcode.send2End, priority 0
+1  0147e  100000009  # displacement to .send.fault.cleanup.61
+1  0147f  f80000000  # branch .send.fault.cleanup.61
+1  01480  c10060000  # move r3, r0
+1  01481  cb0540000  # SEND retry-frame slot 10
+1  01482  c14200000  # load SEND retry frame[10], r1
+1  01483  c18060000  # move r3, r2
+1  01484  cba520000  # SEND retry-frame slot 9
+1  01485  c10300000  # load SEND retry frame[9], r0
+1  01486  f75000000  # retry faulting JMachineC.MDP.Opcode.send2End, priority 1
+1  01487  100000000  # displacement to .send.fault.cleanup.61
+1  01488  f80000000  # branch .send.fault.cleanup.61
+1  01489  100000000  # release SEND retry frame
+1  0148a  c18060000  # move r3, r2
+1  0148b  c20300000  # store r0, SEND retry frame[0]
+1  0148c  c18060000  # move r3, r2
+1  0148d  cba4a0000  # SEND retry-frame slot 5
+1  0148e  c10300000  # load SEND retry frame[5], r0
+1  0148f  c400a0000  # restore A1 after SEND retry
+1  01490  c18060000  # move r3, r2
+1  01491  cba4c0000  # SEND retry-frame slot 6
+1  01492  c10300000  # load SEND retry frame[6], r0
+1  01493  c400c0000  # restore A2 after SEND retry
+1  01494  c18060000  # move r3, r2
+1  01495  cba4e0000  # SEND retry-frame slot 7
+1  01496  c10300000  # load SEND retry frame[7], r0
+1  01497  c400e0000  # restore A3 after SEND retry
+1  01498  c18060000  # move r3, r2
+1  01499  cba500000  # SEND retry-frame slot 8
+1  0149a  c10300000  # load SEND retry frame[8], r0
+1  0149b  c40180000  # restore original SEND continuation FIP
+1  0149c  c18060000  # move r3, r2
+1  0149d  cba420000  # SEND retry-frame slot 1
+1  0149e  c10300000  # load SEND retry frame[1], r0
+1  0149f  c40080000  # park restored R0 in reserved A0
+1  014a0  c10060000  # move r3, r0
+1  014a1  cb0440000  # SEND retry-frame slot 2
+1  014a2  c14200000  # load SEND retry frame[2], r1
+1  014a3  c10060000  # move r3, r0
+1  014a4  cb0460000  # SEND retry-frame slot 3
+1  014a5  c18200000  # load SEND retry frame[3], r2
+1  014a6  c10060000  # move r3, r0
+1  014a7  cb0480000  # SEND retry-frame slot 4
+1  014a8  c1c200000  # load SEND retry frame[4], r3
+1  014a9  c30080000  # restore R0 from reserved A0
+1  014aa  c80180000  # resume after faulting SEND
+1  00700  100010000  # MDC node-local heap bump pointer
+1  00702  100000000  # MDC process-block free-list head
+1  00703  100000000  # MDC bulk-block free-list head
+1  00705  100000000  # application-code transport request count
+1  00706  100000000  # application-code installed-chunk count
+1  00707  100000000  # application-code acknowledged-chunk count
+1  00708  100000000  # architectural FUT-fault count
+1  00709  100000000  # architectural SEND-fault count
+1  0070d  100000000  # MDC argument-envelope runtime error
+1  00720  100000000  # inactive background SEND retry frame
+1  00740  100000000  # inactive priority-0 SEND retry frame
+1  00760  100000000  # inactive priority-1 SEND retry frame
+1  00701  100000001  # image-assigned packed X/Y/Z architectural NNR
+1  00704  100000001  # replicated application code is ready

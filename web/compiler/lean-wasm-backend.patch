@@ -1,0 +1,224 @@
+diff --git a/src/Lean/Compiler/Backend/EmitWasm.lean b/src/Lean/Compiler/Backend/EmitWasm.lean
+index 608dffa969..dd16789239 100644
+--- a/src/Lean/Compiler/Backend/EmitWasm.lean
++++ b/src/Lean/Compiler/Backend/EmitWasm.lean
+@@ -205,10 +205,14 @@ private def findClosureDecl? (env : Environment) (funcs : Array Decl)
+     | .str original "_boxed" => findDecl? env funcs original
+     | _ => none
+ 
++private def preserveErasedArgs (env : Environment) (funcs : Array Decl) (name : Name) : Bool :=
++  hasFunction env funcs name ||
++    ((findClosureDecl? env funcs name).any fun decl => !decl.isExtern)
++
+ private def closureTargetName (env : Environment) (funcs : Array Decl) (name : Name) : Name :=
+   let papName :=
+     if let some decl := findDecl? env funcs name then
+-      let arity := (decl.params.filter fun p => !p.ty.isVoid && p.ty != .erased).size
++      let arity := (decl.params.filter fun p => !p.ty.isVoid).size
+       if arity > closureMaxArgs && !isBoxedName name then Name.str name "_boxed" else name
+     else name
+   if (findDecl? env funcs papName).isSome then papName else name
+@@ -220,7 +224,8 @@ private def ensureFunctionImport (env : Environment) (funcs : Array Decl)
+     return imports
+   let some decl := findClosureDecl? env funcs name
+     | throw s!"WebAssembly backend: missing IR declaration for external function '{name}'"
+-  let declParams := decl.params.filter fun p => !p.ty.isVoid && p.ty != .erased
++  let declParams := decl.params.map (fun p => if p.ty == .erased then { p with ty := .tobject } else p)
++    |>.filter fun p => !p.ty.isVoid
+   let (params, result) :=
+     if isBoxedName name && decl.name != name then
+       (Array.replicate declParams.size .tobject, .tobject)
+@@ -260,7 +265,7 @@ private partial def gatherImportsBody (env : Environment) (funcs : Array Decl)
+         let mut params := #[]
+         for arg in args do
+           match arg with
+-          | .erased => pure ()
++          | .erased => if preserveErasedArgs env funcs name then params := params.push .tobject
+           | .var x => params := params.push (← lookupVarType vars x)
+         imports := imports.push { name, symbol, params, result := ty }
+     gatherImportsBody env funcs vars rest imports
+@@ -391,12 +396,13 @@ private def lookupRuntime (imports : Array ImportSpec) (symbol : String) : Excep
+   | some idx => .ok idx
+   | none => .error s!"WebAssembly backend: missing runtime import '{symbol}'"
+ 
+-private def emitArgs (vars : Array (VarId × Nat)) (args : Array Arg) :
++private def emitArgs (vars : Array (VarId × Nat)) (args : Array Arg)
++    (preserveErased : Bool := false) :
+     Except String (Array Instr) := do
+   let mut out : Array Instr := #[]
+   for arg in args do
+     match arg with
+-    | .erased => pure ()
++    | .erased => if preserveErased then out := out.push (.i32Const 1)
+     | .var x => out := out.push (.localGet (← lookupVar vars x))
+   return out
+ 
+@@ -462,7 +468,8 @@ private def emitExpr (cfg : EmitConfig) (env : Environment) (imports : Array Imp
+     return #[.i32ConstReloc 4 (dataSymbolBase + stringIndex) (some 0),
+       .i32Const value.toUTF8.size, .i32Const value.length, .call idx idx]
+   | .fap name args =>
+-    let argInstrs ← emitArgs vars args
++    let argInstrs ← emitArgs vars args (preserveErasedArgs env funcs name &&
++      !isPrimitiveName name && (natBinRuntime? name).isNone && (natCmpRuntime? name).isNone)
+     if let some op := primitiveOp? name then
+       return emitPrim ty op argInstrs
+     else if let some sym := natBinRuntime? name then
+@@ -523,7 +530,7 @@ private def emitExpr (cfg : EmitConfig) (env : Environment) (imports : Array Imp
+     let (_, symbol) ← lookupCall env imports funcs targetName
+     let some decl := findClosureDecl? env funcs targetName
+       | throw s!"WebAssembly backend: closure target '{targetName}' has no IR declaration"
+-    let arity := (decl.params.filter fun p => !p.ty.isVoid && p.ty != .erased).size
++    let arity := (decl.params.filter fun p => !p.ty.isVoid).size
+     let alloc ← lookupRuntime imports "lean_alloc_closure"
+     return #[.i32ConstReloc 1 symbol, .i32Const arity, .i32Const args.size, .call alloc alloc]
+   | .ap closure args =>
+@@ -549,10 +556,10 @@ private def emitExpr (cfg : EmitConfig) (env : Environment) (imports : Array Imp
+       throw "WebAssembly backend: empty closure application"
+   | .isShared object =>
+     let obj ← lookupVar vars object
+-    -- scalar → 0 (not shared); else RC > 1
++    -- Only RC == 1 is exclusive; RC == 0 is a persistent closed term.
+     return #[.localGet obj, .i32Const 1, .i32And,
+       .«if» (.val .i32) #[.i32Const 0]
+-        #[.localGet obj, emitLoad layout .uint32 layout.rcOffset, .i32Const 1, .i32GtU]]
++        #[.localGet obj, emitLoad layout .uint32 layout.rcOffset, .i32Const 1, .i32Ne]]
+   | .reset fields object =>
+     let idx ← lookupRuntime imports "lean_wasm_reset"
+     return #[.localGet (← lookupVar vars object), .i32Const fields, .call idx idx]
+@@ -683,7 +690,7 @@ private partial def emitBody (cfg : EmitConfig) (env : Environment) (imports : A
+       if !isPrimitiveName f && (natBinRuntime? f).isNone && (natCmpRuntime? f).isNone then
+         match lookupCall env imports funcs f with
+         | .ok (idx, symbol) =>
+-          let argInstrs ← emitArgs vars ys
++          let argInstrs ← emitArgs vars ys (preserveErasedArgs env funcs f)
+           return argInstrs ++ #[.returnCall idx symbol]
+         | .error _ => pure ()
+   match body with
+@@ -946,6 +953,23 @@ private def emitPackedArgsPrologue (layout : ObjectLayout) (argsLocal : Nat)
+       ]
+     return code
+ 
++private def isCachedConstant (decl : Decl) : Bool :=
++  decl.params.isEmpty && decl.resultType.isObj
++
++-- IR references to closed terms borrow a persistent value. Re-evaluating a
++-- closed term on every reference leaks the reference retained by the caller's
++-- ownership convention (notably Nat.reprArray during compiler diagnostics).
++private partial def cacheConstantReturns (address : Instr) (scratch mark : Nat)
++    (code : Array Instr) : Array Instr :=
++  code.flatMap fun instr => match instr with
++    | .«return» => #[.localSet scratch, .localGet scratch, .call mark mark,
++        address, .localGet scratch, .i32Store 2 0, .localGet scratch, .«return»]
++    | .block ty body => #[.block ty (cacheConstantReturns address scratch mark body)]
++    | .loop ty body => #[.loop ty (cacheConstantReturns address scratch mark body)]
++    | .«if» ty yes no => #[.«if» ty (cacheConstantReturns address scratch mark yes)
++        (cacheConstantReturns address scratch mark no)]
++    | other => #[other]
++
+ private def encodeFunction (cfg : EmitConfig) (env : Environment) (imports : Array ImportSpec)
+     (funcs : Array Decl) (strings : Array String) (dataSymbolBase : Nat) (decl : Decl) :
+     Except String EncodedFunction := do
+@@ -991,7 +1015,18 @@ private def encodeFunction (cfg : EmitConfig) (env : Environment) (imports : Arr
+     else
+       bodyLocalTypes.push .uint32
+   let locals ← packLocals localTypes
+-  let bodyInstrs ← emitBody cfg env imports funcs strings dataSymbolBase #[] varTypes vars scratch body
++  let cached := isCachedConstant decl
++  let bodyCfg := if cached then { cfg with emitTailCalls := false } else cfg
++  let mut bodyInstrs ← emitBody bodyCfg env imports funcs strings dataSymbolBase #[] varTypes vars scratch body
++  if cached then
++    let constants := funcs.filter isCachedConstant
++    let some index := constants.findIdx? (·.name == decl.name)
++      | throw "WebAssembly backend: missing closed-term storage"
++    let address := Instr.i32ConstReloc 4 (dataSymbolBase + strings.size + index) (some 0)
++    let mark ← lookupRuntime imports "lean_mark_persistent"
++    bodyInstrs := #[address, .i32Load 2 0, .localTee scratch,
++        .«if» .void #[.localGet scratch, .«return»] #[]] ++
++      cacheConstantReturns address scratch mark bodyInstrs
+   let instrs := unpackPrologue ++ bodyInstrs
+   let code := encodeBody instrs
+   let bodyBytes := Encoding.append locals code.bytes
+@@ -1098,9 +1133,9 @@ private def findWholeProgramDecl? (env : Environment) (name : Name) : Option Dec
+ private def runtimeExportRoots : List Name :=
+   [``List.toArrayImpl, ``Array.toListImpl]
+ 
+-/-- Retype erased params as boxed so the wasm signature matches the C prototype
+-`libleanrt.a` was compiled against (the C backend keeps erased params as `lean_object*`).
+-Safe here: internal call sites never target these decls, only the runtime archive does. -/
++/-- Preserve erased argument slots in the C closure ABI. `lean_apply_N` and
++partial applications count these slots even though their value is `lean_box(0)`.
++Direct calls use the same signature so closures and calls agree on arity. -/
+ private def withCAbiSignature : Decl → Decl
+   | .fdecl name params result body info =>
+     .fdecl name (params.map fun p => if p.ty == .erased then { p with ty := .tobject } else p)
+@@ -1118,7 +1153,7 @@ private partial def collectWholeProgramDecls (env : Environment) (pending : List
+       let seen := seen.insert name
+       match findWholeProgramDecl? env name with
+       | some decl@(.fdecl ..) =>
+-        let decl := if runtimeExportRoots.contains name then withCAbiSignature decl else decl
++        let decl := withCAbiSignature decl
+         collectWholeProgramDecls env (collectUsedFunctions decl ++ pending) seen (funcs.push decl)
+       | _ => collectWholeProgramDecls env pending seen funcs
+ 
+@@ -1131,7 +1166,7 @@ def emitWasmWithConfig (cfg : EmitConfig) (env : Environment) (modName : Name) :
+     Except String ByteArray := do
+   if cfg.layout.ptrSize != 4 then
+     throw "WebAssembly backend: only wasm32 object layout is supported until the runtime is ported"
+-  let decls := IR.getDecls env |>.toArray
++  let decls := IR.getDecls env |>.toArray.map withCAbiSignature
+   let rootFuncs ← validateDecls decls
+   let funcs ← validateDecls <| if cfg.wholeProgram then wholeProgramDecls env rootFuncs else rootFuncs
+   let mut imports ← gatherImports env funcs
+@@ -1139,6 +1174,9 @@ def emitWasmWithConfig (cfg : EmitConfig) (env : Environment) (modName : Name) :
+     for imported in env.imports do
+       imports := ensureRuntimeImport imports (moduleInitName env imported.module) #[.uint8] .object
+   imports := ensureRuntimeImport imports "lean_wasm_init_ok" #[] .object
++  let constants := funcs.filter isCachedConstant
++  if !constants.isEmpty then
++    imports := ensureRuntimeImport imports "lean_mark_persistent" #[.tobject] .void
+   let strings := collectStrings funcs
+   let dataSymbolBase := imports.size + funcs.size + 1
+   let exported := rootFuncs.filter fun decl => (exportName? env decl).isSome
+@@ -1198,15 +1236,18 @@ def emitWasmWithConfig (cfg : EmitConfig) (env : Environment) (modName : Name) :
+   let mut sections : Array Wasm.Section := #[
+     ⟨0x01, typePayload⟩, ⟨0x02, importPayload⟩, ⟨0x03, functionPayload⟩,
+     ⟨0x07, exportPayload⟩, ⟨0x09, elementPayload⟩]
+-  if !strings.isEmpty then
+-    sections := sections.push ⟨0x0c, Encoding.encodeULEB strings.size⟩
++  let dataCount := strings.size + constants.size
++  if dataCount > 0 then
++    sections := sections.push ⟨0x0c, Encoding.encodeULEB dataCount⟩
+   sections := sections.push ⟨0x0a, codePayload⟩
+-  let mut dataPayload := Encoding.encodeULEB strings.size
++  let mut dataPayload := Encoding.encodeULEB dataCount
+   for value in strings do
+     let data := value.toUTF8.push 0
+     dataPayload := appendMany #[dataPayload, bytes #[0x00, 0x41, 0x00, 0x0b],
+       Encoding.encodeULEB data.size, data]
+-  if !strings.isEmpty then
++  for _ in constants do
++    dataPayload := appendMany #[dataPayload, bytes #[0x00, 0x41, 0x00, 0x0b, 4, 0, 0, 0, 0]]
++  if dataCount > 0 then
+     sections := sections.push ⟨0x0b, dataPayload⟩
+   let module : Wasm.Module := { sections }
+   let importSymbols := imports.mapIdx fun idx spec =>
+@@ -1216,11 +1257,15 @@ def emitWasmWithConfig (cfg : EmitConfig) (env : Environment) (modName : Name) :
+       exported := (exportName? env decl).isSome : Wasm.Object.FunctionSymbol }
+   let symbols := symbols.push {
+     name := initName, functionIndex := imports.size + funcs.size, global := true }
+-  let dataSymbols := strings.mapIdx fun idx value =>
++  let dataSymbols := (strings.mapIdx fun idx value =>
+     { name := s!".Llean.str.{idx}", segmentIndex := idx, size := value.toUTF8.size + 1 :
+-      Wasm.Object.DataSymbol }
+-  let segments := strings.mapIdx fun idx _ =>
+-    { name := s!".rodata.lean.str.{idx}" : Wasm.Object.SegmentInfo }
++      Wasm.Object.DataSymbol }) ++ (constants.mapIdx fun idx _ =>
++    { name := s!".Llean.const.{idx}", segmentIndex := strings.size + idx, size := 4 :
++      Wasm.Object.DataSymbol })
++  let segments := (strings.mapIdx fun idx _ =>
++    { name := s!".rodata.lean.str.{idx}" : Wasm.Object.SegmentInfo }) ++
++    (constants.mapIdx fun idx _ =>
++      { name := s!".bss.lean.const.{idx}", alignment := 2, flags := 0 : Wasm.Object.SegmentInfo })
+   let functionNames :=
+     (imports.mapIdx fun idx spec => (idx, spec.symbol)) ++
+     (funcs.mapIdx fun idx decl =>

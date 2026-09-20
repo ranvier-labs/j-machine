@@ -3,6 +3,12 @@
 /.slang/
 /tmp/
 /bazel-*
+.DS_Store
+/web/build/
+/web/dist/
+/web/node_modules/
+/web/test-results/
+/web/playwright-report/
 /aws_f2/build/checkpoints/
 /aws_f2/build/reports/
 /aws_f2/build/src_post_encryption/

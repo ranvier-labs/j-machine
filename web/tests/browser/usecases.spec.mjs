@@ -129,15 +129,18 @@ test('the graphics build shows all four Mandelbrot tiles without choosing a mosa
   await expect(display.locator('select').first()).toHaveValue('auto');
 });
 
-test('the 512-node mesh reports fetch and instantiate stages and loads', async ({ page }) => {
+test('the 512-node mesh reports fetch and instantiate stages and loads', async ({ page, context }) => {
   await boot(page);
-  const seen = [];
-  const watcher = setInterval(async () => { try { seen.push(await status(page).textContent()); } catch {} }, 25);
+  // Localhost serves the 40 MB simulator in well under a second; slow the
+  // download so the fetch stage is observable, as it is on a real network.
+  const cdp = await context.newCDPSession(page);
+  await cdp.send('Network.enable');
+  await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: 16 * 1024 * 1024, uploadThroughput: -1 });
   await page.locator('#node-count').selectOption('512');
   await page.locator('#compile-buffer').click();
+  await expect(status(page)).toHaveText(/Fetching the 512-node simulator · [\d.]+ MB \/ [\d.]+ MB/, { timeout: 30_000 });
+  await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
   await expect(status(page)).toHaveText(/Loaded \/home\/user\/main\.c · 714,240 words/, { timeout: 120_000 });
-  clearInterval(watcher);
-  expect(seen.some(text => /Fetching the 512-node simulator · [\d.]+ MB/.test(text ?? ''))).toBe(true);
   await expect(page.locator('.loaded-source')).toContainText('512 NODES');
   await expect(page.locator('[data-window=geometry] .network-status').first()).toContainText('8 × 8 × 8');
   await page.keyboard.press('F5');

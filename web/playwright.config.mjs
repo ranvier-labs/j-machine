@@ -7,7 +7,9 @@ export default defineConfig({
   testDir: './tests/browser',
   timeout: 90_000,
   expect: { timeout: 30_000 },
-  retries: 0,
+  // One worker: several pages running RTL simulators in parallel starve each
+  // other and turn the 512-node case into a timeout.
+  workers: 1, fullyParallel: false, retries: 0,
   reporter: [['list']],
   use: { baseURL: 'http://127.0.0.1:8017', viewport: { width: 1280, height: 800 }, permissions: ['clipboard-read', 'clipboard-write'] },
   webServer: {

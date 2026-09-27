@@ -54,7 +54,7 @@ second drop with a lead line for Act III at bar 36, and an outro from bar 60.
 |---|---|---|---|
 | 0–4 | | Title | one idea: a message should cost almost nothing |
 | 4–12 | I · The cost | 01 Waiting | in 1988 one send cost hundreds of instructions; the processor waited |
-| 12–29 | II · The machine | 02 Word, 03 Mesh, 04 Dispatch, 05 Hotspot | tagged words, 512 nodes two cycles a hop, handler runs 5 cycles after the last word (measured), contention shown |
+| 12–29 | II · The machine | 02 Word, 03 Mesh, 04 Dispatch, 05 Hotspot | tagged words, 512 nodes in dimension-order routing, handler runs 5 cycles after the last word (measured), contention shown |
 | 29–36 | II | 06 Life, 07 Heat | real programs on the real cycles |
 | 36–60 | III · Yours | 08 In the tab, 09 The debugger, 10 Every packet, 11 Contention, 12 Draw, 13 The call, 14 Free | the workbench tool by tool: breakpoints and stepping, packets with routes and stalls, contention on sixteen nodes, per-node framebuffers, Message-Driven C, Apache 2.0 |
 | 60–66 | | End | start at j-machine.pages.dev |
@@ -66,7 +66,7 @@ second drop with a lead line for Act III at bar 36, and an outro from bar 60.
     Look 01. On the machines of its day, sending one message cost hundreds of instructions. The processor waited.
     Act two. The machine.
     Look 02. Thirty-six bits to a word. Four of them say what it is. The hardware knows a message when it sees one.
-    Look 03. Five hundred twelve nodes in a cube. Eight by eight by eight. Two cycles a hop.
+    Look 03. Five hundred twelve nodes in a cube. Eight by eight by eight. Routed in dimension order: x, then y, then z.
     Look 04. The handler runs five cycles after the last word leaves the sender. Twenty-one hops away. Nobody polled. Nobody copied.
     Look 05. Four senders, thirty-two messages, one address. Contention is visible, not hidden.
     Look 06. Sixteen tiles trade their edges. Sixteen generations of life. Fourteen survive.
@@ -79,4 +79,4 @@ second drop with a lead line for Act III at bar 36, and an outro from bar 60.
     Look 12. Four nodes split the Mandelbrot set, each painting its own tile. Watch a pixel: stop when it changes.
     Look 13. Write Message-Driven C. Call a function at a node. That is the whole language.
     Look 14. Open source. Apache 2.0. Free. The RTL, the compiler, the workbench.
-    Start at j-machine.pages.dev. End of show.
+    Start at j-machine.pages.dev. Every cycle count in this film was measured on the simulator.

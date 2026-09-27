@@ -22,7 +22,8 @@ const FIRST_MESSAGE = { firstWord: 1513, lastWord: 1623, dispatch: 1628, words: 
 export function build(data) {
   const stage = document.getElementById('stage'), hud = document.getElementById('hud'), ctx = document.getElementById('art').getContext('2d');
   const music = data.music ?? { rms: [], fps: 30 };
-  const workbench = data.workbench ? Object.assign(new Image(), { src: data.workbench }) : null;
+  const stills = Object.fromEntries(Object.entries(data.stills ?? {}).map(([name, still]) => [name, { ...still, image: Object.assign(new Image(), { src: still.data }) }]));
+  const box = (name, id) => stills[name]?.windows?.[id];
   const decoded = new Map();
   const pixels = frame => { if (!decoded.has(frame)) { const bin = atob(frame.rgb), out = new Uint8ClampedArray(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); decoded.set(frame, out); } return decoded.get(frame); };
   const totals = name => data[name]?.totals ?? { sends: 0, retired: 0, dispatches: 0 };
@@ -104,7 +105,17 @@ export function build(data) {
   const artBoard = (name, u, dur, cell, cols, tileW, colorOf) => { clear('#050505'); camera(u, dur, 1, 1.09, 40, -20); const ox = W / 2 - cols * cell / 2 + 140, oy = H / 2 - cols * cell / 2 + 10; gridLines(cols, cols, cell, ox, oy, '#ffffff0c'); tiles(boardAt(name, u / dur), 4, tileW, tileW, cell, ox, oy, colorOf); };
   const artLife = (u, dur) => artBoard('life16', u, dur, 46, 16, 4, r => r > 100 ? '#d7ae68' : '#141412');
   const artHeat = (u, dur) => artBoard('heat16', u, dur, 46, 16, 4, (r, g, b) => `rgb(${Math.min(255, r * 1.1 + 12)},${g * .55 + 8},${b * .4 + 6})`);
-  const artWorkbench = (u, dur, zoom = 1, cx = W / 2, cy = H / 2) => { clear('#050505'); if (workbench?.complete && workbench.naturalWidth) { const s = zoom * (1.02 + .06 * (u / dur)); ctx.setTransform(s, 0, 0, s, W / 2 - s * cx, H / 2 - s * cy); ctx.drawImage(workbench, 0, 0, W, H); ctx.setTransform(1, 0, 0, 1, 0, 0); } else dotField(u, 3, '#000'); ctx.fillStyle = 'rgba(0,0,0,.30)'; ctx.fillRect(0, 0, W, H); };
+  // A workbench still with a slow push toward one window (or the frame centre).
+  const cameraFor = (name, u, dur, focusId, zoomTo) => { const f = focusId ? box(name, focusId) : null; const cx = f ? f.x + f.w / 2 : W / 2, cy = f ? f.y + f.h / 2 : H / 2; const s = 1.02 + (zoomTo - 1.02) * ease(u / dur); return { s, tx: clamp(W / 2 - s * cx, W - s * W, 0), ty: clamp(H / 2 - s * cy, H - s * H, 0) }; };
+  const artStill = (name, u, dur, focusId = null, zoomTo = 1.08) => {
+    clear('#050505'); const still = stills[name]; if (!still?.image.complete || !still.image.naturalWidth) { dotField(u, 3); return; }
+    const { s, tx, ty } = cameraFor(name, u, dur, focusId, zoomTo);
+    ctx.setTransform(s, 0, 0, s, tx, ty); ctx.drawImage(still.image, 0, 0, W, H); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(0, 0, W, H);
+    const top = ctx.createLinearGradient(0, 0, 0, 150); top.addColorStop(0, 'rgba(0,0,0,.85)'); top.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = top; ctx.fillRect(0, 0, W, 150);
+    const bottom = ctx.createLinearGradient(0, H - 220, 0, H); bottom.addColorStop(0, 'rgba(0,0,0,0)'); bottom.addColorStop(1, 'rgba(0,0,0,.9)'); ctx.fillStyle = bottom; ctx.fillRect(0, H - 220, W, 220);
+  };
+  // Screen rectangle of a window box under the same camera, for the HUD brackets.
+  const framed = (name, id, u, dur, focusId = null, zoomTo = 1.08) => { const b = box(name, id); if (!b) return null; const { s, tx, ty } = cameraFor(name, u, dur, focusId, zoomTo); return { x: b.x * s + tx, y: b.y * s + ty, w: b.w * s, h: b.h * s }; };
 
   // ---- HUD --------------------------------------------------------------
   const el = (cls, style, html = '') => `<div class="${cls}" style="${style}">${html}</div>`;
@@ -123,6 +134,7 @@ export function build(data) {
   const caption = (u, lines) => { const html = lines.map(l => words(l.text, u, l.at)).filter(Boolean).join('<br>'); return html ? el('caption', '', html) : ''; };
   const big = (u, at, text, cls = '', style = '') => u >= at ? el(`big ${cls}`, style, text) : '';
   const two = (u, at1, t1, at2, t2, first = '', second = 'orange', top = 340) => big(u, at1, t1, first) + big(u, at2, t2, second, `top:${top}px;font-size:88px`);
+  const winBracket = (name, id, u, dur, label, score, focusId = null, zoomTo = 1.08) => { const b = framed(name, id, u, dur, focusId, zoomTo); if (!b) return ''; const x = Math.round(b.x) + 6, y = Math.round(b.y) + 6, w = Math.round(b.w) - 12, h = Math.round(b.h) - 12; return bracket(x, y, w, h) + (label ? el('label', `left:${x + 12}px;top:${y < 90 ? y + 12 : y - 30}px`, `${label}${score ? `<span style="margin-left:26px;color:var(--dim)">${score}</span>` : ''}`) : ''); };
   const card = (u, roman, title) => el('big', 'top:380px;left:64px;font-size:64px;letter-spacing:.02em;font-weight:500', `ACT ${roman}`) + (u > .35 ? el('big orange', 'top:470px;left:64px;font-size:150px', title) : '');
 
   // ---- timeline: bars → looks ------------------------------------------------
@@ -153,17 +165,26 @@ export function build(data) {
       return bracket(720, 160, 760, 760, 'MODEL MDP · LOOK 07', '0.95') + label(1500, 900, '8-BIT TEMPERATURE') + label(700, 940, `SWEEP ${pad(sweep)} / 24`, true) + dot(760, 210) + two(u, .6, 'Cool down.', 3, 'One sweep<br>at a time.')
       + clock(96, 720, s?.cycle ?? 0, 'CYCLE · JACOBI RELAXATION') + caption(u, [{ at: .3, text: 'Look 07. Heat leaves the hot corner, one sweep at a time.' }, { at: 3.6, text: 'Real programs. Real cycles. Residual 196.' }]); } },
     { name: 'ACT III', bars: 1, index: null, act: ACT3, art: artDark, hud: u => card(u, 'III', 'Yours.') },
-    { name: 'IN THE TAB', bars: 4, act: ACT3, art: (u, dur) => artWorkbench(u, dur), hud: u => bracket(180, 120, 1560, 860, 'MODEL MDP · LOOK 08', '1.00') + label(1400, 1000, 'VERILATOR → C++ → WASM', true) + label(200, 1000, 'j-machine.pages.dev') + dot(1700, 160)
-      + two(u, .5, 'Gate for gate.', 2.6, 'In a browser tab.') + caption(u, [{ at: .3, text: 'Look 08. The whole machine, gate for gate, inside a browser tab.' }, { at: 3.6, text: 'No hardware. No install.' }]) },
-    { name: 'THE CALL', bars: 4, act: ACT3, light: true, art: u => artLight(u), hud: u => { const src = (data.life16?.source ?? 'int main(void) { return 0; }').split('\n'); const start = Math.max(0, src.findIndex(l => /@/.test(l)) - 6); const lines = src.slice(start, start + 18); const chars = Math.floor(u * 120); let acc = 0, html = '';
+    { name: 'IN THE TAB', bars: 3, act: ACT3, art: (u, dur) => artStill('workbench', u, dur), hud: (u, t, dur) => winBracket('workbench', 'editor', u, dur, 'MODEL MDP · LOOK 08', '1.00') + label(1300, 150, 'VERILATOR → C++ → WASM', true) + label(64, 150, 'j-machine.pages.dev') + dot(1700, 160)
+      + two(u, .4, 'Gate for gate.', 2.2, 'In a browser tab.') + caption(u, [{ at: .3, text: 'Look 08. The whole machine, gate for gate, inside a browser tab.' }, { at: 3, text: 'No hardware. No install.' }]) },
+    { name: 'THE DEBUGGER', bars: 4, act: ACT3, art: (u, dur) => artStill('debugger', u, dur, 'debugger', 1.45), hud: (u, t, dur) => winBracket('debugger', 'debugger', u, dur, 'MODEL MDP · LOOK 09 · DEBUGGER', '1.00', 'debugger', 1.45) + winBracket('debugger', 'editor', u, dur, 'BREAKPOINT · LINE 6', null, 'debugger', 1.45)
+      + label(1300, 150, 'F10 STEP · F11 NEXT LINE · F5 CONTINUE', true) + label(64, 150, 'REGISTERS · INSTRUCTION POINTER · MEMORY · ANY NODE') + dot(1700, 160)
+      + two(u, .4, 'Stop.', 2.2, 'Step. Watch.') + caption(u, [{ at: .3, text: 'Look 09. A breakpoint on a line. One instruction at a time.' }, { at: 3.4, text: 'Registers, memory, the instruction pointer of any node. Amber marks what changed.' }]) },
+    { name: 'EVERY PACKET', bars: 4, act: ACT3, art: (u, dur) => artStill('packets', u, dur, 'packets', 1.3), hud: (u, t, dur) => winBracket('packets', 'packets', u, dur, 'MODEL MDP · LOOK 10 · PACKETS', '1.00', 'packets', 1.3) + winBracket('packets', 'geometry', u, dur, 'ROUTING GEOMETRY · OBSERVED ROUTE', null, 'packets', 1.3) + winBracket('packets', 'waiting', u, dur, 'WAITING · WHY A NODE STALLS', null, 'packets', 1.3)
+      + label(1300, 150, 'INJECTION · ROUTE · DELIVERY · HANDLER · REPLY', true) + dot(300, 200)
+      + two(u, .4, 'Every packet.', 2.2, 'Every cycle.') + caption(u, [{ at: .3, text: 'Look 10. Every message is a packet: injection, route, delivery, handler, reply.' }, { at: 3.6, text: 'Its route drawn in the mesh. Its stalls explained. Nothing is hidden.' }]) },
+    { name: 'CONTENTION', bars: 3, act: ACT3, art: (u, dur) => artStill('contention', u, dur, 'geometry', 1.35), hud: (u, t, dur) => winBracket('contention', 'geometry', u, dur, 'MODEL MDP · LOOK 11 · SIXTEEN NODES', '0.99', 'geometry', 1.35) + winBracket('contention', 'waiting', u, dur, 'WAITING', null, 'geometry', 1.35)
+      + label(1300, 150, 'RED · BLOCKED INPUT · WIDTH · TRAFFIC', true) + dot(1700, 160)
+      + two(u, .4, 'Contention.', 2, 'Explained.') + caption(u, [{ at: .3, text: 'Look 11. Four senders, one address, sixteen nodes.' }, { at: 2.6, text: 'Blocked inputs in red. Network breakpoints stop on a stall.' }]) },
+    { name: 'DRAW', bars: 3, act: ACT3, art: (u, dur) => artStill('graphics', u, dur, 'display', 1.35), hud: (u, t, dur) => winBracket('graphics', 'display', u, dur, 'MODEL MDP · LOOK 12 · DISPLAY', '0.98', 'display', 1.35) + label(1300, 150, 'A FRAMEBUFFER PER NODE', true) + dot(300, 200)
+      + two(u, .4, 'Draw.', 2, 'Every node<br>its tile.') + caption(u, [{ at: .3, text: 'Look 12. Four nodes split the Mandelbrot set, each painting its own tile.' }, { at: 3, text: 'Watch a pixel: stop when it changes.' }]) },
+    { name: 'THE CALL', bars: 3, act: ACT3, light: true, art: u => artLight(u), hud: u => { const src = (data.life16?.source ?? 'int main(void) { return 0; }').split('\n'); const start = Math.max(0, src.findIndex(l => /@/.test(l)) - 6); const lines = src.slice(start, start + 18); const chars = Math.floor(u * 120); let acc = 0, html = '';
       for (const line of lines) { if (acc >= chars) break; const part = line.slice(0, chars - acc); acc += line.length + 1; html += esc(part).replace(/(\w+\([^)]*\))@(\w+(?:\([^)]*\))?)/g, '<b>$1</b><em>@$2</em>') + '\n'; }
-      return el('code', 'left:96px;top:170px', html) + bracket(1180, 170, 660, 380, 'MODEL MDP · LOOK 09', '0.97') + label(1200, 570, 'MESSAGE-DRIVEN C', true) + big(u, 2.6, 'f()@node', 'mono orange', 'left:1180px;top:640px;font-size:120px')
-      + caption(u, [{ at: .3, text: 'Look 09. Write Message-Driven C. Call a function at a node.' }, { at: 3.4, text: 'That is the whole language.' }]); } },
-    { name: 'NOTHING HIDDEN', bars: 4, act: ACT3, art: (u, dur) => artWorkbench(u, dur, 2.1, 1500, 640), hud: u => bracket(180, 120, 1560, 860, 'MODEL MDP · LOOK 10', '1.00') + label(1400, 1000, 'DEBUGGER · NETWORK · REGISTERS', true) + dot(300, 200)
-      + two(u, .5, 'Every packet.', 2.4, 'Every cycle.') + caption(u, [{ at: .3, text: 'Look 10. Every packet, every cycle, every register.' }, { at: 3.2, text: 'Nothing is hidden.' }]) },
-    { name: 'FREE', bars: 4, act: ACT3, light: true, art: u => artLight(u), hud: u => flap(96, 250, ['OPEN SOURCE', 'APACHE 2 0', 'FREE'], u, .3, 5) + big(u, 3, 'Yours.', 'orange', 'top:620px') + label(96, 560, 'github.com/ranvier-labs/j-machine · rtl, compiler, workbench')
-      + caption(u, [{ at: .3, text: 'Look 11. Open source. Apache 2.0. Free.' }, { at: 2.8, text: 'The RTL, the compiler, the workbench.' }]) },
-    { name: 'END', bars: 7, index: null, light: true, art: u => artLight(u), hud: u => flap(96, 250, ['START AT', 'J-MACHINE', 'PAGES DEV'], u, .2, 11) + el('label', 'left:96px;top:560px', 'j-machine.pages.dev · github.com/ranvier-labs/j-machine · Apache 2.0') + big(u, 4, 'End of show.', '', 'top:640px;font-size:96px')
+      return el('code', 'left:96px;top:170px', html) + bracket(1180, 170, 660, 380, 'MODEL MDP · LOOK 13', '0.97') + label(1200, 570, 'MESSAGE-DRIVEN C', true) + big(u, 2.6, 'f()@node', 'mono orange', 'left:1180px;top:640px;font-size:120px')
+      + caption(u, [{ at: .3, text: 'Look 13. Write Message-Driven C. Call a function at a node.' }, { at: 3, text: 'That is the whole language.' }]); } },
+    { name: 'FREE', bars: 3, act: ACT3, light: true, art: u => artLight(u), hud: u => flap(96, 250, ['OPEN SOURCE', 'APACHE 2 0', 'FREE'], u, .3, 5) + big(u, 2.4, 'Yours.', 'orange', 'top:620px') + label(96, 560, 'github.com/ranvier-labs/j-machine · rtl, compiler, workbench')
+      + caption(u, [{ at: .3, text: 'Look 14. Open source. Apache 2.0. Free.' }, { at: 2.6, text: 'The RTL, the compiler, the workbench.' }]) },
+    { name: 'END', bars: 6, index: null, light: true, art: u => artLight(u), hud: u => flap(96, 250, ['START AT', 'J-MACHINE', 'PAGES DEV'], u, .2, 11) + el('label', 'left:96px;top:560px', 'j-machine.pages.dev · github.com/ranvier-labs/j-machine · Apache 2.0') + big(u, 4, 'End of show.', '', 'top:640px;font-size:96px')
       + caption(u, [{ at: .3, text: 'Start at j-machine.pages.dev.' }, { at: 4.2, text: 'End of show.' }]) },
   ];
   let start = 0; for (const look of looks) { look.start = start; look.dur = look.bars * BAR; start += look.dur; }

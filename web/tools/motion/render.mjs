@@ -2,7 +2,6 @@
 // piece, Playwright screenshots it, ffmpeg encodes the frames with the music.
 // Usage: node tools/motion/render.mjs               full render → out/lookbook.mp4
 //        node tools/motion/render.mjs --stills 2,9.5,25   PNGs of those seconds → out/motion/stills/
-//        node tools/motion/render.mjs --workbench     only refresh the workbench still
 import { chromium } from '@playwright/test';
 import { mkdir, readFile, readdir, rm, writeFile, access } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -17,24 +16,13 @@ const serve = root => new Promise(resolve => { const server = createServer(async
 
 const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL ?? 'chrome' });
 await mkdir('out/motion', { recursive: true });
-// A still of the workbench, taken from the local build, is the imagery of look 07.
-const workbenchPath = 'out/motion/workbench.png';
-if (args.includes('--workbench') || await access(workbenchPath).then(() => false, () => true)) {
-  const { server, url } = await serve('dist');
-  const page = await browser.newPage({ viewport: { width: W, height: H } });
-  await page.goto(url + '/'); await page.evaluate(() => localStorage.clear()); await page.goto(url + '/');
-  await page.locator('#status-text').filter({ hasText: /Loaded \/home\/user\/main\.c/ }).waitFor({ timeout: 90_000 });
-  await page.locator('#listener-input').fill('tile development'); await page.locator('#listener-input').press('Enter');
-  await page.locator('[data-window=debugger]').waitFor();
-  await page.keyboard.press('F5').catch(() => {}); await page.waitForTimeout(2500);
-  await page.screenshot({ path: workbenchPath }); await page.close(); server.close();
-  console.log('wrote', workbenchPath);
-  if (args.includes('--workbench')) { await browser.close(); process.exit(0); }
-}
+// Stills of the workbench with each tool in use come from tools/motion/ide_stills.mjs.
+const ideDir = 'out/motion/ide';
+const stillsIndex = JSON.parse(await readFile(`${ideDir}/stills.json`, 'utf8').catch(() => { console.error('run node tools/motion/ide_stills.mjs first'); process.exit(1); }));
 const data = {};
 for (const file of await readdir('out/motion/data').catch(() => [])) if (file.endsWith('.json')) data[file.replace('.json', '')] = JSON.parse(await readFile(join('out/motion/data', file), 'utf8'));
 data.music = JSON.parse(await readFile('out/motion/music.json', 'utf8').catch(() => '{"rms":[],"fps":30}'));
-data.workbench = 'data:image/png;base64,' + (await readFile(workbenchPath)).toString('base64');
+data.stills = {}; for (const [name, still] of Object.entries(stillsIndex)) data.stills[name] = { ...still, data: 'data:image/png;base64,' + (await readFile(join(ideDir, still.file))).toString('base64') };
 for (const p of Object.values(data)) if (p?.samples) console.log(`${p.name}: ${p.nodes} nodes, ${p.samples.length} samples, ${p.frames.length} frames`);
 
 const { server, url } = await serve('tools/motion');
@@ -43,7 +31,7 @@ page.on('pageerror', error => { console.error('page error:', error.message); });
 await page.addInitScript(json => { window.DATA = JSON.parse(json); }, JSON.stringify(data));
 await page.goto(url + '/scene.html');
 const duration = await page.evaluate(() => window.ready);
-await page.evaluate(() => new Promise(resolve => { const img = new Image(); img.onload = img.onerror = resolve; img.src = window.DATA.workbench; }));
+await page.evaluate(() => Promise.all(Object.values(window.DATA.stills).map(s => new Promise(resolve => { const img = new Image(); img.onload = img.onerror = resolve; img.src = s.data; }))));
 console.log(`piece: ${duration.toFixed(1)} s, ${Math.ceil(duration * FPS)} frames`);
 const shoot = async (t, path) => { await page.evaluate(t => window.seek(t), t); await page.screenshot({ path, type: 'png', animations: 'disabled', caret: 'hide' }); };
 if (stills) {

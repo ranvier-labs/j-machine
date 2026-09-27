@@ -7,7 +7,7 @@ Usage: python3 tools/motion/music.py <bars> [bpm]"""
 import json, sys, wave
 import numpy as np
 
-bars = int(sys.argv[1]) if len(sys.argv) > 1 else 60
+bars = int(sys.argv[1]) if len(sys.argv) > 1 else 66
 bpm = float(sys.argv[2]) if len(sys.argv) > 2 else 128.0
 rate = 44100
 beat = 60.0 / bpm
@@ -18,7 +18,7 @@ t = np.arange(n) / rate
 rng = np.random.default_rng(1991)
 
 # Sections in bars: [start, end).
-INTRO, BUILD, DROP1, BREAK, DROP2, OUTRO = (0, 4), (4, 12), (12, 28), (28, 36), (36, 52), (52, 60)
+INTRO, BUILD, DROP1, BREAK, DROP2, OUTRO = (0, 4), (4, 12), (12, 28), (28, 36), (36, 60), (60, 66)
 def in_section(b, s): return s[0] <= b < s[1]
 def bar_of(time): return int(time // bar)
 

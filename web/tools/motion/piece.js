@@ -48,7 +48,7 @@ export function build(data) {
   // is an instruction; the message needs hundreds of them, and the processor
   // does nothing else meanwhile.
   const artCost = (u, dur) => {
-    clear('#070707'); camera(u, dur, 1, 1.05); const ox = 160, oy = 560, len = 1600; const progress = ease(u / (dur * .85));
+    clear('#070707'); camera(u, dur, 1, 1.05); const ox = 160, oy = 640, len = 1600; const progress = ease(u / (dur * .85));
     ctx.fillStyle = '#8f8c84'; ctx.font = mono(13); ctx.textAlign = 'left'; ctx.fillText('PROCESSOR · 1988 · ONE MESSAGE SEND IN SOFTWARE', ox, oy - 60);
     ctx.fillStyle = '#1c1c19'; ctx.fillRect(ox, oy, len, 56);
     const ticks = 400, shown = Math.floor(progress * ticks);
@@ -144,8 +144,8 @@ export function build(data) {
       const tag = `<div class="tag" style="left:1180px;top:300px;transform:rotate(-2deg)"><h1>J-MACHINE <span>★</span></h1>MESSAGE-DRIVEN MULTICOMPUTER<table><tr><td>MODEL</td><td>MDP · MESSAGE-DRIVEN PROCESSOR</td></tr><tr><td>SEASON</td><td>FW91 · MIT ARTIFICIAL INTELLIGENCE LAB</td></tr><tr><td>NODES</td><td>512 · 8×8×8 MESH</td></tr><tr><td>WORD</td><td>36 BITS · 32 DATA + 4 TAG</td></tr><tr><td>MEMORY</td><td>4,096 WORDS PER NODE</td></tr><tr><td>CARE</td><td>KEEP MESSAGES SHORT. DO NOT WAIT.</td></tr><tr><td>SHOW</td><td>j-machine.pages.dev</td></tr></table><div class="bar"></div></div>`;
       return big(u, .4, 'J-MACHINE.', '', 'top:260px') + big(u, 1.8, 'One idea:<br>a message should<br>cost almost nothing.', 'orange', 'top:390px;font-size:80px') + (u > 3 ? tag : '') + caption(u, [{ at: .6, text: 'A machine from 1991, built on one idea.' }, { at: 3.4, text: 'A message should cost almost nothing.' }]); } },
     { name: 'ACT I', bars: 1, index: null, act: ACT1, art: artDark, hud: u => card(u, 'I', 'The cost.') },
-    { name: 'WAITING', bars: 7, act: ACT1, art: artCost, hud: (u, t, dur) => bracket(150, 480, 1660, 280, 'MODEL 1988 · LOOK 01', '0.61') + label(1560, 790, 'SOFTWARE SEND', true) + label(150, 790, 'DALLY ET AL. 1992: "HUNDREDS OF INSTRUCTIONS"') + dot(1740, 500)
-      + two(u, 1.2, 'Hundreds.', 5.5, 'The processor waits.') + clock(96, 860, Math.floor(ease(u / (dur * .85)) * 400), 'INSTRUCTIONS · ONE MESSAGE · NO USEFUL WORK')
+    { name: 'WAITING', bars: 7, act: ACT1, art: artCost, hud: (u, t, dur) => bracket(150, 560, 1660, 270, 'MODEL 1988 · LOOK 01', '0.61') + label(1560, 860, 'SOFTWARE SEND', true) + label(150, 860, 'DALLY ET AL. 1992: "HUNDREDS OF INSTRUCTIONS"') + dot(1740, 580)
+      + big(u, 1.2, 'One message.<br>Hundreds of instructions.', '', 'top:190px;font-size:96px') + big(u, 5.5, 'The processor waits.', 'orange', 'top:420px;font-size:80px')
       + caption(u, [{ at: .4, text: 'Look 01. On the machines of its day, sending one message cost hundreds of instructions.' }, { at: 5.2, text: 'The processor waited.' }]) },
     { name: 'ACT II', bars: 1, index: null, act: ACT2, art: artDark, hud: u => card(u, 'II', 'The machine.') },
     { name: 'THE WORD', bars: 4, act: ACT2, art: artWord, hud: u => bracket(150, 600, 1660, 170, 'MODEL MDP · LOOK 02', '0.97') + label(1560, 790, '36 BITS') + label(150, 790, 'BIT 0', true) + dot(1740, 560)

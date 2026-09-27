@@ -129,7 +129,7 @@ export function build(data) {
   const wave = t => { const i = Math.floor(t * (music.fps ?? 30)); let bars = ''; for (let k = 0; k < 28; k++) { const v = music.rms[Math.max(0, i - 27 + k)] ?? 0; bars += `<i style="height:${Math.max(2, v * 22)}px"></i>`; } return `<div class="wave">${bars}</div>`; };
   const ruler = t => { let html = ''; for (let i = 0; i < 16; i++) html += `<b>${pad(Math.floor(t * 4) + i * 3, 3)}</b>`; return el('ruler', '', html); };
   const timecode = t => el('timecode', '', `${pad(Math.floor(t / 60))}:${pad(Math.floor(t % 60))}:${pad(Math.floor((t % 1) * 30))}`);
-  const common = (t, look, index, count) => el('tl', '', `${look.act ? `${look.act} · ` : ''}${index === null ? 'J-MACHINE · FW91' : `LOOK ${pad(index)} / ${pad(count)}`}`) + el('tr', '', 'J-MACHINE · FW91') + wave(t) + ruler(t) + timecode(t) + ticker(t);
+  const common = (t, look, index, count) => el('tl', '', `${look.act ? `${look.act} · ` : ''}${index === null ? 'J-MACHINE · FW91' : `LOOK ${pad(index)} / ${pad(count)}`}`) + el('tr', '', 'J-MACHINE.PAGES.DEV') + wave(t) + ruler(t) + timecode(t) + ticker(t);
   const clock = (x, y, value, sub) => el('clock', `left:${x}px;top:${y}px;bottom:auto`, `${typeof value === 'number' ? fmt(value) : value}<small>${sub}</small>`);
   const caption = (u, lines) => { const html = lines.map(l => words(l.text, u, l.at)).filter(Boolean).join('<br>'); return html ? el('caption', '', html) : ''; };
   const big = (u, at, text, cls = '', style = '') => u >= at ? el(`big ${cls}`, style, text) : '';
@@ -141,7 +141,7 @@ export function build(data) {
   const ACT1 = 'ACT I · THE COST', ACT2 = 'ACT II · THE MACHINE', ACT3 = 'ACT III · YOURS';
   const looks = [
     { name: 'TITLE', bars: 4, index: null, art: artDark, hud: u => {
-      const tag = `<div class="tag" style="left:1180px;top:300px;transform:rotate(-2deg)"><h1>J-MACHINE <span>★</span></h1>MESSAGE-DRIVEN MULTICOMPUTER<table><tr><td>MODEL</td><td>MDP · MESSAGE-DRIVEN PROCESSOR</td></tr><tr><td>SEASON</td><td>FW91 · MIT ARTIFICIAL INTELLIGENCE LAB</td></tr><tr><td>NODES</td><td>512 · 8×8×8 MESH</td></tr><tr><td>WORD</td><td>36 BITS · 32 DATA + 4 TAG</td></tr><tr><td>MEMORY</td><td>4,096 WORDS PER NODE</td></tr><tr><td>CARE</td><td>KEEP MESSAGES SHORT. DO NOT WAIT.</td></tr></table><div class="bar"></div></div>`;
+      const tag = `<div class="tag" style="left:1180px;top:300px;transform:rotate(-2deg)"><h1>J-MACHINE <span>★</span></h1>MESSAGE-DRIVEN MULTICOMPUTER<table><tr><td>MODEL</td><td>MDP · MESSAGE-DRIVEN PROCESSOR</td></tr><tr><td>SEASON</td><td>FW91 · MIT ARTIFICIAL INTELLIGENCE LAB</td></tr><tr><td>NODES</td><td>512 · 8×8×8 MESH</td></tr><tr><td>WORD</td><td>36 BITS · 32 DATA + 4 TAG</td></tr><tr><td>MEMORY</td><td>4,096 WORDS PER NODE</td></tr><tr><td>CARE</td><td>KEEP MESSAGES SHORT. DO NOT WAIT.</td></tr><tr><td>SHOW</td><td>j-machine.pages.dev</td></tr></table><div class="bar"></div></div>`;
       return big(u, .4, 'J-MACHINE.', '', 'top:260px') + big(u, 1.8, 'One idea:<br>a message should<br>cost almost nothing.', 'orange', 'top:390px;font-size:80px') + (u > 3 ? tag : '') + caption(u, [{ at: .6, text: 'A machine from 1991, built on one idea.' }, { at: 3.4, text: 'A message should cost almost nothing.' }]); } },
     { name: 'ACT I', bars: 1, index: null, act: ACT1, art: artDark, hud: u => card(u, 'I', 'The cost.') },
     { name: 'WAITING', bars: 7, act: ACT1, art: artCost, hud: (u, t, dur) => bracket(150, 480, 1660, 280, 'MODEL 1988 · LOOK 01', '0.61') + label(1560, 790, 'SOFTWARE SEND', true) + label(150, 790, 'DALLY ET AL. 1992: "HUNDREDS OF INSTRUCTIONS"') + dot(1740, 500)
@@ -184,8 +184,9 @@ export function build(data) {
       + caption(u, [{ at: .3, text: 'Look 13. Write Message-Driven C. Call a function at a node.' }, { at: 3, text: 'That is the whole language.' }]); } },
     { name: 'FREE', bars: 3, act: ACT3, light: true, art: u => artLight(u), hud: u => flap(96, 250, ['OPEN SOURCE', 'APACHE 2 0', 'FREE'], u, .3, 5) + big(u, 2.4, 'Yours.', 'orange', 'top:620px') + label(96, 560, 'github.com/ranvier-labs/j-machine · rtl, compiler, workbench')
       + caption(u, [{ at: .3, text: 'Look 14. Open source. Apache 2.0. Free.' }, { at: 2.6, text: 'The RTL, the compiler, the workbench.' }]) },
-    { name: 'END', bars: 6, index: null, light: true, art: u => artLight(u), hud: u => flap(96, 250, ['START AT', 'J-MACHINE', 'PAGES DEV'], u, .2, 11) + el('label', 'left:96px;top:560px', 'j-machine.pages.dev · github.com/ranvier-labs/j-machine · Apache 2.0') + big(u, 4, 'End of show.', '', 'top:640px;font-size:96px')
-      + caption(u, [{ at: .3, text: 'Start at j-machine.pages.dev.' }, { at: 4.2, text: 'End of show.' }]) },
+    { name: 'END', bars: 6, index: null, light: true, art: u => artLight(u), hud: u => flap(96, 200, ['START HERE'], u, .2, 11) + big(u, .9, 'j-machine.pages.dev', 'orange', 'top:330px;font-size:132px;letter-spacing:-.03em;max-width:1800px')
+      + big(u, 2.2, 'Open source · Apache 2.0<br>github.com/ranvier-labs/j-machine', '', 'top:560px;font-size:48px;font-weight:500;letter-spacing:-.01em;max-width:1800px') + big(u, 4.5, 'End of show.', '', 'top:760px;font-size:64px')
+      + caption(u, [{ at: .3, text: 'Start at j-machine.pages.dev.' }, { at: 4.6, text: 'End of show.' }]) },
   ];
   let start = 0; for (const look of looks) { look.start = start; look.dur = look.bars * BAR; start += look.dur; }
   const numbered = looks.filter(l => l.index !== null);

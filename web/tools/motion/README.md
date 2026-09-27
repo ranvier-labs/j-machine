@@ -13,7 +13,10 @@ one-pixel chroma shift are added when the frames are encoded.
     python3 tools/motion/music.py 66 128     # 66-bar sectioned 128 BPM track → out/motion/music.wav + music.json
     node tools/motion/ide_stills.mjs         # drives the tour in Chrome, screenshots each tool in use → out/motion/ide/
     node tools/motion/render.mjs --stills 3,22,45   # PNG frames at those seconds, for review
-    node tools/motion/render.mjs             # every frame at 30 fps → out/lookbook.mp4
+    node tools/motion/render.mjs --label v4  # every frame at 30 fps → out/lookbook-v4.mp4 and a 720p copy
+
+Renders never overwrite: without `--label` the file is named after the short
+commit id, and a taken name gets a counter. Keep every cut.
 
 `capture.mjs` records, per program, retired instructions and message
 traffic per node every few thousand cycles, and every change of a node's

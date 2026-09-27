@@ -32,3 +32,32 @@ test('larger programs reuse closed constants within the compiler memory limit', 
   assert.ok(compiler.memory.buffer.byteLength < 128 * 1024 * 1024,
     'closed constants must be cached, rather than leaking on each reference');
 });
+
+// Comparison results are BOOL-tagged; `||` must not take its true branch when
+// both operands are false. (Regression: BNZ on a BOOL operand.)
+test('logical or of two false comparisons is false, and true cases stay true', async t => {
+  const compiler = await CompilerWasm.fromBytes(module);
+  const source = `int g = -1; int h = -1;
+int probe(void) { return (g < 0 || g != h) ? 100 : 0; }
+int main(void) {
+  int a = 0; int b = 0; int c = a < 0; int d = a != b; int n = 0;
+  int r = 0;
+  if (a < 0 || a != b) r = r + 1;
+  if (c || d) r = r + 2;
+  if (a != 0 || b != 0) r = r + 4;
+  while ((a < 0 || b != a) && n < 5) n++;
+  r = r + n * 8;
+  if (a == 0 || b == 9) r = r + 16;
+  if (b == 9 || a == 0) r = r + 32;
+  g = 0; h = 0;
+  return r + probe() + ((a < 0 || a != b) ? 0 : 200);
+}
+`;
+  const image = compiler.compile(source, 2, '2x1x1');
+  const simulator = await SimulatorWasm.create(factory, { nodes: 2, wasmBinary: simulatorBytes });
+  t.after(() => simulator.destroy());
+  simulator.loadImage(image);
+  let elapsed = 0;
+  while (elapsed < 200000 && simulator.peek(0, 0x300) === 0n) { simulator.step(500); elapsed += 500; }
+  assert.equal(simulator.peek(0, 0x300), 0x100000000n + 248n);
+});

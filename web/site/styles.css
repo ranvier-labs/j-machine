@@ -89,7 +89,22 @@ h2 { font-size: 14px; font-weight: 500; }
 .listener-prompt { display: flex; align-items: center; gap: 7px; padding: 6px 10px; border-top: 1px solid var(--quiet); background: #161613; }
 .listener-prompt label { color: var(--accent); font-size: 10px; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .listener-prompt input { flex: 1; border: 0; padding: 2px 0; background: transparent; font-size: 11px; }
-.trace-window { display: flex; flex-direction: column; overflow: hidden; }
+.trace-window, .machine-window, .tutorial-window { display: flex; flex-direction: column; overflow: hidden; }
+.machine-stage { flex: 1; min-height: 70px; position: relative; margin: 9px; }
+.machine-stage canvas { position: absolute; width: 100%; height: 100%; }
+.machine-legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 10px 6px; color: var(--muted); font-size: 10px; }
+.machine-legend i { display: inline-block; width: 8px; height: 8px; border: 1px solid #66665c; margin-right: 4px; vertical-align: middle; }
+.machine-legend .active { background: #3a382a; border-color: var(--accent); }
+.machine-legend .selected-node { border-color: var(--accent); }
+.machine-result { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 8px 10px 2px; border-top: 1px solid var(--quiet); }
+.machine-result-label { font-size: 10px; color: var(--muted); }
+.machine-result-value { font-size: 22px; font-weight: 400; color: var(--muted); }
+.machine-result.complete .machine-result-value { color: var(--accent); }
+.machine-reason { padding: 2px 10px 8px; font-size: 10px; color: var(--muted); overflow-wrap: anywhere; }
+.tutorial-title { font-size: 15px; font-weight: 500; padding: 10px 12px 0; }
+.tutorial-body { padding: 4px 12px 10px; }
+.tutorial-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--quiet); }
+.tutorial-done { margin-left: auto; color: var(--accent); font-size: 11px; }
 .trace-stage { flex: 1; min-height: 0; position: relative; margin: 9px; }
 .trace-stage canvas { position: absolute; width: 100%; height: 100%; }
 .debugger-window { display: flex; flex-direction: column; overflow: hidden; }
@@ -179,8 +194,8 @@ dialog::backdrop { background: #0009; }
 .documentation-topics { overflow: auto; flex: 1; min-height: 0; padding-bottom: 7px; }
 .documentation-topic { display: block; padding: 5px 9px; border-left: 2px solid transparent; font-size: 10px; line-height: 1.4; text-decoration: none; }
 .documentation-topic[aria-current=page] { color: var(--accent); border-left-color: var(--accent); background: #29271e; }
-.documentation-window a { color: var(--accent); text-underline-offset: 3px; }
-.documentation-window a:hover { background: #353025; color: #f1d3a1; }
+.documentation-window a, .tutorial-window a { color: var(--accent); text-underline-offset: 3px; }
+.documentation-window a:hover, .tutorial-window a:hover { background: #353025; color: #f1d3a1; }
 .documentation-page { flex: 1; min-width: 0; min-height: 0; overflow: auto; padding: 15px 18px 30px; font: 11px/1.7 var(--mono); overflow-wrap: anywhere; scroll-behavior: auto; }
 .documentation-page:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
 .documentation-page > h2 { font-size: 16px; color: var(--text); margin-bottom: 6px; }

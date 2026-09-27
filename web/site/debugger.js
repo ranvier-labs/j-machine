@@ -49,7 +49,10 @@ export class DebuggerController {
     this.maxCycles = 10000000;
     // The full hierarchical mesh is expensive per clock. Keep foreground
     // batches short; headless callers can request larger batches explicitly.
-    this.batchCycles = batchCycles ?? (simulator.nodes >= 512 ? 8 : 64);
+    // Per-batch work in JavaScript (snapshot, trace drain, stop checks) costs
+    // as much as several hundred RTL cycles on a small mesh, so batches there
+    // are long; the 512-node model is expensive per cycle and stays short.
+    this.batchCycles = batchCycles ?? (simulator.nodes >= 512 ? 8 : 512);
     if (!Number.isInteger(this.batchCycles) || this.batchCycles < 1 || this.batchCycles > 1024) throw new Error('Batch size must be between 1 and 1024 cycles.');
     this.network = new NetworkTrace(simulator.mesh ?? ({2:'2x1x1',4:'2x2x1',16:'4x4x1',512:'8x8x8'})[simulator.nodes]);
   }

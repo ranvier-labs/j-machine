@@ -30,11 +30,21 @@ export function commandState(ide, id) {
       if (!reason && ide.activePath === ide.buildFile) reason = 'This is already the active project graph.';
       break;
     case 'load-built-image': reason = ready || idle || (!ide.fs.files().some(path => ide.fs.stat(path).metadata?.artifact) ? 'Compile or build an image first.' : ''); break;
-    case 'continue':
-      label = running ? 'Pause' : ide.debug?.snapshot?.cycle > 0n ? 'Continue' : 'Run';
-      reason = running ? '' : machine || (ide.debug?.completed ? 'Main has returned. Use Restart to run this image from the beginning.' : '');
-      detail = running ? 'Pause execution' : `${label} ${ide.imagePath ?? 'the loaded image'}${ide.compiledPath ? ` (${ide.compiledPath})` : ''}`;
-      break;
+    case 'continue': {
+      // Run compiles the active C buffer when it is not the loaded program.
+      // A C buffer opened after the last load compiles on Run, unless a paused
+      // program is mid-execution; a stale loaded buffer recompiles. Explicit
+      // loads after a buffer switch keep Run on the loaded image.
+      const path = ide.activePath ?? '', isC = /\.c$/.test(path), midRun = !!ide.debug?.image && !ide.debug.completed && ide.debug.snapshot?.cycle > 0n;
+      const recompile = isC && (path !== ide.compiledPath ? ide.activatedAt > ide.installedAt && !midRun : ide.stale && !!ide.debug?.image);
+      if (running) { label = 'Pause'; detail = 'Pause execution'; }
+      else if (recompile) { label = 'Compile & Run'; reason = ready || idle; detail = `Compile ${path} for ${ide.nodes} nodes, load it, and run`; }
+      else {
+        label = ide.debug?.snapshot?.cycle > 0n ? 'Continue' : 'Run';
+        reason = machine || (ide.debug?.completed ? 'Main has returned. Use Restart to run this image from the beginning.' : '');
+        detail = `${label} ${ide.imagePath ?? 'the loaded image'}${ide.compiledPath ? ` (${ide.compiledPath})` : ''}`;
+      }
+      break; }
     case 'pause': reason = running ? '' : 'The machine is already paused.'; break;
     case 'step-source': case 'step-instruction': case 'step-cycle': case 'step-100': case 'reset': case 'restart':
       reason = machine || (running ? 'Pause the machine first.' : '');

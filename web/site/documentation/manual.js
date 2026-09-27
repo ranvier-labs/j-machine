@@ -60,6 +60,7 @@ export function linkTarget(href) {
   }
   if (/^file:\/[^\s?#]+$/.test(href)) return { type: 'file', path: href.slice(5) };
   if (/^command:[a-z][a-z0-9-]*$/.test(href)) return { type: 'command', command: href.slice(8) };
+  if (/^https?:\/\/[^\s]+$/.test(href)) return { type: 'url', href };
   return null;
 }
 export class ReadingHistory {

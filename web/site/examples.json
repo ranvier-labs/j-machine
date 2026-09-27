@@ -89,6 +89,18 @@
       "title": "Mesh Rainbow",
       "nodes": 512,
       "blurb": "Nodes 7, 56, 448, and 511 paint RGB tiles at distant corners of the 8x8x8 mesh."
+    },
+    {
+      "file": "life16.c",
+      "title": "Life on Sixteen Nodes",
+      "nodes": 16,
+      "blurb": "Conway's Life on a 16x16 torus split into sixteen 4x4 tiles. Node 15 collects edges and delivers halos; the mosaic shows the whole board."
+    },
+    {
+      "file": "heat16.c",
+      "title": "Heat Equation",
+      "nodes": 16,
+      "blurb": "Jacobi relaxation of the heat equation on a 16x16 plate over sixteen nodes, with hot and cold spots held fixed. Returns the summed change of the last sweep."
     }
   ]
 }

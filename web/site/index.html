@@ -11,10 +11,11 @@
 </head>
 <body>
   <header class="workbench-header" aria-label="Development environment">
-    <div class="identity" title="J-Machine · MDP 11"><div class="machine-mark" aria-hidden="true">J<span>/</span>M</div><h1>J-MACHINE</h1></div>
+    <div class="identity" title="J-Machine development environment"><div class="machine-mark" aria-hidden="true">J<span>/</span>M</div><h1 class="sr-only">J-Machine</h1></div>
     <div class="header-group" role="group" aria-label="Files" data-help="files">
       <button id="new-file" disabled title="New file">New</button>
       <button id="find-file" disabled title="Find file (Cmd/Ctrl O)">Open…</button>
+      <button id="examples-menu" disabled title="Browse the example programs">Examples…</button>
       <button id="save-buffer" disabled title="Save buffer (Cmd/Ctrl S)">Save</button>
     </div>
     <div class="header-group buffer-controls" role="group" aria-label="Single buffer compilation" data-help="editor">
@@ -29,6 +30,7 @@
     <div class="header-group" role="group" aria-label="Workspace commands">
       <button id="window-menu" data-help="workspace">Windows</button>
       <button id="layout-menu" data-help="workspace">Layout</button>
+      <button id="tutorial-menu" title="A guided tour of the environment in thirteen steps">Tutorial</button>
       <button id="help-menu" title="Help for the current control or window (F1)">Help</button>
       <button id="command-menu" data-help="keyboard" title="Commands (Alt X or Ctrl/Cmd Shift P)">M-x</button>
     </div>

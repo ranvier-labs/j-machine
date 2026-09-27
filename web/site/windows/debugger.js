@@ -5,7 +5,7 @@ import { element, button, observe, hexAddress, parseAddress, syncCommandButton }
 
 export function debuggerWindow(ide) {
   const root = element('div', 'debugger-window'), controls = element('div', 'debug-toolbar');
-  const run = button('Run', 'Run loaded image (F5)', () => ide.perform(() => ide.execute()), 'run-toggle');
+  const run = button('Run', 'Run loaded image (F5)', () => ide.perform(() => ide.run()), 'run-toggle');
   const source = button('Source', 'Step to the next source line (F11)', () => ide.perform(() => ide.execute('source')));
   const instruction = button('Instruction', 'Step one instruction (F10)', () => ide.perform(() => ide.execute('instruction')));
   const cycle = button('Cycle', 'Step one machine cycle', () => ide.perform(() => ide.execute('cycles')));

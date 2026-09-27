@@ -32,6 +32,8 @@ sh_binary(
         "//compiler:examples/rule110.c",
         "//compiler:examples/message_hotspot.c",
         "//compiler:examples/mesh_rainbow.c",
+        "//compiler:examples/life16.c",
+        "//compiler:examples/heat16.c",
     ],
 )
 

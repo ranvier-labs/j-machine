@@ -4,6 +4,7 @@ export const TOPICS = [
 The workbench combines a tiled desktop, a persistent filesystem, a compiler, and a cycle-accurate RTL simulator. Documentation is another window: follow links with the mouse or Tab and Enter, and return with Back.
 
 ## Start here
+- [Tutorial](command:tutorial): a guided tour in thirteen steps, from running the first program through Life and a heat equation on sixteen nodes to the 512-node mesh.
 - [Quick start](doc:quick-start): build an image and run it.
 - [Project builds](doc:build): graphs, targets, incremental builds, and loading.
 - [Example programs](doc:examples): remote calls, routing, and graphical output.
@@ -324,6 +325,8 @@ Choose [build-graphics.jm](file:/home/user/build-graphics.jm) in Project, select
 - [rule110.c](file:/examples/rule110.c): node 0 draws a 32×24 cellular-automaton diagram. Target /build/rule110.image uses two nodes and returns 24.
 - [message_hotspot.c](file:/examples/message_hotspot.c): four senders paint progress columns at node 5. Target /build/hotspot.image uses 16 nodes and returns 32.
 - [mesh_rainbow.c](file:/examples/mesh_rainbow.c): nodes 7, 56, 448, and 511 draw colored corner tiles. Target /build/rainbow.image uses 512 nodes and returns 256.
+- [life16.c](file:/examples/life16.c): Conway's Life on a 16 × 16 torus, one 4 × 4 tile per node of the 4 × 4 mesh. Node 15 collects every tile's edges each generation and delivers each tile its halo; tiles compute on delivery. Returns the number of live cells after 16 generations.
+- [heat16.c](file:/examples/heat16.c): Jacobi relaxation of the heat equation on a 16 × 16 plate over 16 nodes, with two hot and two cold spots held fixed; the same edge exchange with 8-bit temperatures. Returns the summed change of the last of 24 sweeps.
 
 The full 512-node RTL model is substantially slower. Start with the four-node Mandelbrot program for a quicker graphical demonstration. Long programs can reach the [debugger's cycle budget](doc:debugger#execution); Continue resumes them.
 
@@ -377,7 +380,7 @@ The [compiled image](command:window-image) contains tagged words and compiler so
 
 export const CONTEXT_TOPICS = {
   files: 'files', editor: 'editor', listener: 'listener', build: 'build',
-  debugger: 'debugger', geometry: 'geometry', packets: 'packets', waiting: 'waiting',
+  debugger: 'debugger', geometry: 'geometry', machine: 'debugger', tutorial: 'quick-start', packets: 'packets', waiting: 'waiting',
   history: 'history', display: 'display', trace: 'debugger', image: 'words', problems: 'editor',
   documentation: 'welcome',
 };

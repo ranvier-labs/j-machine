@@ -5,11 +5,13 @@ import { test, expect } from '@playwright/test';
 // program's messages, build a project, watch graphical output, load the
 // largest mesh, and come back after a reload.
 const status = page => page.locator('#status-text');
-async function boot(page, query = '', loaded = '/home/user/main.c') {
+// A fresh visit shows the tutorial layout; most checks want the full desktop.
+async function boot(page, query = '', loaded = '/home/user/main.c', { full = true } = {}) {
   await page.goto(`/${query}`);
   await page.evaluate(() => localStorage.clear());
   await page.goto(`/${query}`);
   await expect(status(page)).toHaveText(new RegExp(`Loaded ${loaded.replace(/[./]/g, '\$&')}`), { timeout: 60_000 });
+  if (full) { await page.locator('#listener-input').fill('tile development'); await page.locator('#listener-input').press('Enter'); await expect(page.locator('[data-window=debugger]')).toBeVisible(); }
 }
 async function listener(page, command) {
   await page.locator('#listener-input').fill(command);
@@ -35,7 +37,8 @@ test('edit the example, recompile with Cmd/Ctrl+Enter, and see the new result', 
   await replaceSource(page, 'int factorial(int n) {\n  if (n == 0) return 1;\n  return n * factorial(n - 1);\n}\nint main(void) { return factorial(5); }\n');
   await expect(page.locator('.buffer-path .modified')).toHaveText(/MODIFIED/);
   await expect(page.locator('.state-tag')).toHaveText('STALE');
-  await expect(page.locator('#run-machine')).toBeDisabled();
+  await expect(page.locator('#run-machine')).toHaveText('Compile & Run');
+  await expect(page.locator('#run-machine')).toBeEnabled();
   await page.keyboard.press(process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter');
   // The status line still reads "Loaded" from boot; the debugger tag changes STALE → LOADED.
   await expect(page.locator('.state-tag')).toHaveText('LOADED');
@@ -98,7 +101,11 @@ test('a remote call shows its packets, route, and handler source', async ({ page
   await packets.locator('.packet-row').first().click();
   await expect(packets.locator('.packet-details h3')).toContainText('#');
   await expect(packets.locator('.inspection-fields')).toContainText('Handler');
+  // The first message is dispatched by the runtime's spawn handler, which has
+  // no source line; Handler then shows the image. Send source reaches the call.
   await packets.getByRole('button', { name: 'Visit the message handler' }).click();
+  await expect(page.locator('.buffer-path span').first()).toHaveText('/build/buffers/examples/remote_call.c.2.image');
+  await packets.getByRole('button', { name: 'Visit the captured send instruction' }).click();
   await expect(page.locator('[data-window=editor]')).toBeVisible();
   await expect(page.locator('.buffer-path span').first()).toHaveText('/examples/remote_call.c');
 });
@@ -144,7 +151,9 @@ test('the 512-node mesh reports fetch and instantiate stages and loads', async (
   await expect(page.locator('.loaded-source')).toContainText('512 NODES');
   await expect(page.locator('[data-window=geometry] .network-status').first()).toContainText('8 × 8 × 8');
   await page.keyboard.press('F5');
-  await expect(status(page)).toHaveText(/Main returned INT\(720\)/, { timeout: 120_000 });
+  await expect(page.locator('#run-machine')).toHaveText('Pause');
+  // The 512-node model advances tens of cycles per second in this browser.
+  await expect(status(page)).toHaveText(/Main returned INT\(720\)/, { timeout: 300_000 });
 });
 
 test('edits, open buffers, and the layout survive a reload', async ({ page }) => {

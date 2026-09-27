@@ -17,7 +17,7 @@ export function editorWindow(ide) {
     onCursor: value => { position.textContent = `Ln ${value.lineNumber}, Col ${value.column}`; },
     onFailure: message => ide.message(message, 'error'),
     commands: {
-      compile: () => ide.perform(() => ide.compile()), continue: () => ide.perform(() => ide.execute()),
+      compile: () => ide.perform(() => ide.compile()), continue: () => ide.perform(() => ide.run()),
       instruction: () => ide.perform(() => ide.execute('instruction')), source: () => ide.perform(() => ide.execute('source')),
       save: () => ide.perform(() => ide.save()), saveAs: () => ide.services.saveAs(), open: () => ide.services.findFile(),
     },

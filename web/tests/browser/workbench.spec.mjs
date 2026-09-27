@@ -2,11 +2,13 @@ import { test, expect } from '@playwright/test';
 
 // A fresh workspace for every test: storage is per origin and would otherwise
 // carry buffers, drafts, and layouts between runs.
-async function boot(page, query = '', loaded = '/home/user/main.c') {
+// A fresh visit shows the tutorial layout; most checks want the full desktop.
+async function boot(page, query = '', loaded = '/home/user/main.c', { full = true } = {}) {
   await page.goto(`/${query}`);
   await page.evaluate(() => localStorage.clear());
   await page.goto(`/${query}`);
   await expect(page.locator('#status-text')).toHaveText(new RegExp(`Loaded ${loaded.replace(/[./]/g, '\$&')}`), { timeout: 60_000 });
+  if (full) { await page.locator('#listener-input').fill('tile development'); await page.locator('#listener-input').press('Enter'); await expect(page.locator('[data-window=debugger]')).toBeVisible(); }
 }
 const selectAll = process.platform === 'darwin' ? 'Meta+a' : 'Control+a';
 const listener = async (page, command) => {
@@ -56,6 +58,8 @@ test('listener layouts and window aliases keep the geometry window reachable', a
   await expect(page.locator('[data-window=editor]')).toBeVisible();
   await expect(page.locator('[data-window=debugger]')).toBeVisible();
   await listener(page, 'window machine');
+  await expect(page.locator('#focused-window')).toHaveText('MACHINE');
+  await listener(page, 'window geometry');
   await expect(page.locator('#focused-window')).toHaveText('ROUTING GEOMETRY');
 });
 

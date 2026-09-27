@@ -4,12 +4,14 @@
   "type": "module",
   "scripts": {
     "build": "node build_frontend.mjs",
-    "test": "node --test tests/compiler.test.mjs tests/lsp.test.mjs tests/debugger.test.mjs tests/workspace.test.mjs tests/ide.test.mjs tests/build.test.mjs tests/network.test.mjs tests/keyboard.test.mjs tests/graphics.test.mjs tests/documentation.test.mjs",
+    "test": "node --test tests/compiler.test.mjs tests/lsp.test.mjs tests/debugger.test.mjs tests/workspace.test.mjs tests/ide.test.mjs tests/build.test.mjs tests/network.test.mjs tests/keyboard.test.mjs tests/graphics.test.mjs tests/documentation.test.mjs tests/parts.test.mjs",
     "test:examples": "node tests/compiler_examples.mjs",
     "examples:render": "node render_examples.mjs",
     "lsp": "node lsp/stdio.mjs",
     "docs:render": "node render_manual.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "deploy:pages": "node deploy_pages.mjs",
+    "stage:pages": "node deploy_pages.mjs --stage-only"
   },
   "dependencies": {
     "monaco-editor": "0.56.0"

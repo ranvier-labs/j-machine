@@ -14,7 +14,7 @@ const expected = new Map(Object.entries({
   'remote_bulk.c': 29, 'thread_local.c': 30, 'historical_hop.c': 0,
   'historical_dirichlet.c': 0, 'aggregates.c': 392, 'switch.c': 211, 'mesh512.c': 539,
   'distributed_mandelbrot.c': 1024, 'rule110.c': 24, 'message_hotspot.c': 32,
-  'mesh_rainbow.c': 256,
+  'mesh_rainbow.c': 256, 'life16.c': 14, 'heat16.c': 196,
 }));
 const requested = process.argv.slice(2);
 const selected = requested.length ? examples.filter(example => requested.includes(example.file)) : examples;
@@ -30,7 +30,7 @@ for (const example of selected) {
     simulator.loadImage(image);
     simulator.traceEnabled(false);
     let elapsed = 0;
-    while (elapsed < 6000000 && simulator.peek(0, 0x300) === 0n) { simulator.step(1000); elapsed += 1000; }
+    while (elapsed < 40000000 && simulator.peek(0, 0x300) === 0n) { simulator.step(1000); elapsed += 1000; }
     assert.equal(simulator.peek(0, 0x300), 0x100000000n + BigInt(expected.get(example.file)), example.file);
     assert.ok(simulator.snapshot().nodes.every(node => !node.catastrophe), example.file);
     console.log(`${example.file}: ${variant.nodes} nodes, ${elapsed} cycles, result ${expected.get(example.file)}`);

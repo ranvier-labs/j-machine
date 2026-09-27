@@ -43,7 +43,8 @@ test('search ranks titles, requires every term, and supports topic aliases and a
   assert.equal(topicLocation('commands').topic, 'listener');
   assert.equal(topicLocation('build#missing-section'), null);
   assert.equal(linkTarget('javascript:alert(1)'), null);
-  assert.equal(linkTarget('https://example.com'), null);
+  assert.deepEqual(linkTarget('https://example.com'), { type: 'url', href: 'https://example.com' });
+  assert.equal(linkTarget('http://example.com/a b'), null);
   assert.equal(linkTarget('command:window-build;run'), null);
 });
 

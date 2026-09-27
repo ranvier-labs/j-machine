@@ -14,3 +14,5 @@
 /aws_f2/build/src_post_encryption/
 /aws_f2/build/scripts/*.vivado.log
 /aws_f2/build/scripts/to_aws/
+/web/dist-pages/
+/web/out/

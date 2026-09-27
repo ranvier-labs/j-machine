@@ -2757,20 +2757,28 @@ mutual
       emitInteger 0 "logical false"
       defineLabel endLabel
   | .binary .logicalOr lhs rhs _ =>
-      let trueLabel ← freshLabel "lor.true"
+      -- Comparison operands are BOOL-tagged words. BNZ on a BOOL takes the
+      -- branch for false as well as true on the RTL, so `||` is built from
+      -- BZ alone, the way `&&` is: fall into the true value when an operand
+      -- is nonzero, and branch past it when it is zero.
+      let tryRhsLabel ← freshLabel "lor.rhs"
+      let falseLabel ← freshLabel "lor.false"
       let endLabel ← freshLabel "lor.end"
       emitExpr lhs depth
       let lhsType ← inferExprType lhs
       if lhsType.isPointer then emitNormalizeBoolValue lhsType
-      emitConditionalBranch .branchNotZero trueLabel
+      emitConditionalBranch .branchZero tryRhsLabel
+      emitInteger 1 "logical true"
+      emitBranch .branch 0 endLabel
+      defineLabel tryRhsLabel
       emitExpr rhs depth
       let rhsType ← inferExprType rhs
       if rhsType.isPointer then emitNormalizeBoolValue rhsType
-      emitConditionalBranch .branchNotZero trueLabel
-      emitInteger 0 "logical false"
-      emitBranch .branch 0 endLabel
-      defineLabel trueLabel
+      emitConditionalBranch .branchZero falseLabel
       emitInteger 1 "logical true"
+      emitBranch .branch 0 endLabel
+      defineLabel falseLabel
+      emitInteger 0 "logical false"
       defineLabel endLabel
   | .binary op lhs rhs pos =>
       let lhsType ← inferExprType lhs

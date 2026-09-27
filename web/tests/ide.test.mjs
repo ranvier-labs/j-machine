@@ -41,11 +41,16 @@ test('switching buffers preserves the loaded program and its source breakpoint',
   fs.create('/home/user/other.c', 'int main(void) { return 99; }'); ide.openFile('/home/user/other.c');
   assert.equal(ide.compiledPath, compiled); assert.equal(ide.stale, false);
   assert.equal(ide.debug.breakpoints.size, 1);
-  await ide.execute();
+  // Before the program starts, Run belongs to the buffer just opened; execute() stays strict.
+  assert.equal(ide.commandState('continue').label, 'Compile & Run');
+  await assert.rejects(ide.execute(), /Compile \/home\/user\/other\.c before running/);
+  ide.openFile(compiled); await ide.execute();
   assert.equal(ide.debug.stopReason.type, 'breakpoint');
   assert.equal(ide.activePath, compiled, 'a source stop visits the loaded buffer');
   assert.equal(ide.debug.sourceLocation().line, 3);
-  await ide.execute(); assert.equal(ide.simulator.peek(0, 0x300), 0x100000029n);
+  ide.openFile('/home/user/other.c');
+  assert.equal(ide.commandState('continue').label, 'Continue', 'a paused program keeps F5 while another buffer is open');
+  await ide.execute(); assert.equal(ide.compiledPath, compiled); assert.equal(ide.simulator.peek(0, 0x300), 0x100000029n);
 });
 
 test('drafts, moving an open project, closing buffers and session reload retain source', async t => {
@@ -185,7 +190,7 @@ test('failed Compile & Load retains inspection state and blocks execution until 
   fs.create('/home/user/broken.c', 'int main(void) { return undeclared; }');
   ide.openFile('/home/user/broken.c'); await ide.compile();
   assert.equal(ide.debug, previous); assert.equal(ide.canRun(), false);
-  assert.equal(ide.commandState('continue').enabled, false);
+  assert.equal(ide.commandState('continue').label, 'Compile & Run', 'Run offers to compile the failed buffer again');
   assert.equal(ide.commandState('step-cycle').enabled, false);
   assert.equal(ide.commandState('restart').enabled, false);
   await assert.rejects(ide.execute(), /Compile & Load failed/);
@@ -249,4 +254,21 @@ test('Project Load rejects altered output and graph ownership even when metadata
   await ide.build();
   assert.deepEqual(projectSelection(ide).images, ['/build/selected.image'], 'Load selects the requested image, not its intermediate image dependency');
   await chooseProjectImage(ide); assert.equal(ide.imagePath, '/build/selected.image');
+});
+
+test('Run compiles a newly opened buffer, continues a paused program, and recompiles a stale one', async t => {
+  const { ide, fs, edit } = await setup(t);
+  assert.equal(ide.commandState('continue').label, 'Run');
+  fs.create('/home/user/other.c', 'int main(void) { return 99; }'); ide.openFile('/home/user/other.c');
+  assert.equal(ide.commandState('continue').label, 'Compile & Run');
+  await ide.run();
+  assert.equal(ide.compiledPath, '/home/user/other.c'); assert.equal(ide.simulator.peek(0, 0x300), 0x100000063n);
+  ide.openFile('/home/user/main.c'); await ide.compile(); ide.toggleBreakpoint(3); await ide.run();
+  assert.equal(ide.debug.stopReason.type, 'breakpoint');
+  ide.openFile('/home/user/other.c');
+  assert.equal(ide.commandState('continue').label, 'Continue', 'a paused program keeps F5 for itself');
+  await ide.run(); assert.equal(ide.compiledPath, '/home/user/main.c'); assert.equal(ide.simulator.peek(0, 0x300), 0x100000029n);
+  edit('/home/user/main.c', 'int main(void) { return 7; }'); ide.openFile('/home/user/main.c');
+  assert.equal(ide.stale, true); assert.equal(ide.commandState('continue').label, 'Compile & Run');
+  await ide.run(); assert.equal(ide.stale, false); assert.equal(ide.simulator.peek(0, 0x300), 0x100000007n);
 });

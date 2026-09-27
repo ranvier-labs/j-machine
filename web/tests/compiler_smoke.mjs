@@ -10,7 +10,8 @@ const { examples } = JSON.parse(await readFile(new URL('../site/examples.json', 
 for (const example of examples) {
   const compiler = await CompilerWasm.fromBytes(module);
   const nodes = Math.max(2, example.nodes);
-  const mesh = nodes === 512 ? '8x8x8' : nodes === 4 ? '2x2x1' : '2x1x1';
+  const mesh = { 2: '2x1x1', 4: '2x2x1', 16: '4x4x1', 512: '8x8x8' }[nodes];
+  assert.ok(mesh, `${example.file}: no mesh for ${nodes} nodes`);
   const source = await readFile(new URL(`compiler/examples/${example.file}`, root), 'utf8');
   const image = compiler.compile(source, nodes, mesh);
   assert.match(image, /@source \d+:\d+/);

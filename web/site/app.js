@@ -7,7 +7,9 @@ import { CommandPalette, requestPath, download } from './shell/dialogs.js';
 import { filesWindow } from './windows/files.js';
 import { editorWindow } from './windows/editor.js';
 import { listenerWindow } from './windows/listener.js';
-import { traceWindow } from './windows/machine.js';
+import { traceWindow, machineWindow } from './windows/machine.js';
+import { tutorialWindow } from './windows/tutorial.js';
+import { STEPS } from './tutorial/steps.js';
 import { debuggerWindow } from './windows/debugger.js';
 import { problemsWindow, imageWindow } from './windows/problems.js';
 import { buildWindow } from './windows/build.js';
@@ -27,6 +29,7 @@ const el = id => document.getElementById(id);
 const BUILD_ID = globalThis.__JM_BUILD_ID__ ?? 'dev';
 const versioned = name => `${name}?v=${BUILD_ID}`;
 const presets = {
+  welcome: () => STEPS[0].layout(),
   documentation: () => split('x', .58, leaf('documentation'), split('y', .72, leaf('editor'), leaf('listener'))),
   network: () => split('x', .52, split('y', .60, leaf('geometry'), leaf('history')), split('y', .65, leaf('packets'), leaf('waiting'))),
   graphics: () => split('x', .48, split('y', .65, leaf('editor'), leaf('listener')), split('y', .65, leaf('display'), leaf('geometry'))),
@@ -61,7 +64,7 @@ async function initialize() {
     fs.setSession({ buildInitialized: true });
   }
   const ide = new IDE(fs, variants), palette = new CommandPalette();
-  const WINDOW_ALIASES = { machine: 'geometry' };
+  const WINDOW_ALIASES = {};
   const manager = new WindowManager(el('desktop'), {
     storage, aliases: WINDOW_ALIASES,
     onChange: layout => { el('focused-window').textContent = layout.focused ? manager.registry.get(layout.focused).title : 'DESKTOP'; },
@@ -70,8 +73,8 @@ async function initialize() {
       run: () => ide.perform(() => manager.visible(tool.id) ? manager.move(tool.id, id, edge) : manager.open(tool.id, { relativeTo: id, edge })),
     })), { title: 'Split window', label: 'Tool to place in the split', placeholder: 'Find a tool…', verb: 'Place', help: 'workspace' }),
   });
-  const editor = editorWindow(ide), files = filesWindow(ide), listener = listenerWindow(ide), documentation = documentationWindow(ide);
-  const windows = [files, editor, geometryWindow(ide), debuggerWindow(ide), listener, problemsWindow(ide), traceWindow(ide), imageWindow(ide), buildWindow(ide), packetsWindow(ide), waitingWindow(ide), historyWindow(ide), displayWindow(ide), documentation];
+  const editor = editorWindow(ide), files = filesWindow(ide), listener = listenerWindow(ide), documentation = documentationWindow(ide), tutorial = tutorialWindow(ide);
+  const windows = [files, editor, machineWindow(ide), geometryWindow(ide), debuggerWindow(ide), listener, tutorial, problemsWindow(ide), traceWindow(ide), imageWindow(ide), buildWindow(ide), packetsWindow(ide), waitingWindow(ide), historyWindow(ide), displayWindow(ide), documentation];
   windows.forEach(tool => manager.register(tool));
   const act = run => () => ide.perform(run);
   const fileEntries = () => fs.files().map(path => ({ label: path, detail: `${ide.openPaths.includes(path) ? 'Open buffer' : 'Visit file'}${fs.stat(path).readOnly ? ' · read only' : ''}`, run: act(() => ide.openFile(path)) }));
@@ -85,6 +88,7 @@ async function initialize() {
     findFile: () => palette.open(fileEntries(), { title: 'Open file', label: 'Workspace pathname', placeholder: 'Find a file in this workspace…', verb: 'Open', help: 'files' }),
     openDocumentation: topic => { ide.services.openWindow('documentation'); documentation.open(topic); },
     layout: name => { if (!presets[name]) throw new Error(`Unknown layout: ${name}. Use ${Object.keys(presets).join(', ')}.`); manager.setLayout(presets[name]()); ide.message(`Layout: ${name}`); },
+    applyLayout: tree => manager.setLayout(tree),
   };
   const registry = new CommandRegistry({ execute: action => ide.perform(action) });
   const register = (id,label,run,keys=[],scope,options={}) => registry.register({id,label,run,keys,scope,state:()=>commandState(ide,id),...options});
@@ -130,7 +134,7 @@ async function initialize() {
   register('build-graph','Edit build graph',()=>ide.openFile(ide.buildFile));
   register('use-buffer-build','Use buffer as project graph',()=>ide.selectBuildFile(ide.activePath),[],undefined,{help:'build'});
   register('load-built-image','Load built image',()=>palette.open(fs.files().filter(p=>fs.stat(p).metadata?.artifact).map(path=>({label:path,detail:fs.stat(path).metadata.artifact.sourcePath,run:act(()=>ide.loadArtifact(path))})),{title:'Load image',label:'Built image pathname',placeholder:'Find a compiled image…',verb:'Load',help:'build'}));
-  register('continue','Run / pause loaded image',()=>ide.execute(),['F5']);
+  register('continue','Run / pause loaded image',()=>ide.run(),['F5']);
   register('pause','Pause machine',()=>ide.pause());
   register('step-instruction','Step instruction',()=>ide.execute('instruction'),['F10']);
   register('step-source','Step source',()=>ide.execute('source'),['F11']);
@@ -152,9 +156,10 @@ async function initialize() {
     register(`focus-${direction}`,`Focus window ${direction}`,()=>manager.focusDirection(direction),[`Ctrl+Alt+${key}`],undefined,layoutAction('Focus'));
     register(`resize-${direction}`,`Resize focused window ${direction}`,()=>manager.resize(['left','right'].includes(direction)?'x':'y',['left','up'].includes(direction)?-.04:.04),[`Ctrl+Alt+Shift+${key}`],undefined,layoutAction('Resize'));
   }
-  const windowGroups = { files:'Editing and building',editor:'Editing and building',listener:'Editing and building',build:'Editing and building',problems:'Editing and building',geometry:'Debugging',debugger:'Debugging',packets:'Debugging',waiting:'Debugging',history:'Debugging',trace:'Output',image:'Output',display:'Output',documentation:'Documentation' };
+  const windowGroups = { files:'Editing and building',editor:'Editing and building',listener:'Editing and building',build:'Editing and building',problems:'Editing and building',machine:'Debugging',geometry:'Debugging',tutorial:'Documentation',debugger:'Debugging',packets:'Debugging',waiting:'Debugging',history:'Debugging',trace:'Output',image:'Output',display:'Output',documentation:'Documentation' };
   for (const tool of windows) register(`window-${tool.id}`,tool.title,()=>ide.services.openWindow(tool.id),[],undefined,{menu:'windows',group:windowGroups[tool.id],help:toolHelp(tool.id),detail:()=>manager.visible(tool.id)?'Focus window':'Open window'});
   for (const name of Object.keys(presets)) register(`layout-${name}`,`Layout: ${name}`,()=>ide.services.layout(name),[],undefined,{menu:'layout',group:'Presets',help:'workspace',detail:'Arrange tools; keep buffers and machine state'});
+  register('tutorial','Tutorial: a guided tour',()=>{tutorial.start();},[],undefined,{help:'quick-start',group:'Documentation'});
   register('listener-help','Listener help',()=>{manager.open('listener');ide.message(LISTENER_HELP);});
   register('documentation','Context help',()=>ide.services.openDocumentation(document.activeElement?.closest?.('[data-window]')?.dataset.window === 'documentation' ? documentation.topic : helpTopic),['F1']);
   register('documentation-topics','Browse documentation topics',()=>palette.open(TOPICS.map(topic=>({label:topic.title,detail:topic.summary,help:topic.id,run:()=>ide.services.openDocumentation(topic.id)})),{title:'Documentation topics',label:'Documentation topic',placeholder:'Find a topic…',verb:'Read',help:'welcome'}));
@@ -183,7 +188,7 @@ async function initialize() {
     editor:['compile','breakpoint','editor-commands'],
     debugger:['continue','pause','step-instruction','step-source','step-cycle','step-100','reset','restart','jump-node'],
     keyboard:['commands','window-controls','keyboard-help','keymap-edit','keymap-reload','keymap-reset'],
-    welcome:['documentation','documentation-topics','documentation-search','documentation-back','documentation-forward'],
+    welcome:['tutorial','documentation','documentation-topics','documentation-search','documentation-back','documentation-forward'],
     listener:['listener-help'],examples:['examples'],packets:['packet-filter','network-breakpoint'],
     history:['trace-save','trace-open','trace-live','trace-previous','trace-next'],display:['display-save'],
   })) for (const id of ids) { const command = registry.commands.get(id); command.help ??= topic; command.group ??= TOPICS.find(item=>item.id===topic).title; }
@@ -213,13 +218,13 @@ build graphics: phony /build/mandelbrot.image /build/rule110.image /build/hotspo
 default /build/mandelbrot.image
 `);
   if(!fs.exists('/home/user/keymap.json'))fs.create('/home/user/keymap.json',registry.keymap());
-  const KEYMAP_ALIASES={'window-machine':'window-geometry'};
+  const KEYMAP_ALIASES={};
   const loadUserKeymap=()=>{
     const { ignored } = registry.loadKeymap(fs.read('/home/user/keymap.json'),{aliases:KEYMAP_ALIASES,tolerate:true});
     if(ignored.length)ide.message(`Keymap entries for unknown commands were ignored: ${ignored.join(', ')}. Edit /home/user/keymap.json to remove them.`);
   };
   try{loadUserKeymap();}catch(error){ide.message(`Using default keys: ${error.message}`,'error');}
-  const toolbarActions={'new-file':'new-file','find-file':'find-file','save-buffer':'save','compile-buffer':'compile','build-project':'build','load-project':'load-project','run-machine':'continue','restart-machine':'restart','command-menu':'commands','help-menu':'documentation'};
+  const toolbarActions={'new-file':'new-file','find-file':'find-file','save-buffer':'save','compile-buffer':'compile','build-project':'build','load-project':'load-project','run-machine':'continue','restart-machine':'restart','command-menu':'commands','help-menu':'documentation','tutorial-menu':'tutorial','examples-menu':'examples'};
   for(const [elementId,command]of Object.entries(toolbarActions))el(elementId).onclick=()=>registry.run(command);
   el('window-menu').onclick=()=>palette.open(registry.entries(undefined,{menu:'windows'}),{title:'Windows',label:'Tool window',placeholder:'Find a tool…',verb:'Open / Focus',help:'workspace'});
   el('layout-menu').onclick=()=>palette.open(registry.entries(undefined,{menu:'layout'}).sort((a,b)=>Number(b.group==='Presets')-Number(a.group==='Presets')),{title:'Layout',label:'Layout or window action',placeholder:'Find a preset, arrangement, focus, or resize action…',verb:'Apply',help:'workspace'});
@@ -233,7 +238,9 @@ default /build/mandelbrot.image
     el('status-text').textContent = ide.status; el('status-text').title = ide.status;
     el('storage-state').textContent = storage ? 'LOCAL FS' : 'VOLATILE FS';
     if (palette.dialog.open) palette.render();
-  }); controls(); manager.restore(presets.development());
+  }); controls();
+  // A first visit shows only what the tour's first step needs; saved layouts win afterwards.
+  manager.restore(fs.data.session.tutorialDone ? presets.development() : presets.welcome());
   window.addEventListener('resize', () => manager.resized());
   document.addEventListener('visibilitychange', () => { if (document.hidden) ide.pause(); });
   document.addEventListener('keydown', event => {

@@ -18,9 +18,9 @@ NETWORK  packets [filter] · packet id · break-network inject|deliver|link|hand
          delete-network-breakpoint id · trace-cycle n · trace-live
          save-trace [path] · open-trace path
 KEYBOARD commands · command id · keymap-reload · M-x searches all actions
-DESKTOP  window files|editor|geometry|debugger|listener|packets|waiting|history|display|build
+DESKTOP  window files|editor|machine|geometry|debugger|listener|packets|waiting|history|display|build|tutorial
          tile development|editing|debugging|building|network|graphics|documentation
-MANUAL   help [topic] · doc [topic or search words] · window documentation · clear
+MANUAL   help [topic] · doc [topic or search words] · tutorial · window documentation · clear
 BUILD    use-build path · build [target] · load output.image
 
 Pathnames are relative to the listener's current directory. Quote spaces.
@@ -35,6 +35,8 @@ export class IDE {
     if (!fs.exists(this.cwd) || fs.stat(this.cwd).kind !== 'directory') this.cwd = '/home/user';
     this.pending = new Map(); this.diagnostics = new Map(); this.history = []; this.selectedNode = 0;
     this.busy = false; this.ready = false; this.stale = false; this.addressBreakpoints = [];
+    // Ordering of the last buffer switch and the last machine load decides what Run means.
+    this.clock = 0; this.activatedAt = 0; this.installedAt = 0;
     this.status = 'Starting development environment…'; this.services = {};
     this.buildFile = fs.data.session.buildFile ?? '/home/user/build.jm';
     this.buildTarget = fs.data.session.buildTarget ?? null;
@@ -110,6 +112,7 @@ export class IDE {
     const path = normalizePath(value, this.cwd), entry = this.fs.stat(path);
     if (entry.kind !== 'file') throw new Error(`Not a file: ${path}`);
     if (!this.openPaths.includes(path)) this.openPaths.push(path);
+    if (this.activePath !== path) this.activatedAt = ++this.clock;
     this.activePath = path;
     this.editor.setSource(this.fs.read(path), path, { readOnly: !!entry.readOnly || !!entry.generated });
     if (adoptTarget && this.variants.some(v => v.nodes === entry.metadata?.nodes)) this.setNodes(entry.metadata.nodes);
@@ -254,6 +257,7 @@ export class IDE {
       compiler: this.builder?.compilerId ?? null };
     debug.onUpdate = snapshot => this.record(snapshot); debug.onStop = reason => this.stopped(reason); debug.breakOnFault = !!this.breakOnFault;
     this.compiledPath = path; this.compiledSource = source; this.history = []; this.previous = null; this.addressBreakpoints = []; this.selectedNode = 0;
+    this.installedAt = ++this.clock;
     this.compiledInputs = inputs;
     this.loadFailure = null;
     this.refreshStale(); this.bindBreakpoints(); this.record(debug.snapshot); this.stopped(debug.stopReason); return count;
@@ -328,11 +332,19 @@ export class IDE {
   async execute(mode = 'continue', count = 1) {
     const state = commandState(this, mode === 'continue' ? 'continue' : 'step-cycle');
     if (!state.enabled) throw new Error(state.reason);
+    // execute() never compiles; run() does that first when Run offers it.
+    if (state.label === 'Compile & Run') throw new Error(this.machineReason() || `Compile ${this.activePath} before running it.`);
     if (this.debug?.running) { this.debug.pause(); return; }
     this.archiveTrace = null; this.debug.network.cursor = null;
     this.debug.selectedNode = this.selectedNode; this.editor?.showExecution();
     const result = this.debug.execute(mode, count); this.emit('state'); this.emit('machine');
     await result; this.emit('state');
+  }
+  // Run (F5): compiles the active C buffer first when it is not the program the
+  // machine holds and no execution is in progress; otherwise runs or continues.
+  async run() {
+    if (commandState(this, 'continue').label === 'Compile & Run') { await this.compile(this.activePath); if (this.loadFailure) return; }
+    return this.execute();
   }
   pause() { this.debug?.pause(); }
   reset() {
@@ -396,6 +408,7 @@ export class IDE {
         case 'save-trace': if(args.length){requireArgs(1);this.fs.create(path(args[0]),await this.traceText());}else await this.services.saveTrace?.(); break;
         case 'open-trace': requireArgs(1); this.openTrace(this.fs.read(path(args[0]))); break;
         case 'keymap-reload': this.services.reloadKeymap?.(); break;
+        case 'tutorial': await this.services.command('tutorial'); break;
         case 'help':
           if (args.length) this.services.openDocumentation?.(args.join(' '));
           else result = [LISTENER_HELP, '\n\nRead: ', { type: 'documentation', topic: 'welcome', text: 'Manual' }, ' · ', { type: 'documentation', topic: 'build', text: 'Project builds' }, ' · ', { type: 'documentation', topic: 'keyboard', text: 'Keyboard' }];
@@ -416,7 +429,8 @@ export class IDE {
         case 'use-build': requireArgs(1); this.selectBuildFile(path(args[0])); result = `Build file: ${this.buildFile}`; break;
         case 'build': if (args.length > 1) throw new Error('build accepts one target. Use a phony target to group outputs.'); await this.build(args[0]); break;
         case 'load': requireArgs(1); await this.loadArtifact(path(args[0])); break;
-        case 'run': case 'continue': await this.execute(); break;
+        case 'run': await this.run(); break;
+        case 'continue': await this.execute(); break;
         case 'pause': this.pause(); break;
         case 'step': { const mode = args[0] ?? 'instruction'; if (!['source', 'instruction', 'cycle'].includes(mode)) throw new Error('step source | instruction | cycle'); await this.execute(mode === 'cycle' ? 'cycles' : mode); break; }
         case 'reset': this.reset(); break;

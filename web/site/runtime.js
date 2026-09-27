@@ -185,23 +185,54 @@ export function parseImage(imageText, physicalNodes = 2) {
 // fetch when the response body cannot be streamed.
 export async function fetchWithProgress(url, onProgress = () => {}) {
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`failed to fetch ${url.pathname ?? url} (${response.status})`);
+  // Static hosts with a per-file size limit serve large binaries as parts
+  // listed in `<name>.parts.json` (see deploy_pages.mjs). Some hosts answer a
+  // missing file with the index page, so an HTML body counts as missing too.
+  const html = /text\/html/i.test(response.headers.get("content-type") ?? "");
+  if (!response.ok || html) {
+    const listing = new URL(url); listing.pathname += ".parts.json";
+    const parts = await fetch(listing).catch(() => null);
+    if (parts?.ok && !/text\/html/i.test(parts.headers.get("content-type") ?? "")) return fetchParts(listing, await parts.json(), onProgress);
+    throw new Error(`failed to fetch ${url.pathname ?? url} (${html ? "not found" : response.status})`);
+  }
   const total = Number(response.headers.get("Content-Length")) || null;
-  onProgress({ stage: "fetch", loaded: 0, total });
-  if (!response.body?.getReader) return new Uint8Array(await response.arrayBuffer());
+  return readWithProgress(response, total, onProgress);
+}
+
+async function readWithProgress(response, total, onProgress, offset = 0, grand = total) {
+  onProgress({ stage: "fetch", loaded: offset, total: grand });
+  if (!response.body?.getReader) { const bytes = new Uint8Array(await response.arrayBuffer()); onProgress({ stage: "fetch", loaded: offset + bytes.length, total: grand ?? offset + bytes.length }); return bytes; }
   const reader = response.body.getReader(), chunks = [];
   let loaded = 0, reported = 0;
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
     chunks.push(value); loaded += value.byteLength;
-    if (loaded - reported >= 1 << 20 || loaded === total) { reported = loaded; onProgress({ stage: "fetch", loaded, total }); }
+    if (loaded - reported >= 1 << 20) { reported = loaded; onProgress({ stage: "fetch", loaded: offset + loaded, total: grand }); }
   }
   const bytes = new Uint8Array(loaded);
-  let offset = 0;
-  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-  onProgress({ stage: "fetch", loaded, total: total ?? loaded });
+  let position = 0;
+  for (const chunk of chunks) { bytes.set(chunk, position); position += chunk.byteLength; }
+  onProgress({ stage: "fetch", loaded: offset + loaded, total: grand ?? offset + loaded });
   return bytes;
+}
+
+export async function fetchParts(listing, manifest, onProgress = () => {}) {
+  if (!Array.isArray(manifest.parts) || !manifest.parts.every(name => typeof name === "string" && /^[\w.-]+$/.test(name))) throw new Error("invalid parts listing");
+  const total = Number(manifest.size) || null, pieces = [];
+  let offset = 0;
+  for (const name of manifest.parts) {
+    const part = new URL(name, listing); part.search = listing.search;
+    const response = await fetch(part);
+    if (!response.ok) throw new Error(`failed to fetch ${part.pathname} (${response.status})`);
+    const bytes = await readWithProgress(response, total, onProgress, offset, total);
+    pieces.push(bytes); offset += bytes.length;
+  }
+  const joined = new Uint8Array(offset);
+  let position = 0;
+  for (const piece of pieces) { joined.set(piece, position); position += piece.length; }
+  if (total !== null && joined.length !== total) throw new Error(`parts total ${joined.length} bytes; listing says ${total}`);
+  return joined;
 }
 
 export class SimulatorWasm {

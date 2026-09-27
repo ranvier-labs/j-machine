@@ -72,6 +72,20 @@ navigation, keymaps, the framebuffer convention, and four graphical examples.
 `/home/user/build-graphics.jm` builds the examples without changing the existing
 project graph. Example updates preserve editable workspace copies.
 
+## First visit and tutorial
+
+A first visit opens the tutorial layout: the editor, the listener, the
+MACHINE view (node activity, cycle count, and the value main returned), and
+the TUTORIAL window. The tour has thirteen steps, from running the seeded
+program through Life and a heat equation on sixteen nodes to the 512-node mesh; each step arranges only the windows it
+discusses, performs its own action from **Do it**, and marks itself done when
+the machine reaches the expected state. **Tutorial** in the header or the
+`tutorial` listener command resumes it at the saved step; **Exit** or the
+last step's **Finish** switches to the development layout. **Run** compiles
+the active C buffer first when it is not the loaded program or has changed,
+so opening an example and pressing F5 runs it. **Examples…** lists the bundled
+programs with their descriptions and node counts.
+
 ## Desktop and filesystem
 
 The header is one row: file actions, **Buffer → Compile & Load** with its
@@ -258,7 +272,9 @@ JTAG or scan interface.
 DOCUMENTATION** reopens the reader, and **Layout → documentation** places it
 beside the editor and listener. The bundled manual covers builds, files, the
 listener, keyboard control, debugging, routing, packets, futures, archives,
-graphical output, and example programs.
+graphical output, and example programs. Two sixteen-node programs, Conway's
+Life and Jacobi relaxation of the heat equation, exchange tile edges through
+node 15 and draw the whole plate as a node mosaic.
 
 Topics link to other pages and headings, source files, and registered IDE
 actions. Listener command examples have Insert buttons that recall a command
@@ -297,8 +313,8 @@ insertion without execution.
 
 `npm --prefix web test` runs compiler/LSP/debugger/workspace/build, network,
 keyboard, and graphical-output checks. `npm --prefix web run test:browser`
-runs the Playwright suite in `web/tests/browser/` against `web/dist`: boot,
-compile and run, the one-row header, the command palette, layouts, listener
+runs the Playwright suites in `web/tests/browser/` against `web/dist`: the
+tutorial's eleven steps, boot, compile and run, the one-row header, the command palette, layouts, listener
 commands, and diagnostics that name the buffer pathname. It drives the
 installed Google Chrome; set `PLAYWRIGHT_CHANNEL=chromium` after
 `npx playwright install chromium` to use a downloaded build instead.

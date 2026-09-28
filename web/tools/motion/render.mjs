@@ -3,10 +3,10 @@
 // Usage: node tools/motion/render.mjs [--label v4]   full render → out/lookbook-<label>.mp4 (+ a 720p copy); never overwrites
 //        node tools/motion/render.mjs --stills 2,9.5,25   PNGs of those seconds → out/motion/stills/
 import { chromium } from '@playwright/test';
-import { mkdir, readFile, readdir, rm, writeFile, access } from 'node:fs/promises';
+import { mkdir, readFile, readdir, access } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 const FPS = 30, W = 1920, H = 1080;
 const args = process.argv.slice(2);
@@ -41,14 +41,21 @@ if (stills) {
   await mkdir('out/motion/stills', { recursive: true });
   for (const t of stills) { const path = `out/motion/stills/t${t.toFixed(1).replace('.', '_')}.png`; await shoot(t, path); console.log('wrote', path); }
 } else {
-  const dir = 'out/motion/frames'; await rm(dir, { recursive: true, force: true }); await mkdir(dir, { recursive: true });
+  // Frames go straight into ffmpeg over a pipe: a render never stores its
+  // thousands of PNGs on disk (one full render is about 6 GB of frames).
   const frames = Math.ceil(duration * FPS), started = Date.now();
-  for (let i = 0; i < frames; i++) { await shoot(i / FPS, `${dir}/${String(i).padStart(5, '0')}.png`); if (i % 150 === 0) console.log(`frame ${i}/${frames} · ${((Date.now() - started) / 1000).toFixed(0)}s`); }
   const output = `${await unusedName(`out/lookbook-${label}`)}.mp4`;
-  // Grain, a vignette, and a one-pixel chroma shift give the flat frames a filmed look.
   const filters = 'noise=alls=9:allf=t+u,vignette=angle=PI/4.6,rgbashift=rh=1:bh=-1,format=yuv420p';
-  const ff = spawnSync('ffmpeg', ['-y', '-framerate', String(FPS), '-i', `${dir}/%05d.png`, '-i', 'out/motion/music.wav', '-vf', filters, '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', output], { stdio: ['ignore', 'inherit', 'pipe'] });
-  if (ff.status !== 0) { console.error(String(ff.stderr).split('\n').slice(-12).join('\n')); process.exit(1); }
+  const ff = spawn('ffmpeg', ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-', '-i', 'out/motion/music.wav', '-vf', filters, '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', output], { stdio: ['pipe', 'ignore', 'pipe'] });
+  let ffErr = ''; ff.stderr.on('data', d => { ffErr += d; if (ffErr.length > 20000) ffErr = ffErr.slice(-10000); });
+  const finished = new Promise((resolve, reject) => { ff.on('close', code => code === 0 ? resolve() : reject(new Error(`ffmpeg exited ${code}\n${ffErr.split('\n').slice(-12).join('\n')}`))); ff.on('error', reject); });
+  for (let i = 0; i < frames; i++) {
+    await page.evaluate(t => window.seek(t), i / FPS);
+    const png = await page.screenshot({ type: 'png', animations: 'disabled', caret: 'hide' });
+    if (!ff.stdin.write(png)) await new Promise(resolve => ff.stdin.once('drain', resolve));
+    if (i % 150 === 0) console.log(`frame ${i}/${frames} · ${((Date.now() - started) / 1000).toFixed(0)}s`);
+  }
+  ff.stdin.end(); await finished;
   const small = output.replace(/\.mp4$/, '_720p.mp4');
   spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', output, '-vf', 'scale=1280:720', '-c:v', 'libx264', '-preset', 'slow', '-crf', '23', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', small], { stdio: 'inherit' });
   console.log(`wrote ${output} and ${small} in ${((Date.now() - started) / 1000).toFixed(0)}s`);

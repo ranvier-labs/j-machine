@@ -77,6 +77,6 @@ second drop with a lead line for Act III at bar 36, and an outro from bar 60.
     Look 10. Every message is a packet: injection, route, delivery, handler, reply. Its route drawn in the mesh. Its stalls explained. Nothing is hidden.
     Look 11. Four senders, one address, sixteen nodes. Blocked inputs in red. Network breakpoints stop on a stall.
     Look 12. Four nodes split the Mandelbrot set, each painting its own tile. Watch a pixel: stop when it changes.
-    Look 13. Write Message-Driven C. Call a function at a node. That is the whole language.
+    Look 13. C plus one operator: call a function at a node. The compiler is written in Lean 4 and runs in the tab as WebAssembly. No toolchain to install.
     Look 14. Open source. Apache 2.0. Free. The RTL, the compiler, the workbench.
     Start at j-machine.pages.dev. Every cycle count in this film was measured on the simulator.

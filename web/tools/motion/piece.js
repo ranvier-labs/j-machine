@@ -8,7 +8,7 @@
 // with it: the workbench, the language and its compiler, the address.
 // Imagery comes from captured machine data (capture.mjs) and workbench
 // screenshots (ide_stills.mjs); the HUD layer is DOM. Cuts sit on bars of
-// the 128 BPM soundtrack (music.py): drops at bars 9 and 27, break at 21.
+// the 128 BPM soundtrack (music.py): drops at bars 9 and 31, break at 25.
 const W = 1920, H = 1080, BAR = 60 / 128 * 4;
 const rnd = seed => () => { seed |= 0; seed = seed + 0x6d2b79f5 | 0; let x = Math.imul(seed ^ seed >>> 15, 1 | seed); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; };
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -33,6 +33,17 @@ const CORNER = { send: 4999, injected: 5068, arrived: 5096, dispatched: 5114, ta
 // remote_call.c: remote_add(20, 22)@1 returns 20 + 22 + 100; its future is
 // resolved at cycle 5,222. Tag codes from site/runtime.js: INT 1, FUT 7.
 const FUTURE = { value: 142, resolved: 5222, tagFut: 7, tagInt: 1 };
+// Real words from remote_call.c's compiled image (debugImage(image).words):
+// tag code, the 32 data bits, and what the compiler's annotation says it is.
+const TAGGED = [
+  { tag: 1, name: 'INT', data: 0x00000002, addr: 0x101a, note: 'THE NUMBER 2' },
+  { tag: 2, name: 'BOOL', data: 0x00000001, addr: 0x30147, note: 'TRUE' },
+  { tag: 3, name: 'ADDR', data: 0x001c0401, addr: 0x1002, note: 'A SEGMENT AT 0x701, LENGTH 1' },
+  { tag: 4, name: 'IP', data: 0x0c020500, addr: 0x81, note: 'THE ENTRY POINT OF remote_add' },
+  { tag: 5, name: 'MSG', data: 0x00408000, addr: 0x301d1, note: 'THE HEADER OF A MESSAGE' },
+  { tag: 15, name: 'INST', data: 0x10440000, addr: 0x101c, note: 'MACHINE CODE: call main' },
+  { tag: 7, name: 'FUT', data: 0x00000000, addr: 0x302a3, note: 'A RESULT NOT YET COMPUTED' },
+];
 export function build(data) {
   const stage = document.getElementById('stage'), hud = document.getElementById('hud'), ctx = document.getElementById('art').getContext('2d');
   const music = data.music ?? { rms: [], fps: 30 };
@@ -89,20 +100,25 @@ export function build(data) {
     if (now >= C.dispatched) { ctx.fillStyle = '#000'; ctx.font = mono(14, 700); ctx.textAlign = 'left'; ctx.fillText(`HANDLER RUNS · CYCLE ${fmt(C.dispatched)}`, X(C.dispatched) + 10, lane1 + 78); }
     ctx.fillStyle = '#ff5a2d'; ctx.fillRect(X(Math.min(now, c1)), lane0 - 10, 2, lane1 - lane0 + 110);
   };
+  // A 36-bit word, tag on the left (bits 35–32), data on the right.
+  const drawWord = (tag, data, tagName, valueText, valueColor = '#d7ae68') => {
+    const cell = 44, ox = (W - 36 * cell - 24) / 2, oy = 640;
+    for (let i = 0; i < 36; i++) { const bit = 35 - i, isTag = bit >= 32, x = ox + i * cell + (isTag ? 0 : 24);
+      const on = isTag ? (tag >> (bit - 32)) & 1 : (data >>> bit) & 1;
+      ctx.fillStyle = isTag ? (on ? '#ff5a2d' : '#5a2418') : on ? '#d7ae68' : '#2a2a26'; ctx.fillRect(x, oy, cell - 6, 90);
+      ctx.strokeStyle = isTag ? '#ff5a2d88' : '#8f8c8488'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, oy + .5, cell - 7, 89);
+      ctx.fillStyle = on ? '#000' : '#8f8c84'; ctx.font = mono(20); ctx.textAlign = 'center'; ctx.fillText(on ? '1' : '0', x + (cell - 6) / 2, oy + 56); }
+    ctx.textAlign = 'left'; ctx.fillStyle = '#8f8c84'; ctx.font = mono(13); ctx.fillText('TAG · BITS 35–32', ox, oy - 18); ctx.fillText('DATA · BITS 31–0', ox + 4 * cell + 24, oy - 18);
+    ctx.fillStyle = '#ff5a2d'; ctx.font = mono(24, 600); ctx.fillText(tagName, ox, oy + 128);
+    ctx.fillStyle = valueColor; ctx.fillText(valueText, ox + 4 * cell + 24, oy + 128);
+  };
+  // Act II: every word carries a tag. Seven real words, ending on a future.
+  const TAG_STEP = .78;
+  const tagIndex = u => clamp(Math.floor(Math.max(0, u - .4) / TAG_STEP), 0, TAGGED.length - 1);
+  const artTags = (u, dur) => { clear('#070707'); camera(u, dur, 1, 1.04); const w = TAGGED[tagIndex(u)]; drawWord(w.tag, w.data, w.name, w.note, w.tag === 7 ? '#8f8c84' : '#d7ae68'); };
   // Act II: a future. The word is FUT until the reply writes INT 142.
   const FUTURE_REPLY = 4.2;
-  const artFuture = (u, dur) => {
-    clear('#070707'); camera(u, dur, 1, 1.04); const cell = 44, ox = (W - 36 * cell - 24) / 2, oy = 640, resolved = u >= FUTURE_REPLY;
-    const tag = resolved ? FUTURE.tagInt : FUTURE.tagFut;
-    for (let i = 0; i < 36; i++) { const bit = 35 - i, isTag = bit >= 32, x = ox + i * cell + (isTag ? 0 : 24);
-      const on = isTag ? (tag >> (bit - 32)) & 1 : resolved ? (FUTURE.value >> bit) & 1 : 0, known = isTag || resolved;
-      ctx.fillStyle = isTag ? (on ? '#ff5a2d' : '#5a2418') : !known ? '#141412' : on ? '#d7ae68' : '#2a2a26'; ctx.fillRect(x, oy, cell - 6, 90);
-      ctx.strokeStyle = isTag ? '#ff5a2d88' : '#8f8c8488'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, oy + .5, cell - 7, 89);
-      if (known) { ctx.fillStyle = on ? '#000' : '#8f8c84'; ctx.font = mono(20); ctx.textAlign = 'center'; ctx.fillText(on ? '1' : '0', x + (cell - 6) / 2, oy + 56); } }
-    ctx.textAlign = 'left'; ctx.fillStyle = '#8f8c84'; ctx.font = mono(13); ctx.fillText('TAG · BITS 35–32', ox, oy - 18); ctx.fillText('DATA · BITS 31–0', ox + 4 * cell + 24, oy - 18);
-    ctx.fillStyle = '#ff5a2d'; ctx.font = mono(24, 600); ctx.fillText(resolved ? 'INT' : 'FUT', ox, oy + 128);
-    ctx.fillStyle = resolved ? '#d7ae68' : '#8f8c84'; ctx.fillText(resolved ? '142' : 'NOT YET COMPUTED', ox + 4 * cell + 24, oy + 128);
-  };
+  const artFuture = (u, dur) => { clear('#070707'); camera(u, dur, 1, 1.04); if (u >= FUTURE_REPLY) drawWord(FUTURE.tagInt, FUTURE.value, 'INT', '142'); else drawWord(FUTURE.tagFut, 0, 'FUT', 'NOT YET COMPUTED', '#8f8c84'); };
 
   const artMesh = (u, dur) => {
     clear('#040406'); const a = .55 + u * .07, cs = Math.cos(a), sn = Math.sin(a);
@@ -172,7 +188,10 @@ export function build(data) {
     { name: 'ARRIVAL', bars: 4, act: ACT2, art: artArrival, hud: (u, t, dur) => big(u, .3, 'The handler starts', '', 'top:150px;font-size:96px') + big(u, 2.2, 'before the message has finished arriving.', 'orange', 'top:250px;font-size:72px;max-width:1800px')
       + label(160, 890, 'MEASURED ON THE RTL · MESH_RAINBOW.C · PACKET 4 · NODE 0 → 511 · 9 WORDS', true)
       + caption(u, [{ at: .3, text: `The first word crosses ${CORNER.hops} hops in ${CORNER.arrived - CORNER.injected} cycles.` }, { at: 3.2, text: `The hardware queues it and starts the handler ${CORNER.dispatched - CORNER.arrived} cycles later, while the rest is still arriving. Nobody polls.` }]) },
-    { name: 'FUTURE', bars: 4, act: ACT2, art: artFuture, hud: u => two(u, .3, 'A future is a tagged word.', FUTURE_REPLY - 1.6, 'Read it too early<br>and the thread sleeps.', '', 'orange', 330)
+    { name: 'TAGS', bars: 4, act: ACT2, art: artTags, hud: u => { const w = TAGGED[tagIndex(u)]; return two(u, .3, 'Every word carries a tag.', 1.5, 'Four bits say what<br>the other 32 are.', '', 'orange', 330)
+      + label(96, 860, `REMOTE_CALL.C · REAL WORDS FROM THE COMPILED IMAGE · ADDRESS 0x${w.addr.toString(16)}`, true)
+      + el('caption', '', ['A number,', 'a flag,', 'an address,', 'a code pointer,', 'a message header,', 'machine code.'].slice(0, tagIndex(u) + 1).join(' ') + (tagIndex(u) === TAGGED.length - 1 ? '<br>And a future: a result that has not been computed yet.' : '')); } },
+    { name: 'FUTURE', bars: 4, act: ACT2, art: artFuture, hud: u => two(u, .3, 'Futures.', FUTURE_REPLY - 1.6, 'Read one too early<br>and the thread sleeps.', '', 'orange', 330)
       + label(96, 860, `REMOTE_CALL.C · RESOLVED AT CYCLE ${fmt(FUTURE.resolved)}`, true) + (u >= FUTURE_REPLY ? label(1100, 860, 'REPLY WRITES INT 142 · THREAD WAKES') : label(1100, 860, 'READING FAULTS · THREAD SUSPENDED'))
       + caption(u, [{ at: .3, text: 'remote_add(20, 22)@1 returns at once with a word tagged FUT.' }, { at: 2.6, text: 'Reading it before the reply faults and suspends the thread. The reply writes INT 142 and wakes it.' }]) },
     { name: 'LIFE', bars: 3, act: ACT2, art: artLife, hud: (u, t, dur) => { const b = boardAt('life16', u / dur); const gen = b.length ? Math.max(...b.map(f => f.frame)) : 0; const alive = b.reduce((a, f) => { const px = pixels(f); let n = 0; for (let i = 0; i < 16; i++) if (px[i * 4] > 100) n++; return a + n; }, 0);

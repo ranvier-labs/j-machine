@@ -10,7 +10,7 @@ one-pixel chroma shift are added when the frames are encoded.
 ## Pipeline
 
     node tools/motion/capture.mjs            # runs the example programs headlessly → out/motion/data/*.json
-    python3 tools/motion/music.py 45 128     # 45-bar sectioned 128 BPM track → out/motion/music.wav + music.json
+    python3 tools/motion/music.py 41 128     # 41-bar sectioned 128 BPM track → out/motion/music.wav + music.json
     node tools/motion/ide_stills.mjs         # drives the tour in Chrome, screenshots each tool in use → out/motion/ide/
     node tools/motion/render.mjs --stills 3,22,45   # PNG frames at those seconds, for review
     node tools/motion/render.mjs --label v4  # every frame at 30 fps → out/lookbook-v4.mp4 and a 720p copy
@@ -45,34 +45,35 @@ combined and is bounded by the `budget` seconds in `capture.mjs`.
 
 ## Structure
 
-Three acts on a 45-bar, 128 BPM grid (84 s). The soundtrack's sections
-follow them: a quiet intro with clock ticks under Act I, a build and a drop
-into Act II at bar 9, a break for the Life and heat looks at bar 23, a second
-drop with a lead line for Act III at bar 29, and an outro from bar 41.
+Three acts on a 41-bar, 128 BPM grid (77 s): an intro, a build into a drop
+at bar 9 for Act II, a break for the two programs at bar 21, a second drop
+for Act III at bar 27, and an outro from bar 37.
 
-| Bars | Act | Look | Point |
+| Bars | Act | Look | Claim and its source |
 |---|---|---|---|
-| 0–3 | | Title | one idea: a message should cost almost nothing |
-| 3–9 | I · The cost | 01 Waiting | in 1988 one send cost hundreds of instructions; the processor waited |
-| 9–23 | II · The machine | 02 Word, 03 Mesh, 04 Dispatch, 05 Hotspot | tagged words, 512 nodes in dimension-order routing, handler runs 5 cycles after the last word (measured), contention shown |
-| 23–29 | II | 06 Life, 07 Heat | real programs on the real cycles |
-| 29–41 | III · Yours | 08 The workbench, 09 The call, 10 Free | one slide names the tools (workbench, integrated debugger, packet inspector, network monitor, graphical display) while the imagery cuts to each; Message-Driven C and its Lean 4 compiler in the tab; Apache 2.0 |
-| 41–45 | | End | start at j-machine.pages.dev |
+| 0–3 | | Title | built at MIT, 1988–1993, for many small communicating threads; spec card from Noakes, Wallach & Dally, ISCA 1993 |
+| 3–9 | I · The cost | Cost | one-way message overhead in cycles: nCUBE/2 3,200, Intel Delta 2,880, CM-5 2,838 (vendor libraries), 460 and 109 with Active Messages, J-Machine 11 (ISCA 1993, Table 1) |
+| 9–21 | II · How it works | Mesh, Arrival, Future | measured on the RTL: 21 hops in 28 cycles; handler dispatched 18 cycles after the first word arrives and before the last word (mesh_rainbow.c, packet 4); a future is a FUT-tagged word, resolved to INT 142 at cycle 5,222 (remote_call.c) |
+| 21–27 | II | Life, Heat | 14 live cells after 16 generations and a last-sweep change of 196, both matching host models |
+| 27–37 | III · Run it | Workbench, The call | the RTL compiled by Verilator runs in the tab; one slide names the tools; Message-Driven C and its Lean 4 compiler in WebAssembly |
+| 37–41 | | End | j-machine.pages.dev, the repository, and the sources of the numbers |
 
-## Lyric sheet
+Every number on screen is either quoted from the 1993 paper, with the
+paper named on screen, or measured on the simulator, with the program
+named on screen. The constants sit at the top of `piece.js`.
 
-    A machine from 1991, built on one idea. A message should cost almost nothing.
-    Act one. The cost.
-    Look 01. On the machines of its day, sending one message cost hundreds of instructions. The processor waited.
-    Act two. The machine.
-    Look 02. Thirty-six bits to a word. Four of them say what it is. The hardware knows a message when it sees one.
-    Look 03. Five hundred twelve nodes in a cube. Eight by eight by eight. Routed in dimension order: x, then y, then z.
-    Look 04. The handler runs five cycles after the last word leaves the sender. Twenty-one hops away. Nobody polled. Nobody copied.
-    Look 05. Four senders, thirty-two messages, one address. Contention is visible, not hidden.
-    Look 06. Sixteen tiles trade their edges. Sixteen generations of life. Fourteen survive.
-    Look 07. Heat leaves the hot corner, one sweep at a time. Real programs. Real cycles.
-    Act three. Yours.
-    Look 08. The whole machine, gate for gate, in a browser tab. And the tools around it: workbench, integrated debugger, packet inspector, network monitor, graphical display. No hardware. No install. Nothing hidden.
-    Look 09. C plus one operator: call a function at a node. The compiler is written in Lean 4 and runs in the tab as WebAssembly. No toolchain to install.
-    Look 10. Open source. Apache 2.0. Free. The RTL, the compiler, the workbench.
-    Start at j-machine.pages.dev. Every cycle count in this film was measured on the simulator.
+## Script
+
+    The J-Machine was built at MIT between 1988 and 1993. It was designed for programs made of many small threads that message each other constantly.
+    Act I. The cost.
+    In 1993, sending one message cost thousands of processor cycles with the vendors' libraries. Tuned software brought it to a few hundred. On the J-Machine it cost 11.
+    Act II. How it works.
+    Node 0 calls the four far corners of an 8×8×8 cube. Each message goes along x, then y, then z, one cycle per hop.
+    The first word crosses 21 hops in 28 cycles. The hardware queues it and starts the handler 18 cycles later, while the rest is still arriving. Nobody polls.
+    remote_add(20, 22)@1 returns at once with a word tagged FUT. Reading it before the reply faults and suspends the thread. The reply writes INT 142 and wakes it.
+    Each node owns a 4×4 tile. Node 15 collects the edges and sends every tile its border. After 16 generations 14 cells are alive, the same as a simulation on the host.
+    Two spots held hot, two corners held cold. Each sweep sets every cell to the mean of its neighbours. The last sweep changes the plate by 196 in total, the same as a model on the host.
+    Act III. Run it.
+    The MDP and its router, compiled from the RTL by Verilator, run cycle for cycle in a browser tab. Around them, the tools to see what every node and every message is doing. Nothing to install.
+    Message-Driven C is C plus one operator: a call suffixed with @node runs on that node. The compiler is written in Lean 4 and runs in the tab as WebAssembly. No toolchain to install.
+    Start at j-machine.pages.dev. 1993 figures: Noakes, Wallach and Dally, ISCA 1993. All other numbers were measured on the simulator.

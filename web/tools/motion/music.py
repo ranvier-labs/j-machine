@@ -7,7 +7,7 @@ Usage: python3 tools/motion/music.py <bars> [bpm]"""
 import json, sys, wave
 import numpy as np
 
-bars = int(sys.argv[1]) if len(sys.argv) > 1 else 66
+bars = int(sys.argv[1]) if len(sys.argv) > 1 else 49
 bpm = float(sys.argv[2]) if len(sys.argv) > 2 else 128.0
 rate = 44100
 beat = 60.0 / bpm
@@ -18,7 +18,7 @@ t = np.arange(n) / rate
 rng = np.random.default_rng(1991)
 
 # Sections in bars: [start, end).
-INTRO, BUILD, DROP1, BREAK, DROP2, OUTRO = (0, 4), (4, 12), (12, 28), (28, 36), (36, 60), (60, 66)
+INTRO, BUILD, DROP1, BREAK, DROP2, OUTRO = (0, 3), (3, 9), (9, 23), (23, 27), (27, 45), (45, 49)
 def in_section(b, s): return s[0] <= b < s[1]
 def bar_of(time): return int(time // bar)
 
@@ -53,9 +53,9 @@ chord_at = lambda b: CHORDS[b % 4]
 # ---- kick ------------------------------------------------------------------
 kick_times = []
 for b in range(bars):
-    if in_section(b, BUILD) and b >= 8: kick_times += [b * bar, b * bar + 2 * beat]
+    if in_section(b, BUILD) and b >= BUILD[1] - 3: kick_times += [b * bar, b * bar + 2 * beat]
     elif in_section(b, DROP1) or in_section(b, DROP2): kick_times += [b * bar + k * beat for k in range(4)]
-    elif in_section(b, OUTRO) and b < 56: kick_times += [b * bar, b * bar + 2 * beat]
+    elif in_section(b, OUTRO) and b < OUTRO[1] - 2: kick_times += [b * bar, b * bar + 2 * beat]
 kick_env = env(kick_times, 0.10, 0.6)
 pitch = np.zeros(n)
 for s in kick_times:
@@ -77,7 +77,7 @@ hat_times = []
 for b in range(bars):
     if in_section(b, DROP1): hat_times += [b * bar + beat / 2 + k * beat for k in range(4)]
     if in_section(b, DROP2): hat_times += [b * bar + k * beat / 4 for k in range(16)]
-    if in_section(b, BUILD) and b >= 6: hat_times += [b * bar + beat / 2 + k * beat for k in range(4)]
+    if in_section(b, BUILD) and b >= BUILD[0] + 2: hat_times += [b * bar + beat / 2 + k * beat for k in range(4)]
 hat = rng.standard_normal(n) * env(hat_times, 0.025, 0.12) * 0.16
 # the clock: quiet 16th-note ticks in the intro and the first act (waiting)
 tick_times = [k * beat / 4 for k in range(int(BUILD[1] * bar / (beat / 4)))]
@@ -117,7 +117,7 @@ for k in range(int(seconds / (beat / 4))):
     i = int(s * rate); span = min(n - i, int(beat / 4 * rate * 1.8)); tt = np.arange(span) / rate; f = midi(note)
     lead[i:i + span] += np.sign(np.sin(2 * np.pi * f * tt) - 0.3) * np.exp(-tt / 0.12) * 0.09
 motif = [(0, 76), (1, 72), (2, 74), (3, 69), (4, 72), (6, 67), (8, 69), (10, 71), (12, 72), (14, 76)]
-for b0 in (BREAK[0], BREAK[0] + 4):
+for b0 in ([BREAK[0], BREAK[0] + 4] if BREAK[1] - BREAK[0] >= 8 else [BREAK[0]]):
     for off, m in motif:
         s = b0 * bar + off * beat / 2 * 2 / 2; i = int(s * rate); span = min(n - i, int(beat * 1.8 * rate)); tt = np.arange(span) / rate
         lead[i:i + span] += np.sin(2 * np.pi * midi(m) * tt) * np.minimum(1, tt / 0.03) * np.exp(-tt / 0.6) * 0.14

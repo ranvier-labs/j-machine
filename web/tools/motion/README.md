@@ -10,7 +10,7 @@ one-pixel chroma shift are added when the frames are encoded.
 ## Pipeline
 
     node tools/motion/capture.mjs            # runs the example programs headlessly → out/motion/data/*.json
-    python3 tools/motion/music.py 66 128     # 66-bar sectioned 128 BPM track → out/motion/music.wav + music.json
+    python3 tools/motion/music.py 45 128     # 45-bar sectioned 128 BPM track → out/motion/music.wav + music.json
     node tools/motion/ide_stills.mjs         # drives the tour in Chrome, screenshots each tool in use → out/motion/ide/
     node tools/motion/render.mjs --stills 3,22,45   # PNG frames at those seconds, for review
     node tools/motion/render.mjs --label v4  # every frame at 30 fps → out/lookbook-v4.mp4 and a 720p copy
@@ -45,19 +45,19 @@ combined and is bounded by the `budget` seconds in `capture.mjs`.
 
 ## Structure
 
-Three acts on a 66-bar, 128 BPM grid (123.75 s). The soundtrack's sections
+Three acts on a 45-bar, 128 BPM grid (84 s). The soundtrack's sections
 follow them: a quiet intro with clock ticks under Act I, a build and a drop
-into Act II at bar 12, a break for the Life and heat looks at bar 28, a
-second drop with a lead line for Act III at bar 36, and an outro from bar 60.
+into Act II at bar 9, a break for the Life and heat looks at bar 23, a second
+drop with a lead line for Act III at bar 29, and an outro from bar 41.
 
 | Bars | Act | Look | Point |
 |---|---|---|---|
-| 0–4 | | Title | one idea: a message should cost almost nothing |
-| 4–12 | I · The cost | 01 Waiting | in 1988 one send cost hundreds of instructions; the processor waited |
-| 12–29 | II · The machine | 02 Word, 03 Mesh, 04 Dispatch, 05 Hotspot | tagged words, 512 nodes in dimension-order routing, handler runs 5 cycles after the last word (measured), contention shown |
-| 29–36 | II | 06 Life, 07 Heat | real programs on the real cycles |
-| 36–60 | III · Yours | 08 In the tab, 09 The debugger, 10 Every packet, 11 Contention, 12 Draw, 13 The call, 14 Free | the workbench tool by tool: breakpoints and stepping, packets with routes and stalls, contention on sixteen nodes, per-node framebuffers, Message-Driven C, Apache 2.0 |
-| 60–66 | | End | start at j-machine.pages.dev |
+| 0–3 | | Title | one idea: a message should cost almost nothing |
+| 3–9 | I · The cost | 01 Waiting | in 1988 one send cost hundreds of instructions; the processor waited |
+| 9–23 | II · The machine | 02 Word, 03 Mesh, 04 Dispatch, 05 Hotspot | tagged words, 512 nodes in dimension-order routing, handler runs 5 cycles after the last word (measured), contention shown |
+| 23–29 | II | 06 Life, 07 Heat | real programs on the real cycles |
+| 29–41 | III · Yours | 07 The workbench, 08 The call, 09 Free | one slide names the tools (workbench, integrated debugger, packet inspector, network monitor, graphical display) while the imagery cuts to each; Message-Driven C and its Lean 4 compiler in the tab; Apache 2.0 |
+| 41–45 | | End | start at j-machine.pages.dev |
 
 ## Lyric sheet
 
@@ -72,11 +72,7 @@ second drop with a lead line for Act III at bar 36, and an outro from bar 60.
     Look 06. Sixteen tiles trade their edges. Sixteen generations of life. Fourteen survive.
     Look 07. Heat leaves the hot corner, one sweep at a time. Real programs. Real cycles.
     Act three. Yours.
-    Look 08. The whole machine, gate for gate, inside a browser tab. No hardware. No install.
-    Look 09. A breakpoint on a line. One instruction at a time. Registers, memory, the instruction pointer of any node. Amber marks what changed.
-    Look 10. Every message is a packet: injection, route, delivery, handler, reply. Its route drawn in the mesh. Its stalls explained. Nothing is hidden.
-    Look 11. Four senders, one address, sixteen nodes. Blocked inputs in red. Network breakpoints stop on a stall.
-    Look 12. Four nodes split the Mandelbrot set, each painting its own tile. Watch a pixel: stop when it changes.
-    Look 13. C plus one operator: call a function at a node. The compiler is written in Lean 4 and runs in the tab as WebAssembly. No toolchain to install.
-    Look 14. Open source. Apache 2.0. Free. The RTL, the compiler, the workbench.
+    Look 07. The whole machine, gate for gate, in a browser tab. And the tools around it: workbench, integrated debugger, packet inspector, network monitor, graphical display. No hardware. No install. Nothing hidden.
+    Look 08. C plus one operator: call a function at a node. The compiler is written in Lean 4 and runs in the tab as WebAssembly. No toolchain to install.
+    Look 09. Open source. Apache 2.0. Free. The RTL, the compiler, the workbench.
     Start at j-machine.pages.dev. Every cycle count in this film was measured on the simulator.

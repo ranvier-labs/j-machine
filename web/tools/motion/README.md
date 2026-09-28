@@ -56,7 +56,7 @@ drop with a lead line for Act III at bar 29, and an outro from bar 41.
 | 3–9 | I · The cost | 01 Waiting | in 1988 one send cost hundreds of instructions; the processor waited |
 | 9–23 | II · The machine | 02 Word, 03 Mesh, 04 Dispatch, 05 Hotspot | tagged words, 512 nodes in dimension-order routing, handler runs 5 cycles after the last word (measured), contention shown |
 | 23–29 | II | 06 Life, 07 Heat | real programs on the real cycles |
-| 29–41 | III · Yours | 07 The workbench, 08 The call, 09 Free | one slide names the tools (workbench, integrated debugger, packet inspector, network monitor, graphical display) while the imagery cuts to each; Message-Driven C and its Lean 4 compiler in the tab; Apache 2.0 |
+| 29–41 | III · Yours | 08 The workbench, 09 The call, 10 Free | one slide names the tools (workbench, integrated debugger, packet inspector, network monitor, graphical display) while the imagery cuts to each; Message-Driven C and its Lean 4 compiler in the tab; Apache 2.0 |
 | 41–45 | | End | start at j-machine.pages.dev |
 
 ## Lyric sheet
@@ -72,7 +72,7 @@ drop with a lead line for Act III at bar 29, and an outro from bar 41.
     Look 06. Sixteen tiles trade their edges. Sixteen generations of life. Fourteen survive.
     Look 07. Heat leaves the hot corner, one sweep at a time. Real programs. Real cycles.
     Act three. Yours.
-    Look 07. The whole machine, gate for gate, in a browser tab. And the tools around it: workbench, integrated debugger, packet inspector, network monitor, graphical display. No hardware. No install. Nothing hidden.
-    Look 08. C plus one operator: call a function at a node. The compiler is written in Lean 4 and runs in the tab as WebAssembly. No toolchain to install.
-    Look 09. Open source. Apache 2.0. Free. The RTL, the compiler, the workbench.
+    Look 08. The whole machine, gate for gate, in a browser tab. And the tools around it: workbench, integrated debugger, packet inspector, network monitor, graphical display. No hardware. No install. Nothing hidden.
+    Look 09. C plus one operator: call a function at a node. The compiler is written in Lean 4 and runs in the tab as WebAssembly. No toolchain to install.
+    Look 10. Open source. Apache 2.0. Free. The RTL, the compiler, the workbench.
     Start at j-machine.pages.dev. Every cycle count in this film was measured on the simulator.

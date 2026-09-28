@@ -16,6 +16,13 @@ const ease = v => { v = clamp(v); return v * v * (3 - 2 * v); };
 const pad = (n, w = 2) => String(n).padStart(w, '0');
 const fmt = n => Number(n).toLocaleString('en-US');
 const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+// Palette of the Ranvier pitch deck (~/ranvier_pitch/src/deck/theme/paperTheme.js):
+// Tiffany Blue is the one accent and marks our side and the measured result;
+// the plate's orange marks the incumbent side of a comparison; ochre carries
+// data; paper and ink are the deck's cover stock and warm near-black. On
+// paper the accent is the deck's darkened teal, which clears 4.5:1.
+const ACCENT = '#0abab5', ACCENT_DEEP = '#0d3b3a', RIVAL = '#dc6836', RIVAL_DEEP = '#a94a22', DATA = '#efc664', PAPER = '#ede9e0';
+const heatRamp = v => { const stops = [[10, 10, 15], [169, 74, 34], [220, 104, 54], [239, 198, 100]], x = clamp(v) * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(x)), f = x - i; return `rgb(${stops[i].map((c, k) => Math.round(c + (stops[i + 1][k] - c) * f)).join(',')})`; };
 const FLAP_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#*+-';
 // Noakes, Wallach and Dally, ISCA 1993, Table 1: one-way message overhead,
 // the sum of the fixed costs of send and receive, in processor cycles.
@@ -68,7 +75,7 @@ export function build(data) {
   const gridLines = (cols, rows, cell, ox, oy, color = '#ffffff12') => { ctx.strokeStyle = color; ctx.lineWidth = 1; for (let x = 0; x <= cols; x++) { ctx.beginPath(); ctx.moveTo(ox + x * cell - 1, oy); ctx.lineTo(ox + x * cell - 1, oy + rows * cell); ctx.stroke(); } for (let y = 0; y <= rows; y++) { ctx.beginPath(); ctx.moveTo(ox, oy + y * cell - 1); ctx.lineTo(ox + cols * cell, oy + y * cell - 1); ctx.stroke(); } };
 
   const artDark = u => { clear('#050505'); dotField(u); };
-  const artLight = u => { clear('#ece9e2'); dotField(u, 9, '#000000'); };
+  const artLight = u => { clear(PAPER); dotField(u, 9, '#000000'); };
   // Act I: the published cost of one message, drawn to scale.
   const COST_REVEAL = 5.6;
   const artCost = (u, dur) => {
@@ -76,10 +83,10 @@ export function build(data) {
     for (const [i, r] of OVERHEAD.entries()) {
       const last = i === OVERHEAD.length - 1, at = last ? COST_REVEAL : .9 + i * .45; if (u < at) continue;
       const grow = ease((u - at) / .8), w = Math.max(3, r.cycles / max * len * grow), y = y0 + i * row;
-      ctx.textAlign = 'left'; ctx.fillStyle = last ? '#ff5a2d' : '#e8e4dc'; ctx.font = '700 30px Helvetica Neue, Helvetica, Arial, sans-serif'; ctx.fillText(r.machine, 100, y + 30);
+      ctx.textAlign = 'left'; ctx.fillStyle = last ? ACCENT : '#e8e4dc'; ctx.font = '700 30px Helvetica Neue, Helvetica, Arial, sans-serif'; ctx.fillText(r.machine, 100, y + 30);
       ctx.fillStyle = '#8f8c84'; ctx.font = mono(13); ctx.fillText(r.software, 100, y + 52);
-      ctx.fillStyle = last ? '#ff5a2d' : i < 3 ? '#8a8577' : '#5f5b52'; ctx.fillRect(x0, y + 8, w, 40);
-      ctx.fillStyle = last ? '#ff5a2d' : '#e8e4dc'; ctx.font = mono(26, 600); ctx.fillText(fmt(Math.round(r.cycles * grow)), x0 + w + 18, y + 38);
+      ctx.fillStyle = last ? ACCENT : i < 3 ? RIVAL : RIVAL_DEEP; ctx.fillRect(x0, y + 8, w, 40);
+      ctx.fillStyle = last ? ACCENT : '#e8e4dc'; ctx.font = mono(26, 600); ctx.fillText(fmt(Math.round(r.cycles * grow)), x0 + w + 18, y + 38);
       ctx.fillStyle = '#8f8c84'; ctx.font = mono(13); ctx.fillText(`${r.us} µs`, x0 + w + 18, y + 58);
     }
   };
@@ -91,31 +98,31 @@ export function build(data) {
     ctx.fillStyle = '#1c1c19'; ctx.fillRect(x0, lane0, len, 44); ctx.fillRect(x0, lane1, len, 44);
     const span = (lane, a, b, color) => { if (now <= a) return; ctx.fillStyle = color; ctx.fillRect(X(a), lane, X(Math.min(b, now)) - X(a), 44); };
     span(lane0, C.send, C.injected, '#5f5b52');                 // the runtime formats the message
-    span(lane1, C.arrived, C.tail, '#d7ae68');                  // words arriving
-    span(lane1 + 50, C.dispatched, C.tail + 14, '#ff5a2d');    // handler running
-    if (now > C.injected) { ctx.strokeStyle = '#d7ae68'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(C.injected), lane0 + 44); ctx.lineTo(X(Math.min(now, C.arrived)), lane0 + 44 + (lane1 - lane0 - 44) * clamp((now - C.injected) / (C.arrived - C.injected))); ctx.stroke(); }
+    span(lane1, C.arrived, C.tail, DATA);                  // words arriving
+    span(lane1 + 50, C.dispatched, C.tail + 14, ACCENT);    // handler running
+    if (now > C.injected) { ctx.strokeStyle = DATA; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(C.injected), lane0 + 44); ctx.lineTo(X(Math.min(now, C.arrived)), lane0 + 44 + (lane1 - lane0 - 44) * clamp((now - C.injected) / (C.arrived - C.injected))); ctx.stroke(); }
     const marks = [[C.send, 'SEND STARTS', lane0, -1], [C.injected, 'FIRST WORD LEAVES', lane0, -1], [C.arrived, 'FIRST WORD ARRIVES', lane1, 1], [C.tail, 'LAST WORD ARRIVES', lane1, 1]];
-    for (const [c, text, lane, side] of marks) { if (now < c) continue; const x = X(c); ctx.fillStyle = c === C.dispatched ? '#ff5a2d' : '#e8e4dc'; ctx.fillRect(x - 1, lane - 8, 2, 60);
+    for (const [c, text, lane, side] of marks) { if (now < c) continue; const x = X(c); ctx.fillStyle = c === C.dispatched ? ACCENT : '#e8e4dc'; ctx.fillRect(x - 1, lane - 8, 2, 60);
       ctx.font = mono(13, 600); ctx.textAlign = 'left'; const ty = side < 0 ? lane - 40 : lane + (lane === lane1 + 50 ? 76 : 138); ctx.fillText(text, x + 6, ty); ctx.fillStyle = '#8f8c84'; ctx.font = mono(13); ctx.fillText(`CYCLE ${fmt(c)}`, x + 6, ty + 18); }
     if (now >= C.dispatched) { ctx.fillStyle = '#000'; ctx.font = mono(14, 700); ctx.textAlign = 'left'; ctx.fillText(`HANDLER RUNS · CYCLE ${fmt(C.dispatched)}`, X(C.dispatched) + 10, lane1 + 78); }
-    ctx.fillStyle = '#ff5a2d'; ctx.fillRect(X(Math.min(now, c1)), lane0 - 10, 2, lane1 - lane0 + 110);
+    ctx.fillStyle = ACCENT; ctx.fillRect(X(Math.min(now, c1)), lane0 - 10, 2, lane1 - lane0 + 110);
   };
   // A 36-bit word, tag on the left (bits 35–32), data on the right.
-  const drawWord = (tag, data, tagName, valueText, valueColor = '#d7ae68') => {
+  const drawWord = (tag, data, tagName, valueText, valueColor = DATA) => {
     const cell = 44, ox = (W - 36 * cell - 24) / 2, oy = 640;
     for (let i = 0; i < 36; i++) { const bit = 35 - i, isTag = bit >= 32, x = ox + i * cell + (isTag ? 0 : 24);
       const on = isTag ? (tag >> (bit - 32)) & 1 : (data >>> bit) & 1;
-      ctx.fillStyle = isTag ? (on ? '#ff5a2d' : '#5a2418') : on ? '#d7ae68' : '#2a2a26'; ctx.fillRect(x, oy, cell - 6, 90);
-      ctx.strokeStyle = isTag ? '#ff5a2d88' : '#8f8c8488'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, oy + .5, cell - 7, 89);
+      ctx.fillStyle = isTag ? (on ? ACCENT : ACCENT_DEEP) : on ? DATA : '#2a2a26'; ctx.fillRect(x, oy, cell - 6, 90);
+      ctx.strokeStyle = isTag ? ACCENT + '88' : '#8f8c8488'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, oy + .5, cell - 7, 89);
       ctx.fillStyle = on ? '#000' : '#8f8c84'; ctx.font = mono(20); ctx.textAlign = 'center'; ctx.fillText(on ? '1' : '0', x + (cell - 6) / 2, oy + 56); }
     ctx.textAlign = 'left'; ctx.fillStyle = '#8f8c84'; ctx.font = mono(13); ctx.fillText('TAG · BITS 35–32', ox, oy - 18); ctx.fillText('DATA · BITS 31–0', ox + 4 * cell + 24, oy - 18);
-    ctx.fillStyle = '#ff5a2d'; ctx.font = mono(24, 600); ctx.fillText(tagName, ox, oy + 128);
+    ctx.fillStyle = ACCENT; ctx.font = mono(24, 600); ctx.fillText(tagName, ox, oy + 128);
     ctx.fillStyle = valueColor; ctx.fillText(valueText, ox + 4 * cell + 24, oy + 128);
   };
   // Act II: every word carries a tag. Seven real words, ending on a future.
   const TAG_STEP = .78;
   const tagIndex = u => clamp(Math.floor(Math.max(0, u - .4) / TAG_STEP), 0, TAGGED.length - 1);
-  const artTags = (u, dur) => { clear('#070707'); camera(u, dur, 1, 1.04); const w = TAGGED[tagIndex(u)]; drawWord(w.tag, w.data, w.name, w.note, w.tag === 7 ? '#8f8c84' : '#d7ae68'); };
+  const artTags = (u, dur) => { clear('#070707'); camera(u, dur, 1, 1.04); const w = TAGGED[tagIndex(u)]; drawWord(w.tag, w.data, w.name, w.note, w.tag === 7 ? '#8f8c84' : DATA); };
   // Act II: a future. The word is FUT until the reply writes INT 142.
   const FUTURE_REPLY = 4.2;
   const artFuture = (u, dur) => { clear('#070707'); camera(u, dur, 1, 1.04); if (u >= FUTURE_REPLY) drawWord(FUTURE.tagInt, FUTURE.value, 'INT', '142'); else drawWord(FUTURE.tagFut, 0, 'FUT', 'NOT YET COMPUTED', '#8f8c84'); };
@@ -129,12 +136,12 @@ export function build(data) {
     pts.sort((p, q) => p.depth - q.depth); const at = n => pts.find(k => k.n === n);
     ctx.lineWidth = 1; ctx.strokeStyle = '#ffffff12';
     for (const p of pts) { const n = p.n; for (const m of [n % 8 < 7 ? n + 1 : -1, Math.floor(n / 8) % 8 < 7 ? n + 8 : -1, n < 448 ? n + 64 : -1]) { if (m < 0) continue; const q = at(m); ctx.beginPath(); ctx.moveTo(p.sx, p.sy); ctx.lineTo(q.sx, q.sy); ctx.stroke(); } }
-    for (const p of pts) { const size = 2.5 + (p.depth + 5) * .35; ctx.beginPath(); ctx.arc(p.sx, p.sy, size + p.act * 8, 0, Math.PI * 2); ctx.fillStyle = p.act > .1 ? `rgba(215,174,104,${.3 + p.act * .7})` : 'rgba(110,108,100,.5)'; ctx.fill();
-      if (p.sending) { ctx.beginPath(); ctx.arc(p.sx, p.sy, size + 14, 0, Math.PI * 2); ctx.strokeStyle = '#ff5a2d'; ctx.lineWidth = 2; ctx.stroke(); ctx.lineWidth = 1; ctx.strokeStyle = '#ffffff12'; } }
+    for (const p of pts) { const size = 2.5 + (p.depth + 5) * .35; ctx.beginPath(); ctx.arc(p.sx, p.sy, size + p.act * 8, 0, Math.PI * 2); ctx.fillStyle = p.act > .1 ? `rgba(239,198,100,${.3 + p.act * .7})` : 'rgba(110,108,100,.5)'; ctx.fill();
+      if (p.sending) { ctx.beginPath(); ctx.arc(p.sx, p.sy, size + 14, 0, Math.PI * 2); ctx.strokeStyle = ACCENT; ctx.lineWidth = 2; ctx.stroke(); ctx.lineWidth = 1; ctx.strokeStyle = '#ffffff12'; } }
   };
   const artBoard = (name, u, dur, cell, cols, tileW, colorOf) => { clear('#050505'); camera(u, dur, 1, 1.09, 40, -20); const ox = W / 2 - cols * cell / 2 + 140, oy = H / 2 - cols * cell / 2 + 10; gridLines(cols, cols, cell, ox, oy, '#ffffff0c'); tiles(boardAt(name, u / dur), 4, tileW, tileW, cell, ox, oy, colorOf); };
-  const artLife = (u, dur) => artBoard('life16', u, dur, 46, 16, 4, r => r > 100 ? '#d7ae68' : '#141412');
-  const artHeat = (u, dur) => artBoard('heat16', u, dur, 46, 16, 4, (r, g, b) => `rgb(${Math.min(255, r * 1.1 + 12)},${g * .55 + 8},${b * .4 + 6})`);
+  const artLife = (u, dur) => artBoard('life16', u, dur, 46, 16, 4, r => r > 100 ? DATA : '#141412');
+  const artHeat = (u, dur) => artBoard('heat16', u, dur, 46, 16, 4, r => heatRamp(r / 255));
   // A workbench still with a slow push toward one window (or the frame centre).
   const cameraFor = (name, u, dur, focusId, zoomTo) => { const f = focusId ? box(name, focusId) : null; const cx = f ? f.x + f.w / 2 : W / 2, cy = f ? f.y + f.h / 2 : H / 2; const s = 1.02 + (zoomTo - 1.02) * ease(u / dur); return { s, tx: clamp(W / 2 - s * cx, W - s * W, 0), ty: clamp(H / 2 - s * cy, H - s * H, 0) }; };
   const artStill = (name, u, dur, focusId = null, zoomTo = 1.08) => {

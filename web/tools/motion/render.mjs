@@ -10,6 +10,8 @@ import { spawn, spawnSync } from 'node:child_process';
 
 const FPS = 30, W = 1920, H = 1080;
 const args = process.argv.slice(2);
+// --music <prefix> picks the soundtrack: <prefix>.wav and <prefix>.json (default out/motion/music).
+const musicPrefix = args.includes('--music') ? args[args.indexOf('--music') + 1] : 'out/motion/music';
 const stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1].split(',').map(Number) : null;
 // Every render gets its own file: a label from --label, else the short commit id, plus a counter if the name is taken.
 const label = args.includes('--label') ? args[args.indexOf('--label') + 1] : (spawnSync('git', ['rev-parse', '--short', 'HEAD']).stdout ?? '').toString().trim() || 'local';
@@ -24,7 +26,7 @@ const ideDir = 'out/motion/ide';
 const stillsIndex = JSON.parse(await readFile(`${ideDir}/stills.json`, 'utf8').catch(() => { console.error('run node tools/motion/ide_stills.mjs first'); process.exit(1); }));
 const data = {};
 for (const file of await readdir('out/motion/data').catch(() => [])) if (file.endsWith('.json')) data[file.replace('.json', '')] = JSON.parse(await readFile(join('out/motion/data', file), 'utf8'));
-data.music = JSON.parse(await readFile('out/motion/music.json', 'utf8').catch(() => '{"rms":[],"fps":30}'));
+data.music = JSON.parse(await readFile(`${musicPrefix}.json`, 'utf8').catch(() => '{"rms":[],"fps":30}'));
 data.stills = {}; for (const [name, still] of Object.entries(stillsIndex)) data.stills[name] = { ...still, data: 'data:image/png;base64,' + (await readFile(join(ideDir, still.file))).toString('base64') };
 for (const p of Object.values(data)) if (p?.samples) console.log(`${p.name}: ${p.nodes} nodes, ${p.samples.length} samples, ${p.frames.length} frames`);
 
@@ -46,7 +48,7 @@ if (stills) {
   const frames = Math.ceil(duration * FPS), started = Date.now();
   const output = `${await unusedName(`out/lookbook-${label}`)}.mp4`;
   const filters = 'noise=alls=9:allf=t+u,vignette=angle=PI/4.6,rgbashift=rh=1:bh=-1,format=yuv420p';
-  const ff = spawn('ffmpeg', ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-', '-i', 'out/motion/music.wav', '-vf', filters, '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', output], { stdio: ['pipe', 'ignore', 'pipe'] });
+  const ff = spawn('ffmpeg', ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-', '-i', `${musicPrefix}.wav`, '-vf', filters, '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', output], { stdio: ['pipe', 'ignore', 'pipe'] });
   let ffErr = ''; ff.stderr.on('data', d => { ffErr += d; if (ffErr.length > 20000) ffErr = ffErr.slice(-10000); });
   const finished = new Promise((resolve, reject) => { ff.on('close', code => code === 0 ? resolve() : reject(new Error(`ffmpeg exited ${code}\n${ffErr.split('\n').slice(-12).join('\n')}`))); ff.on('error', reject); });
   for (let i = 0; i < frames; i++) {

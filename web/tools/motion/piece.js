@@ -185,9 +185,9 @@ export function build(data) {
       return big(u, .3, 'J-MACHINE.', '', 'top:230px') + big(u, 1.2, 'A computer built so that<br>sending a message<br>costs almost nothing.', 'orange', 'top:360px;font-size:76px') + (u > 2 ? tag : '')
         + caption(u, [{ at: .3, text: 'The J-Machine was built at MIT between 1988 and 1993.' }, { at: 2.4, text: 'It was designed for programs made of many small threads that message each other constantly.' }]); } },
     { name: 'ACT I', bars: 1, act: ACT1, art: artDark, hud: u => card(u, 'I', 'The cost.') },
-    { name: 'COST', bars: 5, act: ACT1, art: artCost, hud: u => big(u, .2, 'One message cost<br>thousands of cycles.', '', 'top:150px;font-size:84px')
+    { name: 'COST', bars: 5, act: ACT1, art: artCost, hud: u => big(u, .2, 'One message cost thousands of cycles.', '', 'top:136px;font-size:72px;max-width:1800px') + big(u, COST_REVEAL, 'The J-Machine cut it to 11.', 'orange', 'top:226px;font-size:72px;max-width:1800px')
       + label(100, 372, 'ONE-WAY MESSAGE OVERHEAD · PROCESSOR CYCLES TO SEND AND RECEIVE') + label(1340, 372, 'NOAKES, WALLACH & DALLY · ISCA 1993 · TABLE 1', true)
-      + caption(u, [{ at: .3, text: 'In 1993, sending one message cost thousands of processor cycles with the vendors\' libraries.' }, { at: 2.9, text: 'Tuned software brought it to a few hundred.' }, { at: COST_REVEAL + .2, text: 'On the J-Machine it cost 11.' }]) },
+      + caption(u, [{ at: .3, text: 'In 1993, sending one message cost thousands of processor cycles with the vendors\' libraries.' }, { at: 2.9, text: 'Tuned software brought it to a few hundred.' }, { at: COST_REVEAL + .2, text: 'The J-Machine cut it to 11 by doing in hardware what the others did in software.' }]) },
     { name: 'ACT II', bars: 1, act: ACT2, art: artDark, hud: u => card(u, 'II', 'How it works.') },
     { name: 'THE MESH', bars: 3, act: ACT2, art: artMesh, hud: (u, t, dur) => { const s = sampleAt(meshName, clamp(u / dur)); return bracket(620, 150, 1100, 800) + label(632, 162, 'MESH_RAINBOW.C · 512 NODES') + label(1560, 960, '8 × 8 × 8', true) + label(1470, 190, 'ROUTING · X, THEN Y, THEN Z')
       + two(u, .3, '512 nodes.', 1.6, 'One chip each:<br>processor, router,<br>memory.', 'orange', '', 330) + clock(96, 740, s?.cycle ?? 0, 'CYCLE · RINGS MARK ROUTERS CARRYING A MESSAGE')

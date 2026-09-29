@@ -11,11 +11,14 @@ one-pixel chroma shift are added when the frames are encoded.
 
     node tools/motion/capture.mjs            # runs the example programs headlessly → out/motion/data/*.json
     python3 tools/motion/music.py 45 128     # 45-bar sectioned 128 BPM track → out/motion/music.wav + music.json
+    python3 tools/motion/music_calm.py --pulse   # calmer variant: piano, strings, soft kick and brushes → out/motion/music-calmer.wav
+    python3 tools/motion/music_calm.py           # calm variant without drums → out/motion/music-calm.wav
     node tools/motion/ide_stills.mjs         # drives the tour in Chrome, screenshots each tool in use → out/motion/ide/
     node tools/motion/render.mjs --stills 3,22,45   # PNG frames at those seconds, for review
     node tools/motion/render.mjs --label v4  # every frame at 30 fps → out/lookbook-v4.mp4 and a 720p copy
 
-Renders never overwrite: without `--label` the file is named after the short
+Pick a soundtrack with `--music out/motion/music-calmer`; the default is
+`out/motion/music`. Renders never overwrite: without `--label` the file is named after the short
 commit id, and a taken name gets a counter. Keep every cut.
 
 `capture.mjs` records, per program, retired instructions and message
@@ -66,7 +69,7 @@ named on screen. The constants sit at the top of `piece.js`.
 
     The J-Machine was built at MIT between 1988 and 1993. It was designed for programs made of many small threads that message each other constantly.
     Act I. The cost.
-    In 1993, sending one message cost thousands of processor cycles with the vendors' libraries. Tuned software brought it to a few hundred. On the J-Machine it cost 11.
+    In 1993, sending one message cost thousands of processor cycles with the vendors' libraries. Tuned software brought it to a few hundred. The J-Machine cut it to 11 by doing in hardware what the others did in software.
     Act II. How it works.
     Node 0 calls the four far corners of an 8×8×8 cube. Each message goes along x, then y, then z, one cycle per hop.
     The first word crosses 21 hops in 28 cycles. The hardware queues it and starts the handler 18 cycles later, while the rest is still arriving. Nobody polls.

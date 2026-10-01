@@ -1,5 +1,9 @@
-import JMachineC.MDP
-import JMachineC.Parser
+module
+
+public import JMachineC.MDP
+public import JMachineC.Parser
+
+public section
 
 namespace JMachineC
 open MDP

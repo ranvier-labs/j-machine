@@ -1,3 +1,7 @@
+module
+
+public section
+
 namespace JMachineC
 
 structure Pos where

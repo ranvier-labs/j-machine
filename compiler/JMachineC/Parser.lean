@@ -1,4 +1,8 @@
-import JMachineC.Lexer
+module
+
+public import JMachineC.Lexer
+
+public section
 
 namespace JMachineC
 

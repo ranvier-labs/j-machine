@@ -1,4 +1,8 @@
-import JMachineC.AST
+module
+
+public import JMachineC.AST
+
+public section
 
 namespace JMachineC
 

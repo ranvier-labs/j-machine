@@ -331,7 +331,7 @@ the product must equal `N`. For example, the executable 512-node target uses
 `--nodes 512 --mesh 8x8x8`.
 
 The source language deliberately presents dense logical ranks: `computer()`
-returns `x + X * (y + Y * z)`, and the operand of `call(...)@rank` uses that
+returns `x + X * (y + Y * z)`, and the operand of `f(...)@rank` uses that
 same numbering. At the SEND boundary the compiler packs the destination as
 `x | (y << 5) | (z << 10)`. Return routes carried inside MDC messages remain
 physical NNR values, as required by the hardware network. This distinction

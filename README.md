@@ -115,163 +115,110 @@ and `SUSPEND`; and
 
 ## Lean 4 compiler
 
-`compiler/` contains `jmc`, a self-contained Lean 4 compiler that lowers a
-documented C subset directly to Version 11 tagged words. It has a lexer,
-precedence parser, source diagnostics, program validation, stack-frame ABI,
-CALL-vector linking, recursive/nested calls, globals, bounded pointers and
-multidimensional arrays, typed pointer arithmetic/casts, structs/unions,
-scoped typedef and enum names, recursive const/volatile/restrict types,
-`_Bool` plus signed/unsigned word-scalar ranks with C integer promotions,
-scalar boolean normalization, division/remainder,
-integer suffixes, character constants, narrow word strings, initializer-inferred
-array bounds, global/static object-address relocations, the conditional operator,
-`do`/`while`, declaration-form `for`, comma expressions, labels/`goto`,
-single-evaluation prefix/postfix updates and compound assignments,
-arbitrary nested `switch` labels, multiple declarators, block-scope externs and
-function prototypes, `auto`/`register` storage classes, `_Static_assert`,
-frame-backed C99 scalar/array/aggregate compound literals with addressable
-lvalue identity, recursively nested/designated initialization with brace
-elision and source-order overrides, and type-correct implicit null initialization,
-multi-file external and translation-unit-local linkage, tentative definitions,
-persistent block statics, full-width local
-aggregate parameters/results, multiword remote aggregate envelopes and
-per-word FUT/SET completion, recursive function
-declarators, local/global/static function pointers lowered to native MDP
-`CALL`, C11 external/static `inline` and `_Noreturn` semantics, and direct or
-indirect MDC `call(...)@node` placement. C11 `_Alignas`/`_Alignof` determines
-word-addressed global, frame, compound-literal, member, aggregate, and
-by-value-parameter layout with supported power-of-two alignment through 64
-words. C11 `_Atomic(type-name)` and `_Atomic` qualifiers are implemented for
-integer, pointer, structure, and union objects. Scalar loads/stores use native
-MDP memory transactions; aggregate lvalue conversion takes a masked snapshot
-of the complete aggregate, and aggregate assignment stores the complete
-aggregate under the mask. Sequentially
-consistent scalar/pointer `++`/`--` and compound read-modify-write operations
-likewise preserve and mask the architectural message-dispatch state around the
-critical sequence. C11 `_Generic` is resolved at
-translation time; its control and unselected associations remain unevaluated,
-including preservation of a selected lvalue for assignment or address-taking.
-The built-in C11 `<stdatomic.h>` surface provides `memory_order`, `atomic_flag`,
-the ABI-representable standard atomic typedefs and lock-free macros,
-`ATOMIC_VAR_INIT`/`ATOMIC_FLAG_INIT`, fences, lock-free queries, and the complete
-load/store/exchange/compare-exchange/fetch generic-operation families. Explicit
-orders are constraint-checked; scalar and pointer operations use native
-single-word transactions, while read-modify-write and multiword aggregate
-operations use the same message-dispatch masking protocol.
-Packed C bit-fields use an explicit LSB-first 32-bit-word ABI with unnamed and
-zero-width padding, signed extraction, source-ordered static/automatic
-initialization, and masked updates that preserve neighboring fields.
-Flexible array members determine alignment and a checked trailing-member offset;
-they add zero bytes to `sizeof`. Access keeps the bounds of an explicitly larger
-backing capability, and recursive structure/union containment constraints are
-enforced.
-C11 `_Thread_local` maps one C abstract thread to each physical node, so file-
-scope and block-static instances are initialized independently on all nodes and
-remote message activations observe the destination node's thread state.
-All C11 encoded literal prefixes are supported. Ordinary and `L`/`u`/`U`
-execution characters occupy one 32-bit word per Unicode scalar, while `u8`
-uses UTF-8 byte values stored one per word; adjacent-token prefix promotion is
-performed before encoding.
-Protected
-bootstrap/runtime code is linked at
-`0x1000`, while application functions and their CALL-vector targets are linked
-at the external code-cache base `0x30000`. Unsupported C constructs produce
-diagnostics.
+`compiler/` contains `jmc`, a clean-room Lean 4 compiler from a documented
+C11 subset, extended with Message-Driven C (MDC) remote calls, to MDP Version 11
+tagged-word images. The C++ golden model and the Verilated RTL load the same
+image.
 
-`bazel test //compiler:generated_tests` compiles recursive factorial, loop/global control flow, conditional
-selection and update operators, nested
-multi-argument calls, signed/unsigned scalar arithmetic, switching,
-pointer/aggregate code, compound literals and nested/designated initializers, a linked
-two-file function-specifier program, an executable alignment/layout program,
-executable core-language atomic and `<stdatomic.h>` scalar/pointer/aggregate
-programs,
-an executable generic-selection/type-dispatch program,
-an executable packed bit-field layout/update/initialization program,
-an executable flexible-array/backing-capability program,
-an executable two-node thread-local storage program,
-an executable two-node wide/Unicode literal and placed-call program,
-and linked programs with both external
-and same-spelling internal-linkage
-entities, executable typedef/qualifier/function-pointer programs, two-node
-direct/indirect signed/unsigned scalar, multiword aggregate, string-bulk, and general bulk
-remote-call programs, a packed bit-field aggregate round trip, an oversized
-dynamic-bulk fail-stop test, and a
-multi-chunk distributed-code/cache test. It also compiles executable,
-attributed adaptations of Maskit's recursive factorial, Hop,
-one-way producer, two-way deferred-return producer, and parallel Dirichlet
-examples. It then executes each emitted image independently in the C++ golden
-model and the Verilated RTL, with exact tagged-word expectations.
+### At a glance
 
-`bazel test //compiler:historical_dirichlet_rtl_test` is the focused four-node target for Maskit's
-Figures 5.3-5.5 control structure. It runs a `4 x 1 x 1` mesh through
-distributed initialization, neighbor-face exchange, five global-norm barriers,
-and coordinated termination. Both models require every node to finish at value
-5 after five steps and require coordinator value/step checksums of 20.
+```c
+// compiler/examples/remote_call.c
+int observed = 0;
 
-The MDC examples also include two deferred future assignments: both
-remote messages are issued before either destination is consumed, and generated
-loads synchronize at access time. `suspension.c` then exercises a cyclic
-two-node dependency that requires the priority-0 FUT fault handler to save and
-suspend a process, accept intervening work, and restore it through a wake
-message.
+void record(int value) { observed = value + computer(); }
+int remote_add(int l, int r) { return l + r + computer() * 100; }
 
-The historical recursive factorial is the directed suspension test: its five
-dependent remote frames take Version 11 `FUT` faults, wake in reverse
-order, return `720`, and recycle every process block. The forcing sequence
-respects the published distinction that `READ` may move a `FUT`; the equality
-comparison is the checked primitive that consumes it and faults.
+int main(void) {
+  record(40)@1;                  // one-way message to node 1
+  return remote_add(20, 22)@1;   // remote call; result is a future
+}
+```
 
-Compiler-generated images also install both priority-mapped SEND vectors. A
-Version 11 SEND-buffer fault enters an unchecked, absolute-A0 runtime handler
-that preserves FIP, FIR, FOP0/FOP1, all four data registers, and A1-A3 in one
-of three context-private retry frames. It decodes and retries every
-`SEND`/`SENDE`/`SEND2`/`SEND2E` and output-priority combination, survives a
-second full-buffer fault while preserving the original continuation, and
-returns through `LDIPR FIP`. `bazel test //compiler:send_fault_rtl_test` blocks a standalone node's
-network egress until that handler has re-entered twice, releases backpressure,
-and requires the compiled `send_fault.c` program to resume with `INT(77)`.
+```sh
+bazel run //compiler:jmc -- compiler/examples/remote_call.c --nodes 2 \
+  -o /tmp/remote_call.image
+bazel run //:mdp-golden -- --image /tmp/remote_call.image --nodes 2 --events 50000 \
+  --expect 0:300:10000008e --expect 1:800:100000029
+```
 
-The MDC runtime uses independent node-local free lists for completed 512-word
-process blocks and 1024-word bulk-payload blocks. `reclamation.c` performs
-twenty sequential remote bulk calls and verifies a constant heap high-water
-mark after the first call in both execution models.
+Node 0 returns `INT(142)`. Node 1's `observed` is `INT(41)`.
 
-`bazel test //compiler:mesh512_golden_test` builds and executes a 512-node image in the sparse-paged
-golden model. `bazel test //compiler:mesh512_rtl_test` executes that same image on all 512
-MDP/router instances in the hierarchical Verilator target, using sparse
-per-node simulation memories to avoid allocating 512 dense million-word
-arrays. The checked run reaches its specified terminal predicate at 66,496 cycles
-on the current model. Its program transfers an eight-word array from node 0 to node 511
-and checks both the remote global and returned tagged value. Application code
-is present initially only on node zero; the test also proves one request,
-install, and acknowledgement across the full X-Y-Z route, a clear initial
-cache-ready flag on node 511, and the fetched linked word at `0x30000`.
-`bazel build --config=rtl-lint //sim:j_machine_sparse512_rtl` elaborates the concrete `8 x 8 x 8` RTL configuration; this is a
-large structural lint target and is separate from the fast suite.
-The image uses broadcast rows for common bootstrap/runtime/data, explicit
-node-state rows, and node-zero-only application rows. Both software loaders
-implement that target-neutral placement contract, so a later FPGA programming
-controller can bind the same broadcast and targeted writes through the shared
-loader interface.
+### Pipeline
 
-Logical image-node keys and MDC source-level ranks remain dense `0..511`.
-Architectural NNR and routing words use the published packed coordinates:
-`x | (y << 5) | (z << 10)`. Thus ranks 0, 256, and 511 in the `8 x 8 x 8`
-target have NNR values `0x0000`, `0x1000`, and `0x1ce7`. The Lean compiler
-performs both rank/NNR conversions and rejects a node count above 32 unless an
-explicit topology is supplied.
+| Stage    | What it does                                                           |
+| -------- | ---------------------------------------------------------------------- |
+| Parse    | Lexes and parses one or more translation units, with source-positioned diagnostics |
+| Check    | Validates types, declarations, storage classes, control flow, and linkage |
+| Lower    | Maps C to the MDP stack-frame ABI, native memory transactions, faults, messages, and `CALL` vectors |
+| Link     | Resolves branches, object addresses, function pointers, and external or internal symbols into one image |
 
-`bazel test //compiler:historical_hop512_golden_test` compiles the published Hop control flow for the same
-512-node configuration and performs four complete tours: 2,048 remote MDC
-invocations over the 8 x 8 x 8 machine. The sparse golden model checks visit
-counts and final observations at nodes 0, 256, and 511, as well as terminal
-process-block reclamation. Its target-neutral image currently contains 2,051
-broadcast rows and 1,024 node-specific rows, expanding to 1,051,136 loader
-writes; the 1.8-billion-event bound was measured against the specified terminal
-state after topology lowering. This long architectural regression is separate
-from the fast suite.
-See [`compiler/README.md`](compiler/README.md) for the accepted language, ABI,
-image layout, commands, and explicit unsupported-feature boundary.
+Protected bootstrap and runtime code is linked at `0x1000`. Application code
+and its `CALL`-vector targets start at the code-cache base `0x30000`.
+Unsupported constructs produce diagnostics rather than silently compiling.
+
+### Language surface
+
+| Area              | Supported                                                         |
+| ----------------- | ----------------------------------------------------------------- |
+| Types             | signed/unsigned word scalars, `_Bool`, enums, structs, unions, bounded pointers, multidimensional arrays, function pointers, scoped typedefs |
+| Qualifiers        | recursive `const` / `volatile` / `restrict`                       |
+| Expressions       | C integer promotions, pointer arithmetic and casts, `?:`, short-circuit, single-evaluation updates |
+| Control flow      | all loops, nested `switch` labels, `goto`                         |
+| Initialization    | recursive and designated initializers, compound literals, tentative definitions, block statics |
+| Linkage           | multiple translation units, external and internal linkage         |
+| Layout            | word-addressed aggregates, by-value aggregate params/results, LSB-first bit-fields, flexible array members, `_Alignas` through 64 words |
+| C11               | `_Atomic`, `<stdatomic.h>`, `_Generic`, `_Thread_local`, `_Static_assert`, `inline`, `_Noreturn` |
+| Literals          | integer suffixes, character constants, `u8` / `L` / `u` / `U` strings |
+| MDC               | `f(...)@node` remote calls (direct and indirect), futures, bulk and aggregate arguments |
+
+Runtime mapping notes:
+
+- **Atomics:** sequentially consistent RMW and multiword aggregate operations
+  mask message dispatch around their critical sequence.
+- **Threads:** `_Thread_local` maps one C abstract thread to each physical node.
+  Remote activations see the destination node's thread-local state.
+- **Memory reclamation:** node-local free lists recycle 512-word process blocks
+  and 1024-word bulk-payload blocks.
+
+### Tests
+
+`bazel test //compiler:generated_tests` compiles every program in
+[`compiler/examples/`](compiler/examples). It runs each image in both the
+golden model and the RTL and checks exact tagged-word results.
+
+| Target                                     | Mesh        | What it checks                                                       |
+| ------------------------------------------ | ----------- | -------------------------------------------------------------------- |
+| `//compiler:generated_tests`               | 1-2 nodes   | Language features, linkage, remote calls, suspension, reclamation, bounded failures |
+| `//compiler:historical_dirichlet_rtl_test` | 4 x 1 x 1   | Maskit Figs. 5.3-5.5: neighbor exchange, five global-norm barriers, termination |
+| `//compiler:send_fault_rtl_test`           | 1 node      | SEND-buffer fault taken twice, backpressure released, resumes with `INT(77)` |
+| `//compiler:mesh512_golden_test`           | 8 x 8 x 8   | Array transfer from node 0 to node 511 and remote code fetch (sparse golden model) |
+| `//compiler:mesh512_rtl_test`              | 8 x 8 x 8   | Same image on all 512 MDP/router instances; done at 66,496 cycles     |
+| `//compiler:historical_hop512_golden_test` | 8 x 8 x 8   | Hop: four tours, 2,048 remote invocations, process-block reclamation |
+
+The 512-node targets belong to `//:long_tests`, not the fast suite.
+
+Historical adaptations (factorial, Hop, one- and two-way producers, Dirichlet)
+are attributed to Maskit. The factorial case takes five `FUT` faults, wakes the
+frames in reverse order, and returns `720`.
+
+<details>
+<summary>512-node image and topology details</summary>
+
+- Common bootstrap, runtime, and data rows are broadcast. Node state uses
+  explicit rows, and application rows initially target node 0 only. Simulator
+  and FPGA loaders share this contract.
+- Source ranks are dense `0..511`. NNR and routing words use
+  `x | (y << 5) | (z << 10)`, so ranks 0, 256, and 511 map to `0x0000`,
+  `0x1000`, and `0x1ce7`.
+- More than 32 nodes requires an explicit `--mesh XxYxZ` topology.
+- `bazel build --config=rtl-lint //sim:j_machine_sparse512_rtl` elaborates the
+  full `8 x 8 x 8` RTL.
+
+</details>
+
+[`compiler/README.md`](compiler/README.md) is the full reference. It covers
+the accepted grammar, ABI, image format, CLI flags, and what is unsupported.
 
 ## Source hierarchy
 

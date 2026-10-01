@@ -45,6 +45,16 @@ def main : IO Unit := do
   expect (instruction .add 2 1 (operandR 0) == 0x5c80)
     "MDP v11 ADD encoding changed"
   let factorial ← expectCompile "factorial.c" factorialSource
+  let debugFactorial ← match compileCWithOptions factorialSource "factorial.c" { sourceMap := true } with
+    | .ok compilation => pure compilation
+    | .error error => fail s!"source-mapped factorial did not compile: {error}"
+  expect (debugFactorial.words.any fun word => word.annotation.contains "| @source 3:")
+    "source map omitted the recursive return statement"
+  expect (!(factorial.words.any fun word => word.annotation.contains "| @source"))
+    "source maps changed the default image annotations"
+  expect ((debugFactorial.words.map fun word => (word.node, word.address, word.value)) ==
+      (factorial.words.map fun word => (word.node, word.address, word.value)))
+    "source mapping changed executable image words"
   expect (factorial.symbols.any fun entry => entry.1 == "factorial")
     "factorial symbol missing"
   expect (factorial.words.any fun word => word.address == 0x80)

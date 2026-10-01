@@ -19,6 +19,7 @@ structure CompilerOptions where
   meshY : Nat := 0
   meshZ : Nat := 0
   codePlacement : CodePlacement := .replicated
+  sourceMap : Bool := false
 deriving Repr, Inhabited
 
 structure ImageWord where
@@ -622,6 +623,7 @@ private structure GeneratorState where
   continueTarget : Option String := none
   switchCaseLabels : List (Pos × String) := []
   futureTarget : Option Expr := none
+  sourcePos : Option Pos := none
 deriving Inhabited
 
 private abbrev GenM := StateT GeneratorState (Except CompileError)
@@ -780,7 +782,11 @@ private def switchCaseCodeLabel? (pos : Pos) : GenM (Option String) := do
     if entry.1 == pos then some entry.2 else none
 
 private def emitPending (pending : PendingWord) (annotation : String) : GenM Unit :=
-  modify fun state => { state with items := state.items.push { pending, annotation } }
+  modify fun state =>
+    let annotation := match if state.options.sourceMap then state.sourcePos else none with
+      | some pos => s!"{annotation} | @source {pos.line}:{pos.column}"
+      | none => annotation
+    { state with items := state.items.push { pending, annotation } }
 
 private def emitConstantWord (value : Word) (annotation : String) : GenM Unit :=
   emitPending (.literal value) annotation
@@ -4121,6 +4127,8 @@ private def emitAutomaticDeclaration (type : CType) (name : String)
         codegenError pos s!"local '{name}' exceeds the MDP ADDR length field"
 
 private partial def emitStmt (statement : Stmt) : GenM Unit := do
+  let previousSource := (← get).sourcePos
+  modify fun state => { state with sourcePos := some statement.pos }
   match statement with
   | .block statements _ =>
       pushScope
@@ -4316,6 +4324,7 @@ private partial def emitStmt (statement : Stmt) : GenM Unit := do
       emitStmt body
   | .gotoStmt name _ =>
       emitBranch .branch 0 (← sourceCodeLabel name)
+  modify fun state => { state with sourcePos := previousSource }
 
 private def emitRecordBulkAllocation : GenM Unit := do
   -- Entry is the allocated physical block base in R0. The process header owns
@@ -5367,6 +5376,7 @@ private def emitFunction (info : FunctionInfo) : GenM Unit := do
     return scope
   modify fun state => { state with
     currentFunction := some info
+    sourcePos := some info.function.pos
     scopes := [parameterScope]
     nextLocal := info.localBase
     breakTarget := none
@@ -5406,6 +5416,7 @@ private def emitFunction (info : FunctionInfo) : GenM Unit := do
   else
     emitReturn (if !info.function.returnType.toRValue.isVoid then
         some (.intLit 0 .int info.function.pos) else none) info.function.pos
+  modify fun state => { state with sourcePos := none }
 
 private def sameLinkedIdentity (lhsName : String) (lhsLinkage : Linkage)
     (lhsUnit : Nat) (rhsName : String) (rhsLinkage : Linkage)

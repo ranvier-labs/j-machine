@@ -290,6 +290,11 @@ module j_mdp_core (
     end
   endfunction
 
+`ifdef J_MACHINE_NETWORK_TRACE
+  import "DPI-C" function void jmc_trace_endpoint(
+      input int unsigned node, kind, priority_index, aux,
+      input longint unsigned value, input int unsigned flags, ip);
+`endif
 
   task automatic begin_fault(
       input mdp_fault_t requested_fault,
@@ -303,6 +308,12 @@ module j_mdp_core (
       if (ip_register[execution_context][30]) begin
         selected_fault = MDP_FAULT_CATASTROPHE;
       end
+`ifdef J_MACHINE_NETWORK_TRACE
+      jmc_trace_endpoint(int'(node_number), 9, int'(execution_priority), int'(selected_fault),
+          64'(saved_operand0), 0, int'(instruction_word_offset));
+      jmc_trace_endpoint(int'(node_number), 9, int'(execution_priority), int'(selected_fault),
+          64'(saved_operand1), 1, int'(instruction_word_offset));
+`endif
       pending_fault <= selected_fault;
       last_fault <= selected_fault;
       fault_context <= execution_context;
@@ -1304,6 +1315,11 @@ module j_mdp_core (
               fir_register[dispatch_priority] <= mdp_word(MDP_TAG_SYM, 32'b0);
               state <= CORE_VECTOR;
             end else begin
+`ifdef J_MACHINE_NETWORK_TRACE
+              jmc_trace_endpoint(int'(node_number), 8, int'(dispatch_priority),
+                  int'(qhl[dispatch_priority][29:10]), 64'(memory_response_rdata), 0,
+                  int'(memory_response_rdata[29:10]));
+`endif
               priority_flag <= dispatch_priority;
               background_flag <= 1'b0;
               active_message[dispatch_priority] <= 1'b1;

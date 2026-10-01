@@ -251,4 +251,45 @@ module j_mesh_router #(
       end
     end
   end
+`ifdef J_MACHINE_NETWORK_TRACE
+  // Sample pre-edge handshakes, once per simulated clock. Kept out of synthesis
+  // and normal RTL targets. Records are interpreted after the entire edge.
+  import "DPI-C" function void jmc_trace_router(
+      input int unsigned node, kind, port, priority_index, aux, flit, flags);
+  localparam int TRACE_NODE = X_COORD | (Y_COORD << 5) | (Z_COORD << 10);
+  always @(posedge clk) begin
+    if (!reset) begin
+      for (int p = 0; p < J_PORTS; p++) begin
+        for (int v = 0; v < J_PRIORITIES; v++) begin
+          if (in_valid[p][v] && in_ready[p][v])
+            jmc_trace_router(TRACE_NODE, 1, p, v, 0, int'(in_flit[p][v]), int'(in_tail[p][v]));
+          if (out_valid[p][v] && out_ready[p][v])
+            jmc_trace_router(TRACE_NODE, 2, p, v,
+                int'(grant_port[p][v]) | (int'(grant_input_priority[p][v]) << 8),
+                int'(out_flit[p][v]), int'(out_tail[p][v]));
+          if (strip_header[p][v])
+            jmc_trace_router(TRACE_NODE, 3, p, v, int'(expected_dimension[p][v]),
+                int'(buffer_flit[p][v]), int'(buffer_tail[p][v]));
+          if (buffer_valid[p][v] && !dequeue[p][v]) begin
+            int dest;
+            int reason;
+            dest = int'(requested_output(expected_dimension[p][v], buffer_flit[p][v]));
+            for (int o = 0; o < J_PORTS; o++)
+              if (lock_valid[o][v] && lock_port[o][v] == p[2:0]
+                  && lock_input_priority[o][v] == v[0]) dest = o;
+            reason = 4; // Another input won arbitration.
+            if (lock_valid[dest][v] && lock_port[dest][v] != p[2:0]) reason = 3;
+            if (grant_valid[dest][v] && grant_port[dest][v] == p[2:0]) begin
+              if (!out_valid[dest][v]) reason = 2; // Priority 1 owns the physical link.
+              else if (!out_ready[dest][v]) reason = 1; // Downstream backpressure.
+            end
+            jmc_trace_router(TRACE_NODE, 4, p, v, dest, int'(buffer_flit[p][v]), reason);
+          end
+          if (lock_valid[p][v] && !buffer_valid[lock_port[p][v]][lock_input_priority[p][v]])
+            jmc_trace_router(TRACE_NODE, 5, p, v, int'(lock_port[p][v]), 0, 5);
+        end
+      end
+    end
+  end
+`endif
 endmodule

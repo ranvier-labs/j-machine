@@ -179,4 +179,43 @@ module j_node (
     .debug_fetch,
     .debug_registers
   );
+`ifdef J_MACHINE_NETWORK_TRACE
+  import "DPI-C" function void jmc_trace_endpoint(
+      input int unsigned node, kind, priority_index, aux,
+      input longint unsigned value, input int unsigned flags, ip);
+  mdp_word_t trace_qhl [J_PRIORITIES];
+  mdp_word_t trace_qbm [J_PRIORITIES];
+  always @(posedge clk) begin
+    if (reset) begin
+      for (int v = 0; v < J_PRIORITIES; v++) begin
+        trace_qhl[v] <= '1; trace_qbm[v] <= '1;
+      end
+    end else begin
+      if (send_valid && send_ready) begin
+        jmc_trace_endpoint(int'(node_number), 6, int'(send_priority), 0,
+            64'(send_word0), int'(send_end && !send_two)
+            | (int'(background) << 1) | (int'(current_priority) << 2),
+            int'(core.instruction_word_offset));
+        if (send_two) jmc_trace_endpoint(int'(node_number), 6, int'(send_priority), 0,
+            64'(send_word1), int'(send_end) | (int'(background) << 1)
+            | (int'(current_priority) << 2), int'(core.instruction_word_offset));
+      end
+      for (int v = 0; v < J_PRIORITIES; v++) begin
+        if (receive_word_valid[v] && receive_word_ready[v])
+          jmc_trace_endpoint(int'(node_number), 7, v,
+              int'(message_unit.selected_tail_address) + int'(message_unit.row_count[v]),
+              64'(receive_word[v]), int'(receive_word_tail[v]), 0);
+        if (qhl[v] != trace_qhl[v] || qbm[v] != trace_qbm[v]) begin
+          jmc_trace_endpoint(int'(node_number), 11, v, int'(qbm[v][9:0]) + 1,
+              64'(qhl[v]), int'(qbm[v][30]), 0);
+          trace_qhl[v] <= qhl[v]; trace_qbm[v] <= qbm[v];
+        end
+      end
+      if (suspend_valid && suspend_ready)
+        jmc_trace_endpoint(int'(node_number), 12, int'(suspend_priority),
+            int'(qhl[suspend_priority][29:10]), 64'(suspend_message_length),
+            int'(suspend_early), int'(core.instruction_word_offset));
+    end
+  end
+`endif
 endmodule

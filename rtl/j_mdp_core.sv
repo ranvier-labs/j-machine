@@ -47,7 +47,9 @@ module j_mdp_core (
   output logic catastrophe,
   output logic [63:0] retired_instructions,
   output j_machine_pkg::mdp_word_t debug_current_ip,
-  output j_machine_pkg::mdp_word_t debug_r0
+  output j_machine_pkg::mdp_word_t debug_r0,
+  output logic debug_fetch,
+  output logic [7:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] debug_registers
 );
   import j_machine_pkg::*;
 
@@ -288,6 +290,7 @@ module j_mdp_core (
     end
   endfunction
 
+
   task automatic begin_fault(
       input mdp_fault_t requested_fault,
       input logic instruction_specific,
@@ -327,6 +330,13 @@ module j_mdp_core (
   assign unchecked_mode = current_unchecked;
   assign debug_current_ip = current_ip;
   assign debug_r0 = data_register[current_context][0];
+  // IP advances during fetch, before execution retires. Expose the next
+  // fetch boundary so debugger breakpoints never stop an in-flight opcode.
+  assign debug_fetch = state == CORE_FETCH && memory_request_valid;
+  for (genvar debug_index = 0; debug_index < 4; debug_index++) begin : gen_debug
+    assign debug_registers[debug_index] = data_register[current_context][debug_index];
+    assign debug_registers[debug_index + 4] = address_register[current_context][debug_index];
+  end
 
   assign opcode = instruction_register[16:11];
   assign op2 = instruction_register[10:9];

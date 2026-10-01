@@ -30,6 +30,8 @@ module j_machine_mesh_512 (
   output logic [511:0][63:0] node_retired_instructions,
   output logic [511:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] node_debug_ip,
   output logic [511:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] node_debug_r0,
+  output logic [511:0] node_debug_fetch,
+  output logic [511:0][7:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] node_debug_registers,
   output logic [511:0][j_machine_pkg::J_PRIORITIES-1:0] node_queue_pending,
   output logic [511:0][j_machine_pkg::J_PRIORITIES-1:0] node_queue_full
 );
@@ -68,6 +70,8 @@ module j_machine_mesh_512 (
     .node_retired_instructions,
     .node_debug_ip,
     .node_debug_r0,
+    .node_debug_fetch,
+    .node_debug_registers,
     .node_queue_pending,
     .node_queue_full
   );

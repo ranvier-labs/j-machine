@@ -35,6 +35,8 @@ module j_machine_mesh #(
   output logic [NODES-1:0][63:0] node_retired_instructions,
   output logic [NODES-1:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] node_debug_ip,
   output logic [NODES-1:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] node_debug_r0,
+  output logic [NODES-1:0] node_debug_fetch,
+  output logic [NODES-1:0][7:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] node_debug_registers,
   output logic [NODES-1:0][j_machine_pkg::J_PRIORITIES-1:0] node_queue_pending,
   output logic [NODES-1:0][j_machine_pkg::J_PRIORITIES-1:0] node_queue_full
 );
@@ -101,6 +103,8 @@ module j_machine_mesh #(
             .retired_instructions(node_retired_instructions[ID]),
             .debug_current_ip(node_debug_ip[ID]),
             .debug_r0(node_debug_r0[ID]),
+            .debug_fetch(node_debug_fetch[ID]),
+            .debug_registers(node_debug_registers[ID]),
             .queue_pending(node_queue_pending[ID]),
             .queue_full(node_queue_full[ID])
           );

@@ -14,6 +14,8 @@ module j_machine_verilator_sparse_top (
   output logic [63:0] debug_retired,
   output logic [j_machine_pkg::MDP_WORD_WIDTH-1:0] debug_ip,
   output logic [j_machine_pkg::MDP_WORD_WIDTH-1:0] debug_r0,
+  output logic debug_fetch,
+  output logic [7:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] debug_registers,
   output logic debug_background,
   output logic debug_priority,
   output logic debug_interrupt_mask,
@@ -50,6 +52,8 @@ module j_machine_verilator_sparse_top (
   logic [NODES-1:0][63:0] node_retired_instructions;
   logic [NODES-1:0][MDP_WORD_WIDTH-1:0] node_debug_ip;
   logic [NODES-1:0][MDP_WORD_WIDTH-1:0] node_debug_r0;
+  logic [NODES-1:0] node_debug_fetch;
+  logic [NODES-1:0][7:0][MDP_WORD_WIDTH-1:0] node_debug_registers;
   logic [NODES-1:0][J_PRIORITIES-1:0] node_queue_pending;
   logic [NODES-1:0][J_PRIORITIES-1:0] node_queue_full;
 
@@ -82,6 +86,8 @@ module j_machine_verilator_sparse_top (
     .node_retired_instructions,
     .node_debug_ip,
     .node_debug_r0,
+    .node_debug_fetch,
+    .node_debug_registers,
     .node_queue_pending,
     .node_queue_full
   );
@@ -112,6 +118,8 @@ module j_machine_verilator_sparse_top (
     debug_retired = node_retired_instructions[debug_node];
     debug_ip = node_debug_ip[debug_node];
     debug_r0 = node_debug_r0[debug_node];
+    debug_fetch = node_debug_fetch[debug_node];
+    debug_registers = node_debug_registers[debug_node];
     debug_background = node_background[debug_node];
     debug_priority = node_priority[debug_node];
     debug_interrupt_mask = node_interrupt_mask[debug_node];

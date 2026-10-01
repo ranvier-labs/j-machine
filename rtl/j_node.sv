@@ -39,6 +39,8 @@ module j_node (
   output logic [63:0] retired_instructions,
   output j_machine_pkg::mdp_word_t debug_current_ip,
   output j_machine_pkg::mdp_word_t debug_r0,
+  output logic debug_fetch,
+  output logic [7:0][j_machine_pkg::MDP_WORD_WIDTH-1:0] debug_registers,
   output logic [j_machine_pkg::J_PRIORITIES-1:0] queue_pending,
   output logic [j_machine_pkg::J_PRIORITIES-1:0] queue_full
 );
@@ -173,6 +175,8 @@ module j_node (
     .catastrophe,
     .retired_instructions,
     .debug_current_ip,
-    .debug_r0
+    .debug_r0,
+    .debug_fetch,
+    .debug_registers
   );
 endmodule

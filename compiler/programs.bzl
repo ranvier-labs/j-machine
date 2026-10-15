@@ -42,6 +42,19 @@ def _program(
     )
 
 _PROGRAMS = [
+    _program("tutorial_local", 50000, 100000,
+             ["0:300"], ["0:300:10000002a"],
+             compiler_args = ["--nodes", "2"], nodes = 2),
+    _program("tutorial_memory", 200000, 300000,
+             ["0:300", "0:800", "1:800"],
+             ["0:300:1000002e5", "0:800:100000007", "1:800:100000029"],
+             compiler_args = ["--nodes", "2"], nodes = 2),
+    _program("tutorial_oneway", 1000000, 2000000,
+             ["0:300", "1:800"], ["0:300:100000030", "1:800:100000029"],
+             compiler_args = ["--nodes", "2"], nodes = 2),
+    _program("tutorial_futures", 2000000, 4000000,
+             ["0:300"], ["0:300:100000027"],
+             compiler_args = ["--nodes", "2"], nodes = 2),
     _program("factorial", 10000, 10000,
              ["0:300"], ["0:300:1000002d0"]),
     _program("control", 10000, 10000,

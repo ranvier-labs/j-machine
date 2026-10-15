@@ -74,14 +74,29 @@ project graph. Example updates preserve editable workspace copies.
 
 ## First visit and tutorial
 
-A first visit opens the tutorial layout: the editor, the listener, the
-MACHINE view (node activity, cycle count, and the value main returned), and
-the TUTORIAL window. The tour has thirteen steps, from running the seeded
-program through Life and a heat equation on sixteen nodes to the 512-node mesh; each step arranges only the windows it
-discusses, performs its own action from **Do it**, and marks itself done when
-the machine reaches the expected state. **Tutorial** in the header or the
-`tutorial` listener command resumes it at the saved step; **Exit** or the
-last step's **Finish** switches to the development layout. **Run** compiles
+A first visit opens the tutorial layout: lesson text fills the left column,
+source fills the upper workspace, and the Listener/Instructions/Debugger panel
+and MACHINE share the lower workspace side by side. Lesson-specific tools join
+the lower area. The top bar keeps Lesson, Compile & Load, Run, Help,
+and Exit tutorial; project lessons substitute Build and Load. Back and a white
+Next stay in the page footer. Exiting restores the full IDE toolbar. Seven short chapters introduce the desktop, hardware and
+custom ISA, Message-Driven C, debugging, routing, distributed examples, and
+personal projects. **Lesson** in the top bar groups the individual lessons and lets
+readers jump between them; progress is saved by lesson id. The click-through
+introduction carries the historical background before the runnable lessons.
+A scrollable reading overlay opens at each lesson; the second lesson offers a
+spotlight tour of the IDE. **Open workspace** selects source, topology, and tools,
+without compiling, running, editing, or copying files. Readers operate those
+tools themselves and advance with explicit **Next**. Chapter jumps work without
+running earlier lessons. The four small `tutorial_*.c` examples demonstrate
+local calls, separate node memories, one-way sending, and deferred future reads.
+The one-way and future lessons explain where to set source breakpoints for
+inspection; Continue finishes them. Every lesson keeps the same desktop style, arranging
+the tools it discusses. **Tutorial** in the header or the
+`tutorial` listener command resumes it at the saved lesson. Click the pane’s lesson
+text to reopen the reading overlay; the page footer contains **Back** and a white **Next** button.
+**Exit tutorial** at the top right of the page or the final **Next lesson →** switches to the
+development layout. **Run** compiles
 the active C buffer first when it is not the loaded program or has changed,
 so opening an example and pressing F5 runs it. **Examples…** lists the bundled
 programs with their descriptions and node counts.
@@ -238,6 +253,16 @@ separate from project targets. Project Load verifies the graph, recipe,
 input contents, and output hash. A failed Compile & Load retains the old machine
 for inspection and disables execution until a successful compile or explicit load.
 
+The **Instructions / Listener** window has two tabs. Instructions decodes the
+selected node's actual memory as MDP Version 11 instructions, highlights the next
+fetch, and explains each instruction on hover or keyboard focus. Tagged constants
+in the instruction stream appear as literal loads into R0. Its **Next: Instruction,
+Clock cycle, Source line** controls step the whole mesh with the selected node as
+the instruction/source target. Clicking a node in Machine switches inspection
+without pausing. The tutorial shows Instructions from its first step; Listener
+remains available for commands and logs. `window instructions`, `window listener`,
+and `window debugger` select the corresponding tab beneath the editor.
+
 F5 continues, Pause stops
 clocking the whole mesh, F10 waits for an instruction to retire on the
 selected node, and F11 advances to a different source line on that node.
@@ -314,7 +339,7 @@ insertion without execution.
 `npm --prefix web test` runs compiler/LSP/debugger/workspace/build, network,
 keyboard, and graphical-output checks. `npm --prefix web run test:browser`
 runs the Playwright suites in `web/tests/browser/` against `web/dist`: the
-tutorial's eleven steps, boot, compile and run, the one-row header, the command palette, layouts, listener
+tutorial's chapters and lessons, boot, compile and run, the one-row header, the command palette, layouts, listener
 commands, and diagnostics that name the buffer pathname. It drives the
 installed Google Chrome; set `PLAYWRIGHT_CHANNEL=chromium` after
 `npx playwright install chromium` to use a downloaded build instead.

@@ -1,0 +1,7 @@
+# J-Machine logo
+
+Generated with the built-in imagegen tool using the user's [jelly bean reference](https://www.jellybelly.com/sites/default/files/styles/max_480/public/2026-04/fondo-de-ezgif-frame-001-eliminado_3.png.webp?itok=G6z7tWuu). The PNG preserves transparency.
+
+Final prompt:
+
+Create a polished website logo for a J-Machine computer architecture tutorial. Use the attached image only as a visual reference for its glossy jelly bean silhouette and thick vintage cream script lettering. One isolated horizontal amber/golden honey jelly bean, softly indented across the top, rounded bulbous ends, subtle candy gloss and warm darker amber edges. Place exactly the text "J-Machine" on ONE SINGLE LINE across the bean, spelled J hyphen M a c h i n e, in the reference’s closely matching bold flowing retro hand-lettered script, cream ivory color, with the long elegant swashes characteristic of the reference lettering. Fit the entire one-line text legibly inside a horizontally elongated bean. Do not stack or wrap any letters. No other text, no original brand name. Centered straight-on view, wide compact horizontal logo composition suitable for a dark charcoal IDE header. Transparent background, clean alpha around bean, no background surface or external drop shadow, minimal transparent padding. Preserve warm amber palette matching #d7ae68 accent and ivory #f6eedb. Deliver one finished logo, no mockup.

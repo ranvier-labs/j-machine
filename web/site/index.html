@@ -6,12 +6,14 @@
   <meta name="color-scheme" content="dark" />
   <meta name="description" content="A tiled development environment for the J-Machine. Browse files, edit Message-Driven C, and debug a cycle-accurate machine." />
   <title>J-Machine / Development Environment</title>
+  <link rel="icon" type="image/png" href="./assets/j-machine-logo.png" />
   <link rel="stylesheet" href="./app.css" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="workbench-header" aria-label="Development environment">
-    <div class="identity" title="J-Machine development environment"><div class="machine-mark" aria-hidden="true">J<span>/</span>M</div><h1 class="sr-only">J-Machine</h1></div>
+    <div class="identity" title="J-Machine development environment"><img class="machine-logo" src="./assets/j-machine-logo.png" alt="" width="112" height="63" /><h1 class="sr-only">J-Machine</h1></div>
+    <div id="tutorial-lesson-label" class="tutorial-navigation" hidden><button id="tutorial-lesson" aria-label="Tutorial lesson" aria-haspopup="dialog">Lesson ▾</button></div>
     <div class="header-group" role="group" aria-label="Files" data-help="files">
       <button id="new-file" disabled title="New file">New</button>
       <button id="find-file" disabled title="Find file (Cmd/Ctrl O)">Open…</button>
@@ -30,13 +32,14 @@
     <div class="header-group" role="group" aria-label="Workspace commands">
       <button id="window-menu" data-help="workspace">Windows</button>
       <button id="layout-menu" data-help="workspace">Layout</button>
-      <button id="tutorial-menu" title="A guided tour of the environment in thirteen steps">Tutorial</button>
+      <button id="tutorial-menu" title="A guided tour of the environment, hardware, language, routing, and examples">Tutorial</button>
       <button id="help-menu" title="Help for the current control or window (F1)">Help</button>
       <button id="command-menu" data-help="keyboard" title="Commands (Alt X or Ctrl/Cmd Shift P)">M-x</button>
     </div>
+    <button id="tutorial-exit" hidden>Exit tutorial</button>
   </header>
   <main id="desktop" aria-label="Tiling workspace"><div id="boot-message" class="boot-message">Starting development environment…</div></main>
-  <footer class="minibuffer"><span id="focused-window">DESKTOP</span><span id="status-text" role="status">Loading files and tools…</span><span class="key-help">F9 BREAK · F10 INSTR · F11 SOURCE</span><span id="storage-state">LOCAL FS</span></footer>
+  <footer class="minibuffer"><span id="focused-window">DESKTOP</span><span id="status-text" role="status">Loading files and tools…</span><span class="key-help">F9 BREAK · F10 INSTR · F11 SOURCE</span><span id="storage-state">LOCAL FS</span><nav id="tutorial-navigation" aria-label="Tutorial lessons" hidden></nav></footer>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

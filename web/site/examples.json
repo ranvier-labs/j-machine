@@ -101,6 +101,22 @@
       "title": "Heat Equation",
       "nodes": 16,
       "blurb": "Jacobi relaxation of the heat equation on a 16x16 plate over sixteen nodes, with hot and cold spots held fixed. Returns the summed change of the last sweep."
+    },
+    {
+      "file": "tutorial_local.c", "title": "Tutorial: Local Call", "nodes": 2,
+      "blurb": "Ordinary C: a local add call returns 42 on node 0."
+    },
+    {
+      "file": "tutorial_memory.c", "title": "Tutorial: Private Memory", "nodes": 2,
+      "blurb": "Node 1 changes its own observed variable to 41; node 0 retains 7."
+    },
+    {
+      "file": "tutorial_oneway.c", "title": "Tutorial: One-Way Message", "nodes": 2,
+      "blurb": "A delayed void handler demonstrates that sending does not wait for handler completion."
+    },
+    {
+      "file": "tutorial_futures.c", "title": "Tutorial: Futures", "nodes": 2,
+      "blurb": "Issue two remote calls, do independent work, and consume their futures; returns 39."
     }
   ]
 }

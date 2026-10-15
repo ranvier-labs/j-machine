@@ -44,7 +44,8 @@ export function debuggerWindow(ide) {
     syncCommandButton(run,ide,'continue',{label:true});
     run.classList.toggle('running', running);
     for (const [control,command] of [[source,'step-source'],[instruction,'step-instruction'],[cycle,'step-cycle'],[hundred,'step-100'],[reset,'reset'],[restart,'restart']]) syncCommandButton(control,ide,command);
-    for (const control of [read, watch, addAddress, node]) control.disabled = !debug || running || ide.busy;
+    for (const control of [read, watch, addAddress]) control.disabled = !debug || running || ide.busy;
+    node.disabled = !debug || ide.busy;
     loaded.textContent = ide.compiledPath ? `${ide.simulator.nodes} NODES · ${ide.compiledPath}${ide.stale ? ' · SOURCE CHANGED' : ''}` : 'No image loaded'; loaded.disabled = !ide.compiledPath || !ide.fs.exists(ide.compiledPath);
     loaded.classList.toggle('error-text', ide.stale);
     tag.textContent = ide.busy ? 'BUSY' : running ? 'RUN' : ide.loadFailure ? 'LOAD FAILED' : ide.stale ? 'STALE' : debug?.stopReason.type.toUpperCase() ?? 'BOOT';

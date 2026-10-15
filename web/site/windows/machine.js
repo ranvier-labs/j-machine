@@ -48,7 +48,7 @@ export function machineWindow(ide) {
     draw();
   }); render();
   canvas.onclick = event => {
-    if (!ide.debug || ide.debug.running) return;
+    if (!ide.debug) return;
     const rect = canvas.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top;
     const cell = cells.find(c => x >= c.x && x < c.x + c.w && y >= c.y && y < c.y + c.h);
     if (cell) ide.perform(() => ide.selectNode(cell.index));

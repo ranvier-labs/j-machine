@@ -11,7 +11,9 @@ async function boot(page, query = '', loaded = '/home/user/main.c', { full = tru
   await page.evaluate(() => localStorage.clear());
   await page.goto(`/${query}`);
   await expect(status(page)).toHaveText(new RegExp(`Loaded ${loaded.replace(/[./]/g, '\$&')}`), { timeout: 60_000 });
-  if (full) { await page.locator('#listener-input').fill('tile development'); await page.locator('#listener-input').press('Enter'); await expect(page.locator('[data-window=debugger]')).toBeVisible(); }
+  if (await page.locator('.tutorial-reading').isVisible()) await page.locator('#tutorial-exit').click();
+  await page.getByRole('tab', { name: 'Listener', exact: true }).click();
+  if (full) { await page.locator('#listener-input').fill('tile development'); await page.locator('#listener-input').press('Enter'); await expect(page.getByRole('tab', { name: 'Debugger', exact: true })).toBeVisible(); }
 }
 async function listener(page, command) {
   await page.locator('#listener-input').fill(command);
@@ -56,7 +58,8 @@ test('set a source breakpoint, stop on it, step, and continue', async ({ page })
   await page.keyboard.press(process.platform === 'darwin' ? 'Meta+ArrowUp' : 'Control+Home');
   for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('F9');
-  const debuggerWindow = page.locator('[data-window=debugger]');
+  await page.getByRole('tab', { name: 'Debugger', exact: true }).click();
+  const debuggerWindow = page.locator('#inspection-panel-debugger');
   await expect(debuggerWindow.locator('.compact-list li').first()).toContainText('L6 · bound');
   await expect(page.locator('.breakpoint-glyph')).toHaveCount(1);
   await page.keyboard.press('F5');
@@ -165,7 +168,7 @@ test('edits, open buffers, and the layout survive a reload', async ({ page }) =>
   await page.reload();
   await expect(status(page)).toHaveText(/Loaded|Environment ready/, { timeout: 60_000 });
   await expect(page.locator('.buffer-tab')).toHaveCount(2);
-  await expect(page.locator('[data-window=debugger]')).toBeHidden();
+  await expect(page.locator('#inspection-panel-debugger')).toBeHidden();
   await page.locator('.buffer-tab button', { hasText: 'main.c' }).click();
   await expect(page.locator('.buffer-path span').last()).toHaveText(/MODIFIED · draft retained/);
   await expect(page.locator('.source-editor')).toContainText('return 9;');

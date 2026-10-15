@@ -4,7 +4,7 @@ export const TOPICS = [
 The workbench combines a tiled desktop, a persistent filesystem, a compiler, and a cycle-accurate RTL simulator. Documentation is another window: follow links with the mouse or Tab and Enter, and return with Back.
 
 ## Start here
-- [Tutorial](command:tutorial): a guided tour in thirteen steps, from running the first program through Life and a heat equation on sixteen nodes to the 512-node mesh.
+- [Tutorial](command:tutorial): seven short chapters introduce the desktop, hardware and custom ISA, Message-Driven C, debugging, routing, distributed examples, and your own projects. The Lesson menu in the top bar jumps to individual lessons; Open workspace selects the source and tools; you compile and run. Each lesson opens in a scrollable reading overlay, and lesson 2 offers a spotlight tour.
 - [Quick start](doc:quick-start): build an image and run it.
 - [Project builds](doc:build): graphs, targets, incremental builds, and loading.
 - [Example programs](doc:examples): remote calls, routing, and graphical output.
@@ -187,6 +187,8 @@ help [topic]       doc [topic or search words]
 
 ## Execution
 F5 runs or pauses the whole mesh. F10 advances until an instruction retires on the selected node. F11 advances to another source line. Cycle and +100 advance the requested number of clocks unless a stop condition occurs.
+
+[MDP Instructions](command:window-instructions), Listener, and Debugger share the tool panel beneath the editor. Its Instructions tab reads the selected node's memory and decodes MDP Version 11 instructions, including runtime code. The arrow marks the next fetch address and instruction phase (:0 or :1); while an instruction is in progress its pending target can change. Tagged literals load R0 when fetched. Hover or focus a row for an explanation; source-line links visit the corresponding C code. Next: Instruction, Clock cycle, and Source line reuse the debugger's stepping controls. All nodes advance together. Clicking a node in MACHINE switches inspection while execution keeps running. Select Listener for commands and output or Debugger for registers, breakpoints, and memory; window listener and window debugger select those tabs too.
 
 The cycle budget defaults to 10,000,000 and can be changed in the debugger. Continue resumes after a breakpoint or budget stop. After main returns, Continue is disabled. Restart (Shift+F5) resets and runs the loaded image from cycle zero; Reset reloads it without running. Explicit stepping remains available after main returns for hardware inspection. Reading state never advances clocks.
 

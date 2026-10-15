@@ -38,6 +38,7 @@ await build({
 for (const file of ['styles.css', 'runtime.js']) {
   await copyFile(`site/${file}`, `dist/${file}`);
 }
+await cp('site/assets', 'dist/assets', { recursive: true });
 await writeFile('dist/index.html', (await readFile('site/index.html', 'utf8')).replaceAll(/"\.\/(app\.js|app\.css|styles\.css)"/g, `"./$1?v=${id}"`));
 await cp('../compiler/examples', 'dist/examples', { recursive: true });
 await copyFile('site/examples.json', 'dist/examples/examples.json');

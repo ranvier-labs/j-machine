@@ -10,6 +10,7 @@ const examples = JSON.parse(await readFile(new URL('../site/examples.json', impo
 const variants = JSON.parse(await readFile(new URL('variants.json', dist), 'utf8')).variants;
 const compiled = await WebAssembly.compile(await readFile(new URL('compiler.wasm', dist)));
 const expected = new Map(Object.entries({
+  'tutorial_local.c': 42, 'tutorial_memory.c': 741, 'tutorial_oneway.c': 48, 'tutorial_futures.c': 39,
   'factorial.c': 720, 'remote_call.c': 142, 'futures.c': 32, 'suspension.c': 41,
   'remote_bulk.c': 29, 'thread_local.c': 30, 'historical_hop.c': 0,
   'historical_dirichlet.c': 0, 'aggregates.c': 392, 'switch.c': 211, 'mesh512.c': 539,

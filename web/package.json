@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node build_frontend.mjs",
-    "test": "node --test tests/compiler.test.mjs tests/lsp.test.mjs tests/debugger.test.mjs tests/workspace.test.mjs tests/ide.test.mjs tests/build.test.mjs tests/network.test.mjs tests/keyboard.test.mjs tests/graphics.test.mjs tests/documentation.test.mjs tests/parts.test.mjs",
+    "test": "node --test tests/compiler.test.mjs tests/lsp.test.mjs tests/debugger.test.mjs tests/instructions.test.mjs tests/tutorial.test.mjs tests/workspace.test.mjs tests/ide.test.mjs tests/build.test.mjs tests/network.test.mjs tests/keyboard.test.mjs tests/graphics.test.mjs tests/documentation.test.mjs tests/parts.test.mjs",
     "test:examples": "node tests/compiler_examples.mjs",
     "examples:render": "node render_examples.mjs",
     "lsp": "node lsp/stdio.mjs",

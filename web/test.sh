@@ -12,7 +12,7 @@ if [[ "$("$node_binary" -p 'Number(process.versions.node.split(".")[0])')" -lt 2
   node_binary=/opt/homebrew/bin/node
 fi
 "$node_binary" --test "$root/web/tests/compiler.test.mjs" \
-  "$root/web/tests/lsp.test.mjs" "$root/web/tests/debugger.test.mjs" \
+  "$root/web/tests/lsp.test.mjs" "$root/web/tests/debugger.test.mjs" "$root/web/tests/instructions.test.mjs" "$root/web/tests/tutorial.test.mjs" \
   "$root/web/tests/workspace.test.mjs" "$root/web/tests/ide.test.mjs" \
   "$root/web/tests/build.test.mjs" "$root/web/tests/network.test.mjs" \
   "$root/web/tests/keyboard.test.mjs" "$root/web/tests/graphics.test.mjs" \

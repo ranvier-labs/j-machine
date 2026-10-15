@@ -10,7 +10,6 @@ import { listenerWindow } from './windows/listener.js';
 import { traceWindow, machineWindow } from './windows/machine.js';
 import { tutorialWindow } from './windows/tutorial.js';
 import { STEPS } from './tutorial/steps.js';
-import { debuggerWindow } from './windows/debugger.js';
 import { problemsWindow, imageWindow } from './windows/problems.js';
 import { buildWindow } from './windows/build.js';
 import { observe, syncCommandButton } from './windows/common.js';
@@ -33,9 +32,9 @@ const presets = {
   documentation: () => split('x', .58, leaf('documentation'), split('y', .72, leaf('editor'), leaf('listener'))),
   network: () => split('x', .52, split('y', .60, leaf('geometry'), leaf('history')), split('y', .65, leaf('packets'), leaf('waiting'))),
   graphics: () => split('x', .48, split('y', .65, leaf('editor'), leaf('listener')), split('y', .65, leaf('display'), leaf('geometry'))),
-  development: () => split('x', .23, split('y', .52, leaf('files'), leaf('build')), split('x', .61, split('y', .72, leaf('editor'), leaf('listener')), split('y', .55, leaf('debugger'), leaf('geometry')))),
+  development: () => split('x', .23, split('y', .52, leaf('files'), leaf('build')), split('x', .67, split('y', .60, leaf('editor'), leaf('listener')), leaf('geometry'))),
   editing: () => split('x', .20, leaf('files'), split('y', .77, leaf('editor'), leaf('listener'))),
-  debugging: () => split('y', .70, split('x', .55, leaf('editor'), leaf('debugger')), split('x', .5, leaf('geometry'), leaf('trace'))),
+  debugging: () => split('x', .6, split('y', .54, leaf('editor'), leaf('listener')), split('y', .6, leaf('geometry'), leaf('trace'))),
   building: () => split('x', .18, leaf('files'), split('y', .62, leaf('editor'), split('x', .53, leaf('build'), leaf('listener')))),
 };
 async function fetchJson(path) {
@@ -64,7 +63,7 @@ async function initialize() {
     fs.setSession({ buildInitialized: true });
   }
   const ide = new IDE(fs, variants), palette = new CommandPalette();
-  const WINDOW_ALIASES = {};
+  const WINDOW_ALIASES = { debugger: 'listener' };
   const manager = new WindowManager(el('desktop'), {
     storage, aliases: WINDOW_ALIASES,
     onChange: layout => { el('focused-window').textContent = layout.focused ? manager.registry.get(layout.focused).title : 'DESKTOP'; },
@@ -74,7 +73,7 @@ async function initialize() {
     })), { title: 'Split window', label: 'Tool to place in the split', placeholder: 'Find a tool…', verb: 'Place', help: 'workspace' }),
   });
   const editor = editorWindow(ide), files = filesWindow(ide), listener = listenerWindow(ide), documentation = documentationWindow(ide), tutorial = tutorialWindow(ide);
-  const windows = [files, editor, machineWindow(ide), geometryWindow(ide), debuggerWindow(ide), listener, tutorial, problemsWindow(ide), traceWindow(ide), imageWindow(ide), buildWindow(ide), packetsWindow(ide), waitingWindow(ide), historyWindow(ide), displayWindow(ide), documentation];
+  const windows = [files, editor, machineWindow(ide), geometryWindow(ide), listener, tutorial, problemsWindow(ide), traceWindow(ide), imageWindow(ide), buildWindow(ide), packetsWindow(ide), waitingWindow(ide), historyWindow(ide), displayWindow(ide), documentation];
   windows.forEach(tool => manager.register(tool));
   const act = run => () => ide.perform(run);
   const fileEntries = () => fs.files().map(path => ({ label: path, detail: `${ide.openPaths.includes(path) ? 'Open buffer' : 'Visit file'}${fs.stat(path).readOnly ? ' · read only' : ''}`, run: act(() => ide.openFile(path)) }));
@@ -83,11 +82,16 @@ async function initialize() {
     requestPath({ title: 'Write buffer to pathname', value: ide.uniquePath(`/home/user/${basename(ide.activePath)}`), submit: 'Write file', run: path => ide.saveAs(path) });
   });
   ide.services = {
-    openWindow: id => { id = WINDOW_ALIASES[id] ?? id; return manager.open(id, id === 'documentation' ? { atRoot: true, edge: 'right', ratio: .45 } : id === 'build' && manager.visible('listener') ? { relativeTo: 'listener', edge: 'right' } : undefined); }, choose: (entries, options) => palette.open(entries, options), saveAs,
+    openWindow: id => {
+      if (['instructions', 'listener', 'debugger'].includes(id)) { listener.selectTab(id, { focus: false }); id = 'listener'; }
+      id = WINDOW_ALIASES[id] ?? id; return manager.open(id, id === 'listener' && !manager.visible(id) && manager.visible('editor') ? { relativeTo: 'editor', edge: 'bottom' } : id === 'documentation' ? { atRoot: true, edge: 'right', ratio: .45 } : id === 'build' && manager.visible('listener') ? { relativeTo: 'listener', edge: 'right' } : undefined);
+    }, choose: (entries, options) => palette.open(entries, options), saveAs,
+    showInstructions: () => listener.selectTab('instructions', { focus: false }),
+    selectTool: id => listener.selectTab(id, { focus: false }),
     insertListener: (value, replace) => { manager.open('listener'); listener.insert(value, replace); }, selectDirectory: files.selectDirectory,
     findFile: () => palette.open(fileEntries(), { title: 'Open file', label: 'Workspace pathname', placeholder: 'Find a file in this workspace…', verb: 'Open', help: 'files' }),
     openDocumentation: topic => { ide.services.openWindow('documentation'); documentation.open(topic); },
-    layout: name => { if (!presets[name]) throw new Error(`Unknown layout: ${name}. Use ${Object.keys(presets).join(', ')}.`); manager.setLayout(presets[name]()); ide.message(`Layout: ${name}`); },
+    layout: name => { if (!presets[name]) throw new Error(`Unknown layout: ${name}. Use ${Object.keys(presets).join(', ')}.`); manager.setLayout(presets[name]()); if (name === 'debugging') listener.selectTab('debugger', { focus: false }); ide.message(`Layout: ${name}`); },
     applyLayout: tree => manager.setLayout(tree),
   };
   const registry = new CommandRegistry({ execute: action => ide.perform(action) });
@@ -95,7 +99,7 @@ async function initialize() {
   const focused = () => manager.layout.focused;
   const keyScope = () => document.activeElement?.closest?.('[data-window]')?.dataset.window;
   let helpTopic = 'welcome';
-  const toolHelp = id => id === 'documentation' ? documentation.topic : id === 'editor' && /\.jm$/.test(ide.activePath ?? '') ? 'build' : CONTEXT_TOPICS[id] ?? 'welcome';
+  const toolHelp = id => id === 'documentation' ? documentation.topic : id === 'listener' && listener.activeTab !== 'listener' ? 'debugger' : id === 'editor' && /\.jm$/.test(ide.activePath ?? '') ? 'build' : CONTEXT_TOPICS[id] ?? 'welcome';
   const trackHelp = event => {
     if (event.target.closest?.('#help-menu,.command-palette,.path-dialog')) return;
     const topic = event.target.closest?.('[data-help]')?.dataset.help, tool = event.target.closest?.('[data-window]')?.dataset.window;
@@ -158,9 +162,11 @@ async function initialize() {
   }
   const windowGroups = { files:'Editing and building',editor:'Editing and building',listener:'Editing and building',build:'Editing and building',problems:'Editing and building',machine:'Debugging',geometry:'Debugging',tutorial:'Documentation',debugger:'Debugging',packets:'Debugging',waiting:'Debugging',history:'Debugging',trace:'Output',image:'Output',display:'Output',documentation:'Documentation' };
   for (const tool of windows) register(`window-${tool.id}`,tool.title,()=>ide.services.openWindow(tool.id),[],undefined,{menu:'windows',group:windowGroups[tool.id],help:toolHelp(tool.id),detail:()=>manager.visible(tool.id)?'Focus window':'Open window'});
+  register('window-instructions','MDP Instructions',()=>ide.services.openWindow('instructions'),[],undefined,{menu:'windows',group:'Debugging',help:'debugger'});
+  register('window-debugger','Debugger',()=>ide.services.openWindow('debugger'),[],undefined,{menu:'windows',group:'Debugging',help:'debugger'});
   for (const name of Object.keys(presets)) register(`layout-${name}`,`Layout: ${name}`,()=>ide.services.layout(name),[],undefined,{menu:'layout',group:'Presets',help:'workspace',detail:'Arrange tools; keep buffers and machine state'});
   register('tutorial','Tutorial: a guided tour',()=>{tutorial.start();},[],undefined,{help:'quick-start',group:'Documentation'});
-  register('listener-help','Listener help',()=>{manager.open('listener');ide.message(LISTENER_HELP);});
+  register('listener-help','Listener help',()=>{ide.services.openWindow('listener');ide.message(LISTENER_HELP);});
   register('documentation','Context help',()=>ide.services.openDocumentation(document.activeElement?.closest?.('[data-window]')?.dataset.window === 'documentation' ? documentation.topic : helpTopic),['F1']);
   register('documentation-topics','Browse documentation topics',()=>palette.open(TOPICS.map(topic=>({label:topic.title,detail:topic.summary,help:topic.id,run:()=>ide.services.openDocumentation(topic.id)})),{title:'Documentation topics',label:'Documentation topic',placeholder:'Find a topic…',verb:'Read',help:'welcome'}));
   register('documentation-search','Search documentation',()=>{ide.services.openWindow('documentation');documentation.search();},['Mod+f'],'documentation');
@@ -244,7 +250,7 @@ default /build/mandelbrot.image
   window.addEventListener('resize', () => manager.resized());
   document.addEventListener('visibilitychange', () => { if (document.hidden) ide.pause(); });
   document.addEventListener('keydown', event => {
-    if (palette.dialog.open || document.querySelector('.path-dialog[open]')) return;
+    if (palette.dialog.open || document.querySelector('.path-dialog[open],.tutorial-reading[open],.tutorial-tour[open]')) return;
     if(registry.handle(event,keyScope()))event.stopPropagation();
   }, true);
   const query = new URL(location.href).searchParams, example = query.get('example');
@@ -253,6 +259,7 @@ default /build/mandelbrot.image
   el('boot-message')?.remove();
   await ide.initialize(editor.editor, requested);
   await ide.initializeBuilder();
+  if (!fs.data.session.tutorialDone && !query.has('help') && !query.has('file') && !example) tutorial.start();
   if (query.has('help')) ide.services.openDocumentation(query.get('help') || 'welcome');
 }
 initialize().catch(error => {

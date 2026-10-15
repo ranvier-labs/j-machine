@@ -18,7 +18,7 @@ NETWORK  packets [filter] · packet id · break-network inject|deliver|link|hand
          delete-network-breakpoint id · trace-cycle n · trace-live
          save-trace [path] · open-trace path
 KEYBOARD commands · command id · keymap-reload · M-x searches all actions
-DESKTOP  window files|editor|machine|geometry|debugger|listener|packets|waiting|history|display|build|tutorial
+DESKTOP  window files|editor|machine|geometry|debugger|instructions|listener|packets|waiting|history|display|build|tutorial
          tile development|editing|debugging|building|network|graphics|documentation
 MANUAL   help [topic] · doc [topic or search words] · tutorial · window documentation · clear
 BUILD    use-build path · build [target] · load output.image

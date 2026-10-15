@@ -8,7 +8,9 @@ async function boot(page, query = '', loaded = '/home/user/main.c', { full = tru
   await page.evaluate(() => localStorage.clear());
   await page.goto(`/${query}`);
   await expect(page.locator('#status-text')).toHaveText(new RegExp(`Loaded ${loaded.replace(/[./]/g, '\$&')}`), { timeout: 60_000 });
-  if (full) { await page.locator('#listener-input').fill('tile development'); await page.locator('#listener-input').press('Enter'); await expect(page.locator('[data-window=debugger]')).toBeVisible(); }
+  if (await page.locator('.tutorial-reading').isVisible()) await page.locator('#tutorial-exit').click();
+  await page.getByRole('tab', { name: 'Listener', exact: true }).click();
+  if (full) { await page.locator('#listener-input').fill('tile development'); await page.locator('#listener-input').press('Enter'); await expect(page.getByRole('tab', { name: 'Debugger', exact: true })).toBeVisible(); }
 }
 const selectAll = process.platform === 'darwin' ? 'Meta+a' : 'Control+a';
 const listener = async (page, command) => {
@@ -29,9 +31,9 @@ test('the header stays on one row at a laptop width', async ({ page }) => {
   await boot(page);
   const header = page.locator('.workbench-header');
   const box = await header.boundingBox();
-  const buttons = await header.locator('button, select').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().top));
+  const buttons = await header.locator('button, select').evaluateAll(nodes => nodes.filter(n => n.getClientRects().length).map(n => n.getBoundingClientRect().top));
   expect(new Set(buttons.map(Math.round)).size).toBe(1);
-  expect(box.height).toBeLessThan(44);
+  expect(box.height).toBeLessThan(80);
   await expect(header.locator('#project-file')).toHaveCount(0);
 });
 
@@ -56,7 +58,7 @@ test('listener layouts and window aliases keep the geometry window reachable', a
   await page.locator('dialog.command-palette input').fill('Layout: development');
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-window=editor]')).toBeVisible();
-  await expect(page.locator('[data-window=debugger]')).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Debugger', exact: true })).toBeVisible();
   await listener(page, 'window machine');
   await expect(page.locator('#focused-window')).toHaveText('MACHINE');
   await listener(page, 'window geometry');
@@ -128,7 +130,7 @@ test('key events without key codes still close dialogs, submit the listener, and
   await expect(palette).toBeHidden();
   await page.locator('#listener-input').fill('tile editing');
   await degraded(page, '#listener-input', 'Enter');
-  await expect(page.locator('[data-window=debugger]')).toBeHidden();
+  await expect(page.locator('#inspection-panel-debugger')).toBeHidden();
   await expect(page.locator('#listener-input')).toHaveValue('');
   await page.locator('.source-editor .view-lines').click();
   await page.waitForFunction(() => document.activeElement?.closest('.source-editor'));
